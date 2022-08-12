@@ -6,4 +6,4 @@ In ADOTR Software is a zip file containing the software tree for the ADOTR instr
 In Firmware files is the current version as of 08/12/2022 of the fpga firm ware 'pmt3k_tgf_brad_b3.svf'
 There is also a zip file containing instructions from bridgport on how to burn new firmware using the supplied raspberry pi
 
-
+Basic_wxMCA_software contains a zip file of the basic/unedited version of brigdports mca software.  
