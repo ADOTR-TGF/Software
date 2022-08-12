@@ -1,0 +1,6 @@
+# Read the rough GPS time from (SHM) device 127.127.28.0
+# Read the accurate PPS time from (SHM) device 127.127.28.1
+server 127.127.28.0 minpoll 4 maxpoll 4 
+fudge 127.127.28.0 time1 0.525 refid GPS #this 0.525 value nees to be hand tuned on each device
+server 127.127.28.1 minpoll 4 maxpoll 4 prefer
+fudge 127.127.28.1 refid PPS
