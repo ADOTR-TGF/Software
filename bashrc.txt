@@ -1,4 +1,0 @@
-#keyboard shortcut for wxGUI
-alias wxgui='cd /DetectorN/bpi/wxMCA/wxGUI ; python MCA_Main.py'
-#keyboard shortcut for HVtest
-alias HVtest='cd /DetectorN/bpi/wxMCA/mds ; python test_values.py'
