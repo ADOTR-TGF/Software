@@ -1,0 +1,11 @@
+[Unit]
+Description=GPS
+Requires=gpsd.socket
+[Service]
+Type=forking
+EnvironmentFile=-/etc/default/gpsd
+EnvironmentFile=-/etc/sysconfig/gpsd
+ExecStart=/usr/sbin/gpsd /dev/ttyS0 -n -F /var/run/gpsd.sock
+[Install]
+WantedBy = multi-user.target
+Also=gpsd.socket

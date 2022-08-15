@@ -1,0 +1,236 @@
+AFIT Computer 1 software install notes:
+
+
+-Install ubuntu 20 from usb drive
+Your name: AFITN
+user@TGF-Detector-N
+sudo pw: AFITRREAN (where N is the instrument number 1-10)
+
+-set up computers MAC address in the lanl hostmaster page (do this right away as it take time (~30-60min) for the hostmaster system to update and gain network access)
+
+-Configure network proxy:
+settings-> network-> set network proxy to automatic and type in configuration URl: http://wpad.lanl.gov/wpad.dat
+
+-update time zone to UTC/GMT
+
+-change power settings so screen never blanks
+
+-To be able to install packages and updates using the lanl network and ubuntu apt-get command
+
+https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-set-the-proxy-for-apt-for-ubuntu-18-04/
+
+just place proxy vars in this file
+/etc/apt/apt.conf.d/proxy.conf
+
+
+both http and https proxy use proxyout.lanl.gov:8080
+
+ubuntu speak would be this file would have
+
+
+Acquire {
+   HTTP::proxy "http://proxyout.lanl.gov:8080";
+   HTTPS::proxy "http://proxyout.lanl.gov:8080";
+}
+
+-reboot machine
+
+-update system
+>>sudo apt-get update
+>>sudo apt-get upgrade
+
+-To run Analysis scripts:
+python3 is installed with the OS
+>>sudo apt-get install python-is-python3
+sudo apt-get install python3-pandas
+sudo apt-get install python3-numpy
+sudo apt-get install python3-matplotlib
+
+-GPS software install:
+sudo apt-get install gpsd gpsd-clients -y
+sudo apt-get install ntp -y
+sudo apt-get install ntpstat -y
+
+In the file /etc/default/gpsd, make sure that the following options are there (edit or add them as necessary):
+
+START_DAEMON=’True’
+USBAUTO = ’True’
+DEVICES= ‘/dev/ttyS0’
+GPSD_OPTIONS=‘-n’
+GPSD_SOCKET=‘/var/run/gpsd.sock’
+
+Create this file: /etc/systemd/system/gpsd.service 
+with the contents:
+
+[Unit]
+Description=GPS
+Requires=gpsd.socket
+[Service]
+Type=forking
+EnvironmentFile=-/etc/default/gpsd
+EnvironmentFile=-/etc/sysconfig/gpsd
+ExecStart=/usr/sbin/gpsd /dev/ttyS0 -n -F /var/run/gpsd.sock
+[Install]
+WantedBy=multi-user.target
+Also=gpsd.socket
+
+Then run the command: 
+
+sudo systemctl enable gpsd
+    
+In the file /etc/ntp.conf, remove the comment character to allow logging
+
+Then, add the following before the ntp ‘pool’ server list:
+
+
+# Read the rough GPS time from device 127.127.28.0
+# Read the accurate PPS time from device 127.127.28.1
+server 127.127.28.0 minpoll 4 maxpoll 4
+fudge 127.127.28.0 time1 0.525 refid GPS  #this 0.525 value needs to be hand tuned on each device
+server 127.127.28.1 minpoll 4 maxpoll 4 prefer
+fudge 127.127.28.1 refid PPS
+
+
+
+***A bug that seems unique to the LANL network is that the network provides a DHCP interface which overrides ntp.conf and creates a new configuration file ntp.conf.dhcp which is located at /run/ntp.conf.dhcp.  This new config file forces ntp to only use the LANL ntp servers and not the local gps server we are setting up. To fix this we need to edit the script that creates this new ntp.config.dhcp file.  That script is located at /etc/dhcp/dhclient-exit-hooks.d/ntp  open this file and comment out the entire thing. One could probably just delete the file but commenting it out does the same thing without losing anything. Also check if /run/ntp.conf.dhcp already exists and if it does delete it.  
+
+
+-Installing required packages to run BPI software (zmq and wxpython):
+-install everything as root
+
+>>sudo apt install python3-pip
+
+For the following pip installs run as root
+>>sudo -s
+
+-specific to using the lanl proxy server and pip. run the following commands.
+>>export http_proxy=http://192.12.184.19:8080
+>>export https_proxy=http://192.12.184.19:8080
+>>export HTTP_PROXY=$http_proxy
+>>export HTTPS_PROXY=$https_proxy
+
+-upgrade pillow
+>>python -m pip install --upgrade pillow
+
+-to install zmq
+>>python -m pip install zmq
+
+-make sure matplotlib is installed (no harm if it's already there)
+>>python -m pip install matplotlib
+
+-to install wxpython with wheel extras
+>>apt install libgtk-3-dev 
+>>python -m pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04/ wxpython
+>>apt-get install git curl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0
+(This is fixes a library error in wxGUI. 
+the solution is from this link https://stackoverflow.com/questions/59273517/importerror-libsdl2-2-0-so-0-in-wxpython-wx-adv
+sudo apt-get install git curl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0)
+
+-Go back to 'user' shell
+
+-Create directories and install, bpi software tree wxMCA, DAQ software, and analysis scripts
+>>sudo mkdir /Detector1
+>>sudo mkdir /Detector1/bpi
+>>sudo mkdir /Detector1/data
+>>sudo mkdir /Detector1/files
+>>sudo mkdir /Detector1/GPSdata
+
+-For Detector1 only: Downloaded wxMCA.zip from bridgeport instruments and move the zip file to /Detector1/bpi directory and unzip
+>>sudo mv Downloads/wxMCA.zip /Detector1/bpi
+>>cd /Detector1/bpi
+>>unzip wxMCA.zip
+
+-Future detectors: Save modified wxMCA software tree in /DetectorN/bpi directory
+
+-modify write permissions so 'sudo' isn't needed to make changes and write files
+>> cd /DetectorN
+>>sudo chmod -R o+w *
+
+-Make command shortcut for launching GUI.  Add this line to ~/.bashrc after line 97:
+#keyboard shortcut for wxGUI
+alias wxgui='cd /Detector1/bpi/wxMCA/wxGUI ; python MCA_Main.py'
+
+-make command shortcut for running test_values.py.  After the mds is running this lets you quickly check the high voltage settings of each detector without having to launch the GUI and make sure the HV value is saved in both the volatile and non-volatile memory of the MCA. 
+Add this line to ~/.bashrc after line 97:
+#keyboard shortcut for HVtest 
+alias HVtest='cd /Detector1/bpi/wxMCA/mds ; python test_values.py'
+
+To use these short cuts right away (won’t be necessary after reboot), enter this command in your terminal:
+source ~/.bashrc
+
+-edit software for new directory addresses:
+/DetectorN/bpi/wxMCA/mds/test_values.py  edit directory address in line 17
+/DetectorN/bpi/wxMCA/wxGUI/MCA_Main.py edit directory address in line 44
+/DetectorN/bpi/wxMCA/mds/startmds.sh edit directory addresses
+/DetectorN/files/GPSlogger.py change directory path
+/DetectorN/files/DataReader.py change directory paths
+/DetectorN/files/DataPlotter.py change directory paths
+
+-to get serial numbers of detectors run the MCA. Plug in MCA usb's and GPS usb
+>> cd /DetectorN/bpi/wxMCA/mds
+>> sudo python mca_server.py
+
+-edit remaining software for directory addresses and serial numbers
+/DetectorN/bpi/wxMCA/mds/sequence.sh edit directory addresses and serial numbers detector type buffer#s
+/DetectorN/bpi/wxMCA/mds/lm_onedet.py Change long serial numbers in line 30
+
+-with the MCA running test GUI
+>>wxgui
+
+-add executable permissions to run bash scripts
+>>cd /Detector1/bpi/wxMCA/mds
+>>sudo chmod +x startmds.sh
+>>sudo chmod +x sequence.sh
+
+>>cd DetectorN/files
+>>sudo chmod +x GPSlogger.py
+
+-Enable boot up after power loss:
+power off computer
+turn on computer and repeatedly press esc key.  
+enter bios settings F10
+Advanced menu>Boot Options> After Power Loss. Default is Power Off. 
+Change the setting to  Power on—causes the computer to power on automatically as soon as power is restored. 
+
+-To setup mca start at boot up.
+-open roots crontab and add the following line
+>>sudo crontab -e
+@reboot /DetectorN/bpi/wxMCA/mds/startmds.sh
+
+-To set up listmode data aquisition on boot up.
+-open user crontab and add the following line
+>>crontab -e
+@reboot /DetectorN/bpi/wxMCA/mds/sequence.sh
+
+-shut down computer
+-power system off with switch on box
+-power system on with switch on box
+
+system should boot up and within a minute or two everything should be running.  
+
+
+
+Changes to software when setting up new instrument:
+
+/DetectorN/bpi/wxMCA/mds/test_values.py  edit directory address in line 17
+
+/DetectorN/bpi/wxMCA/wxGUI/MCA_Main.py edit directory address in line 44
+
+/DetectorN/bpi/wxMCA/mds/startmds.sh edit directory addresses 
+
+/DetectorN/bpi/wxMCA/mds/sequence.sh edit directory addresses and serial numbers
+
+/DetectorN/bpi/wxMCA/mds/lm_onedet.py Change long serial numbers in line 30
+
+/DetectorN/files/GPSlogger.py change directory path
+
+
+
+
+
+
+
+
+
+
+
