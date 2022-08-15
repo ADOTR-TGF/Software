@@ -1,0 +1,64 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>Simulator</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3000 Simulator Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">MCA Simulator</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_emorpho.html">eMorpho Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca1k.html">SiPM-1000, PMT-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca3k.html">SiPM-3000, PMT-3000</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="../mds/introduction.html">MCA Data Server</a></h1>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-3000 Simulation Server</h1>
+    <h2 class="narrative">Introduction</h2>
+      <p class="narrative">
+        The purpose of the simulator is to provide a flavor of the device operation without having actual access to the device hardware.
+      </p>
+      <p class="narrative">
+        The simulator is reasonably realistic, and it serves data to the included data acquisition examples as well as the graphical user interface.  However, it is not a bit-accurate simulation of the real hardware, and it is not meant to be used as a validator for user software.
+      </p>
+      <p class="narrative">
+        The simulated types and data and data acquisition are summarized in the table below.
+      </p>
+      <table class="narrative">
+        <tr>
+            <th class="narrative" colspan="2">Simulation server capabilities</td>
+        </tr><tr>
+            <th class="narrative">Item</th><th class="narrative">Capability and description</th>
+        </tr><tr>
+            <td class="narrative">arm_ctrl</td><td class="narrative">Read, write, read-modify-write as documented for the MDS. Count rates vary as a function of trigger threshold thr=[0, 1] maps to count rates of [500, 0]cps.  Two-bank counting (sample and background) and probability computations are modeled correctly.  Dynamic alarming for a portal monitor is modeled.</td>
+        </tr><tr>
+            <td class="narrative">arm_cal</td><td class="narrative">Read, write, read-modify-write as documented for the MDS.  Data read-back security feature using the lock bit is modeled.</td>
+        </tr><tr>
+            <td class="narrative">nv-mem</td><td class="narrative">Storage of arm_ctrl and arm_cal in non-volatile memory is modeled.  </td>
+        </tr><tr>
+            <td class="narrative">factory reset</td><td class="narrative">Factory reset of arm_cal and arm_ctrl is modeled.</td>
+        </tr><tr>
+            <td class="narrative">arm_status</td><td class="narrative">Delivers status and data as documented. </td>
+        </tr><tr>
+            <td class="narrative">arm_version</td><td class="narrative">Delivers fixed version data as documented. </td>
+        </tr>
+      </table>
+      
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

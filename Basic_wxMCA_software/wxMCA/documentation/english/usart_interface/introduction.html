@@ -1,0 +1,86 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>USART</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">Common USART interface</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">Common USART Interface</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="embedded_c.html">Embedded-C Driver</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="product_specific.html">Product-specific Implementation</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_usart.pdf">Reference (pdf)</a></p>
+
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA Software V3 &ndash; Common Serial Interface</h1>
+    <p class="narrative"> All BPI product that use an embedded ARM processor share a common serial interface.
+    </p>
+    <ul class="ul2">
+        <li class="ul2"> Small and embedded computers enjoy easy access to the MCA without complexity and power consumption of a USB interface.</li>
+        <li class="ul2"> Using commercial interface hardware, the user can cover long distances using RS485.  </li>
+    </ul>
+    
+    <h1 class="narrative">Brief description</h1>
+    <p class="narrative"> We implement a half-duplex serial interface with software flow control.  The implementation is geared towards the most restrictive case of a micro-controller that does not use interrupts.  Each transmission is preceded by sending a single ping-byte to make sure the receiving side is ready to receive a command or data.  Finally, large data transmissions are cut into 256-byte chunks so that the host processor does not need to implement a big data buffer. </p>
+    
+    <h1 class="narrative">Detailed description</h1>
+    <h2 class="narrative">Hardware</h2>
+    <p class="narrative"> In most cases the RX and TX pins are connected directly to the ARM I/O pins.  Hence their drive strength is limited to 1mA and they are sensitive to electrostatic discharge. As a result, cables connecting directly to the MCA should be interior and shielded cables.  Long cable runs require proper decoupling and conversion to RS485 or other robust standards.  </p>
+    
+    <h2 class="narrative">Speed</h2>
+    <p class="narrative"> In the current implementation, the default baud rate is 115200&nbsp;Bd.  Users can change the device settings to program a different baud rate into non-volatile memory.  The safest method to do this is to use the USB interface of the MCA, although it can be achieved via the serial port as well. The maximum speed supported by the embedded ARM is 3MBd. </p>
+    <p class="narrative"> The standard communication setting is 1 start bit, 8 data bits, 1 stop bit, no parity.
+    </p>
+    
+    <h2 class="narrative">Protocol</h2>
+    <p class="narrative"> The high level communications protocol is exactly the same as when using the USB interface.  When using the serial interface on a small computer such as a Raspberry Pi or an Arduino, the user would launch the data server inside the mds_serial folder rather than the mds folder. All client software remains unchanged  </p>
+    <p class="narrative"> When the host computer is a micro-controller, the generic C-code examples in the examples folder will prove helpful. 
+    </p>
+    <p class="narrative"> The communication protocol requires that the host first sends a command of 64 bytes, telling the MCA what the next action is going to be.  That second action is to either send data to the MCA or demand data from the MCA. 
+    </p>
+    
+    <h2 class="narrative">Low-level Protocol</h2>
+    <p class="narrative"> Each command or data transmission is prepared by a single-byte ping (0xFF).  Embedded micro-controllers typically have a 1-byte receive buffer and can raise a flag if a byte has been received.  On receipt of a ping-byte, the controller gets ready for the next step, and then sends an answer byte.  In this case the next step may be to send a command, or to send or receive data.  </p>
+    <p class="narrative"> The two flow diagrams below show the sequence for a write data and a read data command.  Whenever the amount of data to be transferred is larger than 256 bytes, the software has to cut that into chunks of 256 bytes, with the last chunk be shorter, if needed.   
+    </p>
+    <p class="narrative"> When reading more than 256 bytes of data, box no. 3 will be repeated as often as is necessary.  When writing more than 256 bytes of data, box no. 3 and 4 will be repeated as often as is necessary.
+    </p>
+    
+    <h2 class="narrative">Timeout</h2>
+    <p class="narrative"> Successful data transmission requires that the entire expected sequence of pings, commands and data transmissions is executed.  If the host abandons a sequence or if an unrecoverable error occurs, the MCA will reset the USART interface to its idle state, box (1), 5 seconds after receiving the first ping. </p>
+    
+    
+
+    <table class="narrative">
+    <tr><td class="narrative"><img src="read_256.png" width="500">
+    </tr>
+    <caption class="narrative">Low level protocol for reading up to 256 byte of data from the MCA.
+    </caption>
+    </table>
+    <table class="narrative">
+    <tr><td class="narrative"><img src="write_256.png" width="500">
+    </tr>
+    <caption class="narrative">Low level protocol for writing up to 256 byte of data from the MCA.
+    </caption>
+    </table>
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

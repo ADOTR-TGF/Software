@@ -1,0 +1,78 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"> <img src="../common/bpi_logo_nrd.png" width="200"/> </a> </td>
+    <td class="format_table"> <h1 class="narrative">wxMCA Software Package Reference</h1> </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca1k.html">Capabilities MCA-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca3k.html">Capabilities MCA-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_emorpho.html">Capabilities eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_neutron3k.html">Neutron-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca1k_um.pdf">User's Manual MCA-1000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca3k_um.pdf">User's Manual MCA-3000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/emorpho_um.pdf">User's Manual eMorpho (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="installation.html">Installationr</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mds/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../usart_interface/introduction.html">Serial Interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">wxMCA Software</h1>
+    <h2 class="narrative">MCA Data Server</h2>
+    <p class="narrative"> The software package consists the MCA Data Server (MDS) and various clients.  The MDS connects any number of MCA devices via USB to the TCP/IP network.  The MDS not only acts as a bridge between USB and the internet, it also acts a bridge between programming languages.  Users can write their clients in (almost) any programming language they like.
+    </p>
+    <p class="narrative"> See <a href="installation.html">installation</a> for detailed instructions.  See <a href="../mds/common/introduction.html">here</a> for a detailed description of the MDS.
+    </p>
+    <h2 class="narrative">Clients</h2>
+    <p class="narrative"> BPI provides a graphical user interface (wxGUI) as well as numerous example client applications, cfthetable below.
+    </p>
+    
+    <h1 class="narrative">Software components</h1>
+    <p class="narrative"> The components of the software package are listed in the table below.
+    </p>
+    <table class="narrative">
+    <tr>
+    <th class="narrative"> Component </th><th class="narrative"> Purpose </th><th class="narrative"> Description </th>
+    </tr><tr>
+    <td class="narrative"> mds</td><td class="narrative"> Connect MCA to the world </td>
+    <td class="narrative"> The MCA Data Server (MDS) connects to one or more MCA (or Counter) devices and provides a server interface to the network and the world.<br/>
+      Launch via wxMCA/run_mds.cmd (Windows) or ./run_mds.sh (Linux, with root privilege).</td>
+    </tr><tr>
+    <td class="narrative"> wxGUI</td><td class="narrative"> GUI back-end</td>
+    <td class="narrative"> The graphics user interface (GUI) is a client to the MDS and is accessible via the run_wxMCA command.  The code itself is located in the folders wxGUI.<br/> Launch via wxMCA/run_wxMCA.cmd (Windows) or ./run_wxMCA.sh (Linux). Clients do not need root privilege.</td>
+    </tr><tr>
+    <td class="narrative"> rad_config </td><td class="narrative"> Configuration data </td>
+    <td class="narrative"> All software components have some configurability.  In particular one can set server-client IP addresses and a few other parameters, such as where data might be stored. All configuration data are JSON-strings and human-readable. </td>
+    </tr><tr>
+    <td class="narrative"> examples </td><td class="narrative"> Examples </td>
+    <td class="narrative"> The application developer can consult the wxMCA/examples/ folder for a number of brief examples for each device.  The examples cover nearly every aspect of data acquisition.  While written in Python, they can easily be reimplemented in other languages, because all commands (and data) are human-readable JSON strings. </td>
+    </tr><tr>
+    <td class="narrative"> sim </td><td class="narrative"> Device simulator </td>
+    <td class="narrative"> This simulator consists of pre-compiled code (mds/lib/*.dll or *.so) that is loaded by the MDS at run time.  This is helpful when no MCA hardware is present, but the developer wants to test basic DAQ software.  </td>
+    </tr><tr>
+    <td class="narrative"> MDD </td><td class="narrative"> MCA Data Daemon(MDD) </td>
+    <td class="narrative"> The optional MDD is used to launch necessary processes and check if they are alive.  A hung or crashed process will be respawned. This is highly configurable and is often used in unattended systems.  The OS may make sure the MDD is up and running and the MDD takes care of all subordinate processes.  For instance the MDD may make sure that, at the minimum, the MDS and the stabilizer are running.  </td>
+    </tr>
+    </table>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

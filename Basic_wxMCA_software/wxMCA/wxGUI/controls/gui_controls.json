@@ -1,0 +1,113 @@
+{
+    "controls_root": "./controls/",
+    "user_root": "../user/",
+    
+    "0x6001":{
+        "mca_name": "eMorpho",
+        "mca_type": "emorpho",
+        "ctrl_list": ["fpga_ctrl", "fpga_dsp", "fpga_results", "fpga_statistics" ],
+        "ctrl_to_mca_list": ["fpga_ctrl"],
+        "displays": ["histo_wx", "trace_wx", "list_mode_wx", "coin_wx"]
+    },
+    "0x100":{
+        "mca_name": "PMT-COUNTER",
+        "mca_type": "counter",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": [""]
+    },
+    "0x200":{
+        "mca_name": "SiPM-COUNTER",
+        "mca_type": "counter",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": ["counter_wx"]
+    },
+    "0x101":{
+        "mca_name": "PMT-1000",
+        "mca_type": "mca_1k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": ["histo_wx", "sample_bck_wx", "coin_wx"]
+    },
+    "0x102":{
+        "mca_name": "PMT-2000",
+        "mca_type": "mca_2k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": ["histo_wx", "sample_bck_wx", "trace_wx"]
+    },
+    "0x103":{
+        "mca_name": "PMT-3000",
+        "mca_type": "mca_3k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl", "fpga_ctrl", "fpga_dsp", "fpga_action", "fpga_results" ],
+        "ctrl_to_mca_list": ["arm_ctrl", "fpga_ctrl", "fpga_action"],
+        "displays": ["histo_wx", "trace_wx", "list_mode_wx", "coin_wx"]
+    },
+    "0x201":{
+        "mca_name": "SiPM-1000",
+        "mca_type": "mca_1k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": ["histo_wx", "sample_bck_wx", "coin_wx"]
+    },
+    "0x202":{
+        "mca_name": "SIPM-2000",
+        "mca_type": "mca_2k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl" ],
+        "ctrl_to_mca_list": ["arm_ctrl"],
+        "displays": ["histo_wx", "sample_bck_wx", "trace_wx"]
+    },
+    "0x203":{
+        "mca_name": "SiPM-3000",
+        "mca_type": "mca_3k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl", "fpga_ctrl", "fpga_dsp", "fpga_action", "fpga_results" ],
+        "ctrl_to_mca_list": ["arm_ctrl", "fpga_ctrl", "fpga_action"],
+        "displays": ["histo_wx", "trace_wx", "list_mode_wx", "coin_wx"]
+    },
+    "0x104":{
+        "mca_name": "PMT-Neutron-3000",
+        "mca_type": "neutron_3k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl", "fpga_ctrl", "fpga_dsp", "fpga_action", "fpga_results" ],
+        "ctrl_to_mca_list": ["arm_ctrl", "fpga_action"],
+        "displays": []
+    },
+    "0x204":{
+        "mca_name": "SIPM-Neutron-3000",
+        "mca_type": "neutron_3k",
+        "ctrl_list": ["arm_version", "arm_status", "arm_ctrl", "fpga_ctrl", "fpga_dsp", "fpga_action", "fpga_results" ],
+        "ctrl_to_mca_list": ["arm_ctrl", "fpga_action"],
+        "displays": []
+    },
+    "device_names": {
+        "0x6001": "eMorpho",
+        "0x100": "PMT-Counter",
+        "0x200": "SiPM-Counter",
+        "0x101": "PMT-1000",
+        "0x102": "PMT-2000",
+        "0x103": "PMT-3000",
+        "0x201": "SiPM-1000",
+        "0x202": "SiPM-2000",
+        "0x203": "SiPM-3000",
+        "0x104": "PMT-N3K",
+        "0x204": "SIPM-N3K"
+    },
+    "device_type": {
+        "0x6001": "emorpho",
+        "0x100": "counter",
+        "0x200": "counter",
+        "0x101": "mca_1k",
+        "0x102": "mca_2k",
+        "0x103": "mca_3k",
+        "0x201": "mca_1k",
+        "0x202": "mca_2k",
+        "0x203": "mca_3k",
+        "0x104": "neutron_3k",
+        "0x204": "neutron_3k"
+    },
+    "mds_ip": "tcp://127.0.0.1:5507",
+    "comment_mds_ip": "Local: tcp://127.0.0.1:5507, on the network, eg: tcp://192.168.1.10:5507 ",
+    "comment_1": "Note the trailing '/' on all directory paths.",
+    "comment_2": "controls_root is the path for GUI software configurations.",
+    "comment_3": "user_root is the path for MCA instrument settings and acquired data."
+}

@@ -1,0 +1,236 @@
+/* use for page div */
+@page{
+  size: auto;
+  margin: 2.0in;
+  margin-top: 0.4in;
+  margin-right: 0.75in;
+  margin-bottom: 0.4in;
+  margin-left: 0.75in;
+  orphans : 2;
+  widows : 4;
+  }
+
+.letter{
+  height: 11in;
+  width: 8.5in;
+}
+
+
+
+.two_column{
+  column-count:2; 
+  column-gap:10px;
+  column-rule:1px outset #aaa;
+  
+  -moz-column-count:2; 
+  -moz-column-gap:10px;
+  -moz-column-rule:1px outset #aaa;
+  
+  -webkit-column-count:2; 
+  -webkit-column-gap:10px;
+  -webkit-column-rule:1px outset #aaa;
+}
+
+.title{
+  font-family: "Times New Roman";
+  font-size: 20pt;
+  font-weight: bold;
+  text-align: center;
+  margin:0;
+}
+
+.sub_title{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: center;
+  margin:0;
+}
+
+.summary{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: left;
+  margin:0;
+}
+
+.h1{
+  font-family: "Times New Roman";
+  font-size: 14pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 20px 0 10px 0;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.h2{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 10px 0 5px 0;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.h3{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 10px 0 5px 0;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+
+
+.narrative{
+  font-family: "Times New Roman";
+  font-size: 11pt;
+  font-weight: normal;
+  margin: 10px 0 0 15px;
+}
+
+.caption{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-style:italic;
+  font-weight: normal;
+  text-align:center;
+}
+
+/* data table classes */
+
+.data_table{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  margin: 10px 0 0 0;
+  border-collapse:collapse;
+  border:solid;
+  border-width:1px;
+  padding: 0 0 1px 2px;
+  break-inside: avoid;
+}
+th.data_table{
+  font-style:italic;
+  font-weight: bold;
+  background-color: #bbb;
+  text-align:left;
+}
+
+td.data_table{
+  font-style:normal;
+  background-color: #fff;
+  padding: 5px 5px 5px 5px;
+}
+
+.data_group{ /* a sub-header in the data table */
+  font-weight: bold;
+  background-color: #ddd;
+}
+
+td.data_group{
+  font-weight: bold;
+  background-color: #ddd;
+}
+
+td.data_item{
+  font-weight: bold;
+  background-color: #ddd;
+  border: solid;
+  border-width:1px 0px 1px 0px;
+}
+
+caption.narrative{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  text-align: left;
+  font-style: normal;
+  margin: 10px 0 5px 15px;
+  page-break-before: avoid;
+  break-before: avoid; /* columns and pages; avoid-column, avoid-page */
+  caption-side: bottom;
+}
+
+.format_table{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  margin: 10px 0 0 0;
+  border-collapse:collapse;
+  border:none;
+  border-width: 1px;
+  border-color: #aaa;
+  padding: 0 0 0 5px;
+}
+
+
+.note{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-style:normal;
+  font-weight: normal;
+  text-align:left;
+}
+
+/* unordered list, level 1 */
+ul.ul1{
+  list-style-image: url(poliball.gif);
+  list-style-position: outside;
+  margin: 0 0 0 15px; 
+  padding: 0;
+}
+
+li.ul1{
+  list-style-image: url(poliball.gif);
+  list-style-position: outside;
+  margin: 0 0 5px 15px;
+  padding: 0;
+
+}
+
+/* unordered list, level 2 */
+ul.ul2{
+  list-style-image: url(orgball.gif);
+  list-style-position:outside;
+  margin: 10px 0 0 0;  
+  /* padding: 0; */
+}
+
+li.ul2{
+  list-style-image: url(orgball.gif);
+  list-style-position: outside;
+  margin: 0 0 5px 0;
+  /* padding: 0; */
+}
+
+/* picture frame */
+.pic_frame{
+  width: 7in;
+  float:center;
+  border:solid;
+  border-width:1px;
+  border-color:#777;
+  padding: 0 10px 0 10px;
+}
+
+.pic_caption{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-style:normal;
+  font-weight: normal;
+  text-align:left;
+  padding: 0 10px 0 10px;
+}
+
+.footer{
+  position:relative;
+  font-size: 8pt;
+  padding: 15px 0 0 0;
+  margin: 0 0.4in 0 0.4in;
+}

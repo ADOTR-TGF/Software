@@ -1,0 +1,1 @@
+{"registers": [0, 0, 0, 0], "fields": {"clear_histogram": 0, "clear_statistics": 0, "clear_trace": 0, "clear_list_mode": 0, "clear_led": 0, "ut_run": 0, "ar0_upper": 0, "ar1": 0, "histo_run": 0, "trace_run": 0, "lm_run": 0, "suspend": 0, "segment_enable": 0, "segment": 0, "ar2_upper": 0, "ar3": 0}, "user": {}}

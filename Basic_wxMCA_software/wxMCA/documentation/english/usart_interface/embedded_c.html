@@ -1,0 +1,113 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>USART</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">Common USART interface</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">Common USART Interface</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="embedded_c.html">Embedded-C Driver</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="product_specific.html">Product-specific Implementation</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_usart.pdf">Reference (pdf)</a></p>
+
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA Software V3 &ndash; Common Serial Interface</h1>
+    <p class="narrative"> The examples folders contain a very simple C-language API that is suitable for embedded 32-bit micro-controllers. In the case of the SiPM-Counter, the API is minimized to run with just 384 bytes of RAM. For test and debugging purposes, the serial interface is implemented in a POSIX compliant manner, and it was tested on a Raspberry Pi 3 and 4.  The software stack consists of three layers:
+    </p>
+    <ul class="ul2">
+        <li class="ul2"> mca1k_api.c implements the high-level read, write, and read-modify-write functions, plus a number of convenience functions for easy access to all data in the MCA.</li>
+        <li class="ul2"> mca1k_device.c implements the driver, including the flow-control protocol.</li>
+        <li class="ul2"> Pi3_serial.c has the hardware-dependent serial I/O code.</li>
+    </ul>
+    
+    <h1 class="narrative">Detailed description</h1>
+    
+    <h2 class="narrative">mca1k_api.c</h2>
+    <p class="narrative"> This level implements the three main functions a user would use to communicate with the MCA: read, write, and read-modify-write.  The user specifies the MCA data of interest, such as arm_ctrl or arm_histo and then calls the appropriate function.</p>
+    <p class="narrative"> Beyond the three core communications functions, this level provides a number of convenience functions that cover all relevant cases of reading, writing or modifying MCA data arrays.</p>
+    <p class="narrative"> There is a single data structure, mca_command, that controls the communication.  It is defined in sipm_mca_api.h</p>
+    <p class="narrative"> Given the limited data stack size in a micro-controller environment, all functions are being passed a pointer an mca_command structure.  The functions are written such that user code needs to only provide memory for one such structure. </p>
+    <p class="narrative"> Finally, the <span style="font-style: italic;">mca_command</span> structure does not contain any data arrays. Instead, it only contains pointers to all data arrays.  This ensures that users can align the actual data arrays on 4-byte to 16-byte boundaries, or place them in certain memory segments, as the hardware may require; eg for direct memory access.  </p>
+    
+    <p class="narrative"> In all data exchanges, the LSB is transmitted first. Communication between two little-endian processors will always be correct for all data formats, such as uint16_t, uint32_t or float.</p>
+    
+    <h3 class="narrative">mca_write(struct mca_command *mca_cmd)</h3>
+    <p class="narrative"> Write data to a specific MCA data array. </p>
+
+    <h3 class="narrative">mca_read(struct mca_command *mca_cmd)</h3>
+    <p class="narrative"> Read data from a specific MCA data array.</p>
+    
+    <h3 class="narrative">mca_rmw(struct mca_command *mca_cmd)</h3>
+    <p class="narrative"> Read-modify-write data from a specific MCA data array.
+    First, the function reads the MCA data into either mca_cmd.u_data (for uint32_t) or mca_cmd.f_data (for float), depending on the requested MCA data type.
+    Replacement data are stored in mca_cmd.replace_u_data or mca_cmd.replace_f_data, again depending on whether the MCA data array consists of uint32_t or float data.
+    The global array replace_idx contains the array index in u_data or f_data indicating which original data should be overwritten by the replacement data.
+    After updating the data array, it is written back to the MCA.
+    </p>
+    <p class="narrative"> Here is an example to change the operating voltage to 34.5V.  In the arm_ctrl array, the requested operating voltage is stored at the offset AC_CAL_OV.  Hence, replace_idx[0] = AC_CAL_OV; and replace_data[0]=34.5; Then call mca_rmw(mca_cmd).
+    </p>
+
+    
+    <h2 class="narrative">bpi_device.c</h2>
+    <p class="narrative"> This intermediate layer implements the communications protocol in just two functions: one to write a block and one to read a block. It implements the flow control, which requires that any transmission of block data, in either direction, must be preceded by a ping.   </p>
+    <p class="narrative"> The sending side first sends a single-byte ping and waits for the receiver to answer back with a single byte.  Once the answer has been received, the sending side can be sure that the receiver is ready to receive the expected number of bytes.  </p>
+    
+    <h3 class="narrative">bpi_write_buffer(uint32_t *pSrc, uint32_t num_bytes)</h3>
+    <p class="narrative"> Write data, from pSrc to the MCA.  If more than 256 bytes need to be transmitted, this functions will send the data in chunks of 256 bytes.  For every chunk it obeys the flow control protocol and uses the ping-mechanism. The last chunk may be smaller than 256 bytes.
+    </p>
+    
+    <h3 class="narrative">bpi_read_buffer(uint32_t *pDst, uint32_t num_bytes)</h3>
+    <p class="narrative"> Read data from the MCA and copy into the memory pDST.  If more than 256 bytes need to be transmitted, this functions will receive the data in chunks of 256 bytes.  For every chunk it obeys the flow control protocol and uses the ping-mechanism. The last chunk may be smaller than 256 bytes.
+    </p>
+        
+    <h2 class="narrative">Pi3_serial.c</h2>
+    <p class="narrative"> This is the hardware interface to the serial port.  It consists of 5 functions to control and operate the serial interface.  The provided functions are POSIX compliant and will run a typical Linux computer, with the appropriate choice for the serial port, such as "/dev/serial0".  On a micro-controller, these functions have to be rewritten for the interface in use.</p>
+    
+    <h3 class="narrative">bpi_serial_init()</h3>
+    <p class="narrative"> It programs the serial interface to be non-canonic, ie to be used for binary data transfer.  It uses 1 start bit, 8 data bits, 1 stop bit, no parity.
+    </p>
+    <p class="narrative"> By default the baud rate is set to 115200, as encoded by the constant B115200. Possible low-speed baud rate constants are B50, B75, B110, B134, B150, B200, B300, B600, B1200, B1800, B2400, B4800, B9600, B19200, B38400.  
+    The high-speed constants are: B57600, B115200, B230400, B460800, B500000, B576000, B921600, B1000000, B1152000, B1500000, B2000000, B2500000, B3000000, B3500000, B4000000.
+    </p>
+    <p class="narrative">  MCAs with an Atmel SAML21 can support baud rates between 19200 and 3000000 (3MBd).  The baud rate is not negotiable.  It is either fixed in the ARM firmware or can be set via the AC_BAUD register (or the "baud" field) in the arm_ctrl data array.  Users wanting to use a baud rate different from the 115200Bd default, are advised to use the USB interface to write the baud rate field into non-volatile memory.  The USB interface is not affected by this setting, so it is easy to check that the write was successful.  
+    </p>
+    <p class="narrative">  If the baud rate is changed by the host, it will take effect only after a reboot of the MCA.  This avoids loss of communication should a regular update of the ARM control registers (arm_ctrl) fail.  
+    </p>
+    
+    <h3 class="narrative">bpi_serial_write(uint8_t *p8_Src, uint32_t num_bytes)</h3>
+    <p class="narrative"> This functions takes a pointer to the data buffer and the number of bytes to transmit as its input parameters.  The function sends data without delay or hardware/software flow control.
+    </p>
+    
+    <h3 class="narrative">bpi_serial_read(uint8_t *p8_Dst, uint32_t num_bytes)</h3>
+    <p class="narrative"> This functions takes a pointer to the data buffer and the number of bytes to read as its input parameters.  The serial interface is set up to perform non-blocking reads.  Hence the function polls until the requested number of bytes have been received. In its most simple implementation, it polls until all data have arrived, and thus implements a blocking read.
+    </p>
+    
+    <h3 class="narrative">bpi_serial_reset_input_buffer()</h3>
+    <p class="narrative"> This functions empties the input buffer to avoid reading unwanted data. On an embedded micro-controller, it may not be necessary.
+    </p>
+    
+    <h3 class="narrative">bpi_serial_reset_output_buffer()</h3>
+    <p class="narrative"> This functions empties the output buffer to avoid sending unwanted data. On an embedded micro-controller, it may not be necessary.
+    </p>
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

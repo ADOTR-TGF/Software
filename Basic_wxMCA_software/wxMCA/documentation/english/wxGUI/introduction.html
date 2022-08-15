@@ -1,0 +1,92 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../documentation/introduction.html"><img src="bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-1K Software Package V3 Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">MCA-1K Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities.html">Capabilities</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="taking_data.html">Taking Data</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_um.pdf">User's Manual (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../mds_v3/documentation/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../matplot_gui/documentation/introduction.html">GUI</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim_v3/documentation/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/documentation/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/documentation/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-1K Software V3</h1>
+    <p class="narrative"> The software package consists of a number of independent server and client modules serving different tasks. While there are some requirements for pre-installed software, the package itself requires no installer and the files can be copied to wherever the user wishes.  It will be advantageous, although not strictly necessary, to maintain the internal folder hierarchy.
+    </p>
+    
+    <h1 class="narrative">Requirements</h1>
+    <p class="narrative"> The package is mostly written in Python and requires Python 3.7.  While some of the package is compatible with Python 2.7, we have performed software testing only under Python 3.6, 64-bit, and higher.  
+    </p>
+    <p class="narrative"> Within the package, client-server communication is established via ZMQ (www.zeromq.org).  ZMQ is available for over 40 programming languages, and the protocol allows the client programmer to access our server software from many different programming languages.  Hence our server software acts as a bridge between the USB-based hardware and the local network, as well as acting as a bridge between programming languages.
+    </p>
+    <p class="narrative"> The graphics user interface is built using matplotlib.  Starting with version 3.1 of the software packet, the GUI will also use wxPy with wxWidgets.
+    </p>
+    <h2 class="narrative">Using pip install</h2>
+    <p class="narrative">
+        Especially under Python 3.7, using pip to install new software is quite simple.  If the Python 3.7 installation is in your environment path, you can use the pip commands from any terminal or cmd window.  Otherwise you'll need to open the terminal or command window in the folder where the pip executable can be found.
+    </p>
+    <p class="narrative">
+        <strong>ZMQ:</strong> pip install zmq.
+    </p>
+    <p class="narrative">
+        <strong>matplotlib:</strong> pip install matplotlib.
+    </p>
+    <h2 class="narrative">USB driver</h2>
+    <p class="narrative">
+        We use a user-space USB driver called libusb0.1.  Most Linux-based OS ship with a working version of libusb0.1, and the user is encouraged to find the local version of the *.so file.  In the near future, we will add support for libusb1.0, which is now more commonly supported.
+    </p>
+    <p class="narrative">
+        On Windows 10 a signed USB-driver is required.  Bridgeport's installer provides a signed libusb-win32 driver, which is based on libusb0.1.
+    </p>
+    <p class="narrative">
+        The MCA Data Server comes with a selection of libusb0.1 shared objects and a dll.  It tries to select the appropriate one from the environment information that is accessible to Python, but the user can select a particular driver file if necessary.
+    </p>
+    <h1 class="narrative">Software components</h1>
+    <p class="narrative"> The components of the software package are listed in the table below.
+    </p>
+    <table class="narrative">
+    <tr>
+    <th class="narrative"> Component </th><th class="narrative"> Purpose </th><th class="narrative"> Description </th>
+    </tr><tr>
+    <td class="narrative"> mds_v3</td><td class="narrative"> Connect MCA-1K to the world </td>
+    <td class="narrative"> The MCA Data Server (MDS) connects to one or more MCA-1K devices and provides a server interface the the network and the world.</td>
+    </tr><tr>
+    <td class="narrative"> dashboard</td><td class="narrative"> GUI back-end</td>
+    <td class="narrative"> There is a graphics user interface (GUI) accessible via the run_dashboard command.  The code itself is located in the folder matplot_gui</td>
+    </tr><tr>
+    <td class="narrative"> rad_config </td><td class="narrative"> Configuration data </td>
+    <td class="narrative"> All software components have some configurability.  In particular one can set server-client IP addresses and a few other parameters, such as where data might be stored. All configuration data are JSON-strings and human-readable. </td>
+    </tr><tr>
+    <td class="narrative"> sim_v3 </td><td class="narrative"> Device simulator </td>
+    <td class="narrative"> This simulator can run alternatively to running the MDS.  This is helpful when no MCA-1K hardware is present, but the developer wants to test basic DAQ software.  </td>
+    </tr><tr>
+    <td class="narrative"> MDD </td><td class="narrative"> MCA Data Daemon(MDD) </td>
+    <td class="narrative"> The optional MDD is used to launch necessary processes and check if they are alive.  A hung or crashed process will be respawned. This is highly configurable and is often used in unattended systems.  The OS may make sure the MDD is up and running and the MDD takes care of all subordinate processes.  For instance the MDD may make sure that, at the minimum, the MDS and the stabilizer are running.  </td>
+    </tr>
+    </table>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

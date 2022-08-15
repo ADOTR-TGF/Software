@@ -1,0 +1,16 @@
+{
+    "verbose": 1,
+    "plug_and_play": 0,  
+    "server_ip": "tcp://0.0.0.0:5507",
+    "log_path":  "../user/",
+    "simulate": "None",
+    "comments": {
+        "verbose": "Print a few status messages on boot up.",
+        "plug_and_play": "1-> check the number of detectors that are plugged when executing a command; reboot all detectors if number has changed; 0-> don't do that.",
+        "server_ip": "tcp://0.0.0.0 means listen to messages coming from any IP-address",
+        "log_path":  "Logging path",
+        "simulate": "One of ['None', 'eMorpho', 'SiPM-Counter', 'PMT-1000', 'SiPM-1000', 'PMT-3000', 'SiPM-3000', 'PMT-N3000']"
+    },
+	"sim_on": "MDS Running The Simulator. To use an MCA edit mds/mds_config.json and make simulate: None",
+	"sim_off": "MDS Running The MCA. To use the simulator edit mds/mds_config.json and make simulate: PMT-1000, or the MCA of your choice."
+}

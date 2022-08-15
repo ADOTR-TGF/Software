@@ -1,0 +1,1 @@
+These examples use a simulated eMorpho and do not require that an eMorpho device is connected to the computer.

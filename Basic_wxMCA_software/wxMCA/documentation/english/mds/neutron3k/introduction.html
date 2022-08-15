@@ -1,0 +1,63 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference </h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">wxMCA</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_ctrl.html">Controls</a></p>
+
+<h1 class="cmd_list"> MCA Data Server</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../common/mca_server.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">The Neutron-3K Programmer's Model</h1>
+    <p class="narrative"> The Neutron-3K has an embedded ARM M0+ MCU (Atmel SAM L21J), which includes a 32-bit ARM processor with a USB interface.  Attached to the ARM M0+ is an FPGA that receives a continuous data stream from a waveform-digitizing ADC.  The pulse shape discrimination for neutron detection and all other data acquisition is implemented inside the FPGA.  The ARM M0+ provides the USB interface and the system slow control, such as gain stabilization.
+    </p>
+    
+    <p class="narrative">
+    The software is structured into four layers as shown in the table below.  It is written in Python and is compliant with Python 3.6 or higher.
+    </p>
+    <table class="narrative">
+    <tr>
+    <th class="narrative"> Layer </th><th class="narrative"> Purpose </th><th class="narrative"> Description </th>
+    </tr><tr>
+        <td class="narrative"> mca_server.py </td><td class="narrative"> Data server </td>
+        <td class="narrative"> The data server is implemented using zero message queue (<a href="http://zeromq.org/"> zeromq.org</a>). The server not only acts as a bridge between the detectors on the USB bus and the Internet, but also as a bridge between programming languages. All data are serialized using JSON strings. <br> <span class="intro">While the server is written in Python, clients can access the Neutron-3K using any programming language they like.</span>  <br>Further, complex tasks can be distributed over independent clients, eg DAQ, reach back and gain stabilization, rather than creating one very complex super client.  <br><span class="intro">The client exchanges data with the server via JSON strings.</span></td>
+    </tr><tr>
+        <td class="narrative"> mca_api.py </td><td class="narrative"> API Level </td>
+        <td class="narrative"> This is the API layer used to process commands directed at a single Neutron-3K or at an array of such devices. <br><span class="intro">The client exchanges data with the API via dictionaries.</span></td>
+    </tr><tr>
+        <td class="narrative"> neutron3k_data.py </td><td class="narrative"> Data descriptor</td>
+        <td class="narrative"> This device-specific layer provides one class for each set of control and data registers within the Neutron-3K.  The classes have standardized functions to communicate with the API layer</td>
+    </tr><tr>
+        <td class="narrative"> mca_device.py </td><td class="narrative"> device driver </td>
+        <td class="narrative"> This layer provides a Python interface to the communication hardware. </td>
+    </tr><tr>
+        <td class="narrative"> libusb0.py </td><td class="narrative"> USB driver </td>
+        <td class="narrative"> This layer provides a Python binding to libusb0.1 using ctypes. Compiled libusb0.1 modules are provided for a number of platforms, and are also included by default in most commercial Linux computers.</td>
+    </tr>
+    </table>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">wxMCA</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_ctrl.html">Controls</a></p>
+
+<h1 class="cmd_list"> MCA Data Server</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../common/mca_server.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Neutron-3K Data Structure: arm_ctrl</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_ctrl data structure is used to send parameters to the ARM slow control system which sets the operating voltage, implements gain stabilization and controls advanced features such as alarming.
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For arm_ctrl these are the 'register' and 'field' data in use.  All register data are 32-bit floats (float32).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields &mdash; slow control and operation</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC0: gain_stabilization</td><td class="record">Bit field governing gain stabilization, cf 'user' table below. </td>
+      </tr><tr>
+        <td class="record">AC1:&nbsp;peltier</td><td class="record">Either fixed Peltier power (0 to 100%) or maximum power; To allow a host control loop (only in SiPM-based systems with a Peltier controller).</td>
+      </tr><tr>
+        <td class="record">AC2:&nbsp;temp_ctrl</td><td class="record">0&nbsp;&rArr; Use ARM temperature sensor; 1&nbsp;&rArr; Use external temperature sensor; [4:7]=> (0&rArr; no Peltier cooling; 1&rArr; constant cooling power; 2&rArr; control loop)</td>
+      </tr><tr>
+        <td class="record">AC3:&nbsp;temp_target</td><td class="record">Reserved; In SiPM-based systems with a Peltier cooler, this field has the target temperature.</td>
+      </tr><tr>
+        <td class="record">AC4:&nbsp;temp_period</td><td class="record">Update period for temperature measurements</td>
+      </tr><tr>
+        <td class="record">AC5:&nbsp;temp_weight</td><td class="record">Weight for geometric averaging: Purpose is noise reduction or matching thermal relaxation</td>
+      </tr><tr>
+        <td class="record">AC6:&nbsp;cal_temp</td><td class="record">Temperature (in deg C) at which the detector was calibrated</td>
+      </tr><tr>
+        <td class="record">AC7:&nbsp;cal_ov</td><td class="record">Operating voltage when the detector was calibrated</td>
+      </tr><tr>
+        <td class="record">AC8:&nbsp;cal_dg</td><td class="record">Digital gain when the detector was calibrated (reserved)</td>
+      </tr><tr>
+        <td class="record">AC9:&nbsp;cal_target</td><td class="record">Target value for response to LED; used with gain_stab=2 (in systems with an LED)</td>
+      </tr><tr>
+        <td class="record">AC10:&nbsp;cal_scint</td><td class="record">Scintillator type, (reserved)</td>
+      </tr><tr>
+        <td class="record">AC11:&nbsp;cal_par_0</td><td class="record">A control parameter for gain stabilization with implementation-dependent meaning.</td>
+      </tr><tr>
+        <td class="record">AC12:&nbsp;fpga_reboot</td><td class="record">Time between forced FPGA reboots, in seconds; Set to 0 to turn this off.</td>
+      </tr><tr>
+        <td class="record">AC13:&nbsp;run_mode</td><td class="record">Run options; cf "user" table below.</td>
+      </tr><tr>
+        <td class="record">AC14:&nbsp;run_action</td><td class="record">Self-clearing run actions; cf "user" table below.</td>
+      </tr><tr>
+        <td class="record">AC26:&nbsp;baud</td><td class="record">Baud rate for serial communication (reserved)</td>
+      </tr><tr>
+        <td class="record">AC26:&nbsp;xctrl_0</td><td class="record">Logger control; <br>xctrl_0[0:7] = dwell time in units of 50ms, max. dwell time = 12.75s; <br>xctrl_0[8:15] = idx &rArr; arm_status[idx] will be logged in channel 1. <br>xctrl_0[16:24] = idx &rArr; arm_status[idx] will be logged in channel 2. <br>Special index: idx=128 &rArr; log the events sent to the data input of time slice processing unit.</td>
+      </tr>
+      <caption class="record">
+        All arm_ctrl registers and fields concerning operation settings and calibration
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl &mdash; user entries</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">gs_mode</td><td class="record">AC0[0:3]; 0&rArr;OFF, 1&rArr;LUT, ie use lookup table for temperature correction, 2&rArr;LED, Use an LED and the LED lookup table, if LED is present; </td>
+      </tr><tr>
+        <td class="record">active_bank</td><td class="record">AC13[0]; Select which bank will be active: 0&rArr; foreground, 1&rArr; background.</td>
+      </tr><tr>
+        <td class="record">sample_alarm</td><td class="record">AC13[1]; Compute alarm probability for foreground vs background </td>
+      </tr><tr>
+        <td class="record">time_slice</td><td class="record">AC13[2]; Activate time slice system and dynamic alarming. Performs alarm computations up to 20 times per second; for portal monitors and backpacks.</td>
+      </tr><tr>
+        <td class="record">clear_statistics</td><td class="record">AC14[0]; Self-clearing action; clears the time and event counter of the targeted bank.  Targeted bank is active_bank if two_bank=0.  It is the inactive bank if two_bank=1.</td>
+      </tr><tr>
+        <td class="record">clear_alarm</td><td class="record">AC14[1]; Self-clearing action; Clears a persisent alarm output on trigger_out; eg from a portal monitor alarm.</td>
+      </tr><tr>
+        <td class="record">clear_logger</td><td class="record">AC14[2]; Self-clearing action; Reset the logger to begin recording data at index 0.</td>
+      </tr><tr>
+        <td class="record">clear_wall_clock</td><td class="record">AC14[3]; Self-clearing action; Reset the wall clock.</td>
+      </tr>
+      <caption class="record">
+        The arm_ctrl user dictionary is used to pack and unpack bit fields.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields &mdash; sample vs background measurements</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC15:&nbsp;run_time_sample</td><td class="record">Requested run time for a sample counting acquisition; 0-> forever</td>
+      </tr><tr>
+        <td class="record">AC16:&nbsp;run_time_bck</td><td class="record">Requested run time for a background counting acquisition; 0-> forever</td>
+      </tr><tr>
+        <td class="record">AC17:&nbsp;alarm_thr</td><td class="record">Alarm threshold for foreground vs background.  If the computed probability that themeasured counts are caused by the measured background, raise an alarm.</td>
+      </tr><tr>
+        <td class="record">AC25:&nbsp;alarm_width</td><td class="record">Output pulse width in seconds for alarms</td>
+      </tr>
+      <caption class="record">
+        All arm_ctrl registers and fields concerning sample vs background neasurements.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields &mdash; portal monitor operation</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC18:&nbsp;ts_period</td><td class="record">Time slice length, in seconds</td>
+      </tr><tr>
+        <td class="record">AC19:&nbsp;ts_reset</td><td class="record">2 &rArr; Reset portal alarm system.</td>
+      </tr><tr>
+        <td class="record">AC20:&nbsp;ts_L</td><td class="record">Summation length for alarm computation, in number of time slices.</td>
+      </tr><tr>
+        <td class="record">AC21:&nbsp;ts_H</td><td class="record">History length for alarms; maximum length of alarm before resetting</td>
+      </tr><tr>
+        <td class="record">AC22:&nbsp;ts_wait</td><td class="record">Minimum wait time until we will accept alarms, having sufficient background accuracy</td>
+      </tr><tr>
+        <td class="record">AC23:&nbsp;ts_B</td><td class="record">Background averaging time</td>
+      </tr><tr>
+        <td class="record">AC24:&nbsp;ts_eps</td><td class="record">Alarm threshold for time-slice system</td>
+      </tr><tr>
+        <td class="record">AC25:&nbsp;alarm_width</td><td class="record">Output pulse width in seconds for alarms</td>
+      <caption class="record">
+        All arm_ctrl registers and fields concerning Portal Monitor Operation. ts_L, ts_H, ts_B, ts_wait are all integer numbers and in units time slices.  Eg. a summation length of 4.0s means ts_L=40 when ts_period=0.1s.
+      </caption>
+    </table>
+    
+   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

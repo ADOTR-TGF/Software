@@ -1,0 +1,123 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3K Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca3k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> FPGA Data structures</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_cal.html">Calibration</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-3K Data Structure: arm_ctrl</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_cal data structure contains the data used for gain stabilization.
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For arm_cal there are 64 'register' and 10 named 'fields' data in use.  All register data are 32-bit floats  (float32).
+    </p> 
+    <p class="narrative">
+      The fields led_ov, led_dg, led_lut are lists of 2 to 20 float32 values.  The first list entry corresponds to the lowest temperature (lut_tmin) of the lookup table.
+    </p> 
+    <p class="narrative">
+      When using the lookup tables for gain stabilization, the ARM processor uses linear interpolation within the table and linear extrapolation for temperatures outside the table's temperature range. 
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_cal registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">0: lut_len</td><td class="record">Number of entries in the LUT; default is 19, 2..19 are allowed</td>
+      </tr><tr>
+        <td class="record">1: lut_tmin</td><td class="record">Minimum temperature in the lookup table; Typically -30&deg;C</td>
+      </tr><tr>
+        <td class="record">2: lut_dt</td><td class="record">Temperature step size in the lookup table; Typically 5&deg;C</td>
+      </tr><tr>
+        <td class="record">[3:22]: lut_ov</td><td class="record">Change of operating voltage vs temperature </td>
+      </tr><tr>
+        <td class="record">[23:42]: lut_dg</td><td class="record">Change of digital gain vs temperature </td>
+      </tr><tr>
+        <td class="record">[43:62]: lut_led</td><td class="record">Change of LED target vs temperature </td>
+      </tr><tr>
+        <td class="record">63: lut_mode</td><td class="record">int(lut_mode)&amp;0x1 &rarr; lock bit, set to 1 to prevent the user from reading the arm_cal data from the MCA.</td>
+      </tr>
+      <caption class="record">
+        The arm_cal registers and fields.
+      </caption>
+    </table>
+    <p class="narrative">
+      The MCA-3K ships with a factory-provided lookup table.  Its content can be loaded into flash memory and RAM when reading arm_cal with memory type "reset".
+    </p>
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Factory reset arm_cal registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">0: lut_len</td><td class="record">20</td>
+      </tr><tr>
+        <td class="record">1: lut_tmin</td><td class="record">-30&deg;C</td>
+      </tr><tr>
+        <td class="record">2: lut_dt</td><td class="record">5&deg;C</td>
+      </tr><tr>
+        <td class="record">[3:23]: lut_ov</td><td class="record">Change of operating voltage vs temperature </td>
+      </tr><tr>
+        <td class="record">[23:43]: &ndash;</td><td class="record"> Change of digital gain vs temperature </td>
+      </tr><tr>
+        <td class="record">[43:63]: &ndash;</td><td class="record"> Change of led_target vs temperature </td>
+      </tr><tr>
+        <td class="record">63: lut_mode</td><td class="record">1: lock bit, set to 1 to prevent data read back.</td>
+      </tr>
+      <caption class="record">
+        The factory reset arm_cal registers and fields.  Index ranges [a:b] include the first and last index.
+      </caption>
+    </table>
+   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

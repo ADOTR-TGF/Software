@@ -1,0 +1,34 @@
+{
+    "comment": "Standard histogram acquisition",
+    "start_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 1, "clear_statistics": 1, "clear_histogram": 1}, "user":{}}},
+    "stop_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 0, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+    "resume_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 1, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+    "histogram": {"name": "fpga_histogram",  "dir": "read", "num_items": 4096},
+    "rates": {"name": "fpga_statistics",  "dir": "read"},
+
+    "comment": "Loss-less two-bank histogram acquisition",
+    "prepare_split": {"name": "fpga_ctrl", "dir": "rmw", 
+                     "data": {"fields": {"segment_enable": 0, "segment": 0, "clear_histogram": 1, "clear_statistics": 1, "run": 0}}},
+    "start_bank_0": {"name": "fpga_ctrl", "dir": "rmw", "data": {"fields": {"segment_enable": 1, "segment": 0, "run": 1}}},
+    "start_bank_1": {"name": "fpga_ctrl", "dir": "rmw", "data": {"fields": {"segment_enable": 1, "segment": 1, "run": 1}}},
+    "read_bank_0": {"name": "fpga_histogram", "dir": "read", "num_items": 2048, "offset": 0},
+    "read_bank_1": {"name": "fpga_histogram", "dir": "read", "num_items": 2048, "offset": 1},
+
+    "start_pulse": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"trace_run": 1, "clear_statistics": 0, "clear_trace": 1}, "user":{}}},
+    "pulse": {"name": "fpga_trace",  "dir": "read"},
+
+    "start_list_mode": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"lm_run": 1, "clear_statistics": 1, "clear_list_mode": 1}, "user":{}}},
+    "list_mode": {"name": "fpga_list_mode",  "dir": "read"},
+
+    "fpga_results": {"name": "fpga_results",  "dir": "read"},
+    "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "read"},
+    "write_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "rmw"},
+
+    "fpga_ctrl_flash": {"name": "fpga_ctrl",  "dir": "read", "memory": "flash"},
+    "write_fpga_ctrl_flash": {"name": "fpga_ctrl",  "dir": "write", "memory": "flash"},
+
+    "nv_mem": {
+        "write_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}},
+        "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}}
+    }
+}

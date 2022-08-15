@@ -1,0 +1,89 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_server.html">MDS Description</a></p>
+
+<h1 class="cmd_list"> Supported Devices</h1>
+<p class="cmd_list"> <a class="cmd_list" href="./counter/introduction.html">Counter</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./mca1k/introduction.html">MCA-1K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./mca3k/introduction.html">MCA-3K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./emorpho/introduction.html">eMorpho</a></p>
+
+<h1 class="cmd_list"> Application Examples</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="./examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA Server</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The MCA-3K Server (mca_server.py) is the recommended interface to the world.  When using emorpho_api.py directly, the client is bound to using the programming language Python and can avoid using TCP/IP and ZMQ as the protocol layer.  
+      </p>
+      <p class="narrative">
+        When using the mca_server.py the client gains network access via ZMQ and can now write their own code in over 40 different programming languages.  Via ZMQ and network access, the MDS acts as a bridge between detectors on USB and the Internet.  The server also acts a bridge between programming languages.
+      </p>
+    <h2 class="narrative">Server Start Up</h2>
+      <p class="narrative">
+        On start up the server first reads some configuration data from "../rad_config/mds/mds_config.json".  
+      </p> 
+      <p class="narrative">
+        For the MCA-1K devices, the ARM controller has immediate access to the device settings stored in the ARM non-volatile memory and no further steps are necessary.  In the MCA-3K devices, which have an FPGA, the ARM controllare will load the applicable settings into the FPGA RAM. 
+      </p> 
+        <p class="narrative">
+        In the eMorpho, there is no ARM processor and the FPGA settings data are storedin an on-board non-volatile memory.  In this case, the MDS has to read the contents of that memry and apply it to the FPGA in order to boot the MCA.
+      </p> 
+
+    <h2 class="narrative">Server Operation</h2>
+      <p class="narrative">
+        The server then enters an infinite loop listening to commands and processing them in the order received.  Commands with a name of "mca_cmd" will be sent to mca_api.process_cmd().  
+      </p>
+      <p class="narrative">
+        The server also has a service interface which responds to commands with a name of "server_cmd".  The service interface is used by the MCA Data Daemon (MDD), or a similar client agent, to manage the mca_server.  The MDD can find out if the server is up and running, or if it has stalled or crashed.  In that case, the MDD can kill an unresponsive server and spawn a new copy.
+      </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">mca_server commands</th>
+      </tr><tr>
+        <th class="record_2">Command</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">get_pid</td><td class="record">Respond with a json string of the form: {'version': '3.0', 'os': linux, 'pid': 5740}</td>
+      </tr><tr>
+        <td class="record">ping</td><td class="record"> Echo the data that were sent in the 'data' key of the command dictionary</td>
+      </tr><tr>
+        <td class="record">hello</td><td class="record">Return a json string with a list of the serial numbers of all attached MCA-3K units; eg {'sn_list': ['1234xxx', '5678yyyy']}, where each serial number is 32 hex characters long. </td>
+      </tr><tr>
+        <td class="record">exit</td><td class="record">Force the server to terminate.  Before doing so, it will send back the message {"action": "exit"}</td>
+      </tr>
+      <caption class="record">
+        Commands to the service interface of the MCA Data Server.
+      </caption>
+    </table>
+    
+    <h2 class="narrative">Debugging</h2>
+      <p class="narrative">
+        To test for interference of commands or other hard to trace bugs, the client can set mca_server.MDS_DO_LOG to 1 or True.  When this parameter is set, the MDS logs each incoming request and its own answer in a file named "log_path"+"mds_log.txt" where log_path points to the current director for logging data.  Often that directory will be "../log/" and the logger data will reside in "../log/mds_log.txt".
+      </p>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

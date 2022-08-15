@@ -1,0 +1,19 @@
+{
+    "title": "GUI for Data sheet Maker",
+    "status_bar": "System status or help",
+    "about_text": "MCA Data sheet Version 1.0\n(C) Bridgeport Instruments, LLC\nSeptember 2020\n",
+    "menus": [
+        {
+            "menu_name": "File", "menu_items": [
+                {"name": "File_Open", "id": 0, "kw": {"item": "Open Setup", "helpString": "Read a settings file."}},
+                {"name": "File_Save", "id": 0, "kw": {"item": "Save", "helpString": "Save displayed setup to default location."}},
+                {"name": "File_SaveAS", "id": 0, "kw": {"item": "Save As", "helpString": "Save displayed setup to selected location." }},
+                {"name": "Separator", "id": 0, "kw": {"item": "", "helpString": "", "kind": -1 }},
+                {"name": "make_ds", "id": 0, "kw": {"item": "Make", "helpString": "Prepare the data sheet"}},
+                {"name": "Separator", "id": 0, "kw": {"item": "", "helpString": "", "kind": -1 }},
+                {"name": "Quit", "id": 5006, "kw": {"item": "", "helpString": "Close the program" }}
+            ]
+        }
+        
+    ]
+}

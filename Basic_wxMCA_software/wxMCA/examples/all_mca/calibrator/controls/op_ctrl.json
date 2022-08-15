@@ -1,0 +1,22 @@
+{
+    "keV_bin": 1.0,
+    "ph": 187.0,
+    "keV": 661.66,
+    "update": 1,
+    "gain_exp": 5.6,
+    "wait_time":   6,  # Time to wait before performing a new calibration
+    "dwell_time":  6,  # Time to acquire fresh data for a calibration step
+    "max_time": 60, #7*24*3600,  # Maximum time to run and save data; in seconds
+    "num_pulses":   0,  # Number of pulses to record; Set to 0 to skip this step
+    "pulse_skips": 10   # Record pulses only every pulse-skips rounds
+    "data_root": "../data/",
+    "comments": {
+        "keV_bin": "Desired MCA gain",
+        "ph": "Pulse height in mV for calibration energy",
+        "keV": "Calibration energy in keV",
+        "update": "1=> Store updated operating voltage, digital_gain, etc in MCA",
+        "gain_exp": "For PMT only: gain = K*HV**gain_exp",
+        "data_path": "Folder to store the histograms"
+    }
+
+}

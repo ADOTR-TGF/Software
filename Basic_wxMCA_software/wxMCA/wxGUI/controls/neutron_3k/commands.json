@@ -1,0 +1,32 @@
+{
+    "start_mca": {"name": "fpga_action",  "dir": "rmw", "data": {"fields": {"histo_run": 1, "clear_statistics": 1, "clear_histogram": 1}, "user":{}}},  
+    "stop_mca": {"name": "fpga_action",  "dir": "rmw", "data": {"fields": {"histo_run": 0, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+    "resume_mca": {"name": "fpga_action",  "dir": "rmw", "data": {"fields": {"histo_run": 1, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+    "read_mca": {"name": "fpga_histogram",  "dir": "read"},
+    "read_rates": {"name": "fpga_statistics",  "dir": "read"},
+    
+    "start_pulse": {"name": "fpga_action",  "dir": "rmw", "data": {"fields": {"trace_run": 1, "clear_statistics": 1, "clear_trace": 1}, "user":{}}},
+    "read_pulse": {"name": "fpga_trace",  "dir": "read"},
+
+    "start_list_mode": {"name": "fpga_action",  "dir": "rmw", "data": {"fields": {"lm_run": 1, "clear_statistics": 1, "clear_list_mode": 1}, "user":{}}},
+    "read_list_mode": {"name": "fpga_list_mode",  "dir": "read"},
+    
+    "fpga_results": {"name": "fpga_results",  "dir": "read"},
+    "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "read"},
+    
+    "write_fpga_weights": {"name": "fpga_weights",  "dir": "write", "num_items": 128},
+    
+    "read_arm_ctrl": {"name": "arm_ctrl",  "dir": "read"},
+    "write_arm_ctrl": {"name": "arm_ctrl",  "dir": "rmw"},
+	
+    "sample_counter": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"clear_statistics": 1, "clear_wall_clock": 0, "active_bank": 0, "sample_alarm": 1 }, "fields":{}}},
+    "bck_counter": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"clear_statistics": 1, "clear_wall_clock": 0, "active_bank": 1, "sample_alarm": 1 }, "fields":{}}},
+    "refresh_counter": {"name": "arm_status",  "dir": "read"},
+	
+    "read_arm_logger": {"name": "arm_logger",  "dir": "read"},
+
+    "nv_mem": {
+        "write_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}},
+        "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}}
+    }
+}

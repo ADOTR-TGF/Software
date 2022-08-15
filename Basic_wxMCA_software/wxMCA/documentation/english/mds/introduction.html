@@ -1,0 +1,64 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">wxMCA Software Package Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_server.html">MDS Description</a></p>
+
+<h1 class="cmd_list"> Supported Devices</h1>
+<p class="cmd_list"> <a class="cmd_list" href="./counter/introduction.html">Counter</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./mca1k/introduction.html">MCA-1K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./mca3k/introduction.html">MCA-3K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="./emorpho/introduction.html">eMorpho</a></p>
+
+<h1 class="cmd_list"> Application Examples</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="./examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Introduction</h1>
+    <p class="narrative"> The wxMCA software package consists of processes that communicate with each other through messages exchanged through ZMQ as the protocol layer.  To the user this transparent, and interprocess messages are human-readable JSON strings.  Within the modules of any process communication occurs via dictionaries or class objects.
+    </p>
+    <h1 class="narrative">MCA Data Server</h1>
+    
+    <p class="narrative"> <span class="intro"> The MCA Data Server server can work with clients written in any of the popular programming languages. </span>
+    </p>
+    <p class="narrative"> The MCA Data Server (MDS) underpins all data acquisition. Its purpose is to provide a bridge between the detector on the USB or serial bus and multiple clients. It needs to always be active, with the exception when accessing the MCA devices directly from the MDS API (mca_api.py)  In that case, the client has to write the DAQ software in Python, and the remainder of the discussion below does not apply, as there would be no data server present to listen to the other processes. When the MDS is used, it needs to be started first.
+    </p>
+    <p class="narrative"> <span class="aviso">On Linux systems the MCA Data Server must be run with root privilege.</span>
+    </p>
+    
+    <p class="narrative"> Once the MDS is up and running users can deploy one or more clients to the MDS for the purpose of data acquisition or control (such as the gain stabilizer).  There is no concern over the processes interfering with each other.
+    </p>
+    <p class="narrative"> For one, the ZMQ protocol ensures that messages are delivered uncorrupted and in order to the MDS.  Each client process uses the ZMQ REQ/REP (request/reply) protocol, where the MDS will receive a request, process it and deliver an answer back to the requesting client.  Only then will the MDS proceed to deal with the next message in the queue.
+    </p>
+    
+    <p class="narrative"> Secondly, all requests to change settings in the MCA-1K device (such as detector operating voltage, eg) can be issued as read-modify-write requests.  For instance, a read-modify-write request to change the operating voltage is executed atomically:  The MDS receives the new voltage value, reads the control registers of the MCA-1K, updates the voltage register, writes the data back to the MCA-1K and only then sends a reply back to the requesting client.
+    </p>
+    
+    <h1 class="narrative">DAQ Examples</h1>
+    <p class="narrative"> <span class="intro"> There are small, uncomplicated examples for all supported types of data acquisition.    </span>
+    </p>
+    <p class="narrative"> The package comes with an exhaustive list of independent examples that demonstrate data acquisition, either with the actual hardware or with the device simulator.
+    </p>    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

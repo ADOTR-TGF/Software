@@ -1,0 +1,39 @@
+<RadInstrumentData>
+  <RadInstrumentInformation>
+	<RadInstrumentManufacturerName>Bridgeport Instruments</RadInstrumentManufacturerName>
+	<RadInstrumentModelID>mca_id_str</RadInstrumentModelID>
+	<RadInstrumentSerialNumber>serial_number</RadInstrumentSerialNumber>
+	<RadInstrumentVersion>
+	  <RadInstrumentComponentName>ARM</RadInstrumentComponentName>
+	  <RadInstrumentComponentVersion>arm_build</RadInstrumentComponentVersion>
+	</RadInstrumentVersion>
+  </RadInstrumentInformation>
+  <RadDetectorInformation>
+    <RadDetectorCategoryCode>Gamma</RadDetectorCategoryCode>
+	<RadDetectorKindCode>NaI</RadDetectorKindCode>
+  </RadDetectorInformation>
+  <RadDetectorCharacteristics>
+    <Characteristic>
+	  <CharacteristicName>Voltage Target</CharacteristicName>
+      <CharacteristicValue>voltage_target</CharacteristicValue>
+	  <CharacteristicValueUnits>V</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Temperature</CharacteristicName>
+      <CharacteristicValue>avg_temperature</CharacteristicValue>
+	  <CharacteristicValueUnits>Deg of C</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Trigger Threshold</CharacteristicName>
+      <CharacteristicValue>trigger_threshold</CharacteristicValue>
+	  <CharacteristicValueUnits>V</CharacteristicValueUnits>
+	</Characteristic>
+  </RadDetectorCharacteristics>
+  <RadMeasurement> 
+    <Spectrum>
+      <ChannelData>
+        histogram
+      </ChannelData> 
+    </Spectrum> 
+  </RadMeasurement> 
+</RadInstrumentData>

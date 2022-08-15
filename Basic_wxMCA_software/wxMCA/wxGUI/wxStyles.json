@@ -1,0 +1,32 @@
+{
+    "centrePosX": 800.0,
+    "centrePosY": 500.0,
+	"panelWidth": 400.0,
+    "panelHeight": 300.0,    
+    "buttonWidth": 150.0,
+    "buttonHeight": 40.0,
+	"textWidth": 60.0,
+	"textHeight": 25.0,
+	"histoPanelWidth": 980.0,
+	"histoPanelHeight": 800.0,
+	"histoPanelPosX": 400.0,
+	"histoPanelPosY": 200.0,
+	"color": {
+		"red": [255,0,0],
+		"lime": [0,255,0],
+		"blue": [0,0,255],
+		"black": [0,0,0],
+		"white": [255,255,255],
+		"yellow": [255,255,0],
+		"cyan": [0,255,255],
+		"magenta": [255,0,255],
+		"silver": [192,192,192],
+		"gray": [128,128,128],
+		"green": [0,128,0],
+		"maroon": [128,0,0],
+		"olive": [128,128,0],
+		"purple": [128,0,128],
+		"teal": [0,128,128],
+		"navy": [0,0,128]
+	}
+}

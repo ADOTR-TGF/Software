@@ -1,0 +1,21 @@
+{
+   "start_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 1, "clear_statistics": 1, "clear_histogram": 1}, "user":{}}},  
+   "stop_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 0, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+   "resume_mca": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"run": 1, "clear_statistics": 0, "clear_histogram": 0}, "user":{}}},
+   "read_mca": {"name": "fpga_histogram",  "dir": "read"},
+   "read_rates": {"name": "fpga_statistics",  "dir": "read"},
+
+   "start_pulse": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"trace_run": 1, "clear_statistics": 0, "clear_trace": 1}, "user":{}}},
+   "read_pulse": {"name": "fpga_trace",  "dir": "read"},
+
+   "start_list_mode": {"name": "fpga_ctrl",  "dir": "rmw", "data": {"fields": {"lm_run": 1, "clear_statistics": 1, "clear_list_mode": 1}, "user":{}}},
+   "read_list_mode": {"name": "fpga_list_mode",  "dir": "read"},
+    
+   "fpga_results": {"name": "fpga_results",  "dir": "read"},
+   "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "read"},
+
+    "nv_mem": {
+        "write_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}},
+        "read_fpga_ctrl": {"name": "fpga_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}}
+    }
+}

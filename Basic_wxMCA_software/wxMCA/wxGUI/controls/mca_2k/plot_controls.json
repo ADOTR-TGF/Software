@@ -1,0 +1,219 @@
+{
+    "histogram": {
+        "axis_ctrl": {
+            "xscale": "linear", 
+            "yscale": "linear", 
+            "xlim": [], 
+            "ylim": []
+        },
+        "grid_ctrl": {
+            "alpha": 0.2,
+            "linestyle": ":",  
+            "linewidth": 1.0,
+            "color": "#0000AA"
+        },    
+        "line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "-", 
+            "linewidth": 1.0,
+            "color": "#AA55FF",
+            "drawstyle": "default",  
+            "fillstyle": "full", 
+            "markersize": 0,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "",
+            "markevery": 1
+        },
+        "labels": 
+            {
+            "xlabel": "Energy, keV",
+            "xlabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "ylabel": ["Counts", "Counts, in thousands", "Counts, in millions"],
+            "ylabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "title": "Gamma-Energy Spectrum",
+            "title_ctrl": {"fontsize":12, "fontweight": "normal", "color": "#AA0000", "alpha": 0.9}
+            },
+        "colors": ["#AA55FF", "OrangeRed"],
+        "show": 0
+    },
+    "sample_bck": {
+        "axis_ctrl": {
+            "xscale": "linear", 
+            "yscale": "linear", 
+            "xlim": [], 
+            "ylim": [] 
+        },
+        "grid_ctrl": {
+            "alpha": 0.2,
+            "linestyle": ":",  
+            "linewidth": 1.0,
+            "color": "#0000AA"
+        },    
+        "line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "-", 
+            "linewidth": 1.0,
+            "color": "#AA55FF",
+            "drawstyle": "default",  
+            "fillstyle": "full", 
+            "markersize": 0,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "",
+            "markevery": 1
+        },
+        "labels": 
+            {
+            "xlabel": "Energy, keV",
+            "xlabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "ylabel": ["Counts", "Counts, in thousands", "Counts, in millions"],
+            "ylabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "title": "Gamma-Energy Spectrum",
+            "title_ctrl": {"fontsize":12, "fontweight": "normal", "color": "#AA0000", "alpha": 0.9}
+            },
+        "colors": ["DodgerBlue", "ForestGreen", "Grey", "OrangeRed", "OrangeRed", "OrangeRed", "Yellow"],
+        "show": 0
+    },
+    "tar": {
+        "axis_ctrl": {
+            "xscale": "linear", 
+            "yscale": "linear", 
+            "xlim": [], 
+            "ylim": [] 
+        },
+        "grid_ctrl": {
+            "alpha": 0.2,
+            "linestyle": ":",  
+            "linewidth": 1.0,
+            "color": "#0000AA"
+        },    
+        "line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "", 
+            "linewidth": 1.0,
+            "color": "#AA55FF",
+            "drawstyle": "default",  
+            "fillstyle": "full", 
+            "markersize": 3,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "o",
+            "markevery": 1
+        },    
+        "fit_line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "-", 
+            "linewidth": 2.0,
+            "color": "#AA5500",
+            "drawstyle": "default",  
+            "fillstyle": "full", 
+            "markersize": 0,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "o",
+            "markevery": 1
+        },
+        "labels": 
+            {
+            "xlabel": "Arrival time, us",
+            "xlabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "ylabel": "Log10(frequency)",
+            "ylabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "title": "Time Between Counts",
+            "title_ctrl": {"fontsize":12, "fontweight": "normal", "color": "#AA0000", "alpha": 0.9}
+            },
+        "colors": ["SteelBlue", "OrangeRed"],
+        "show": 0
+    },
+    "logger": {
+        "axis_ctrl": {
+            "xscale": "linear", 
+            "yscale": "linear", 
+            "xlim": [], 
+            "ylim": [] 
+        },
+        "grid_ctrl": {
+            "alpha": 0.2,
+            "linestyle": ":",  
+            "linewidth": 1.0,
+            "color": "#0000AA"
+        },    
+        "line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "", 
+            "linewidth": 1.0,
+            "color": "#AA55FF",
+            "drawstyle": "default",  
+            "fillstyle": "full", 
+            "markersize": 3,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "o",
+            "markevery": 1
+        },
+        "labels": 
+            {
+            "xlabel": "Parameter 2",
+            "xlabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "ylabel": "Parameter 1",
+            "ylabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "title": "Data Logger",
+            "title_ctrl": {"fontsize":12, "fontweight": "normal", "color": "#AA0000", "alpha": 0.9}
+            },
+        "colors": ["SteelBlue", "OrangeRed"],
+        "show": 0
+    },
+    "pulse": {
+        "axis_ctrl": {
+            "xscale": "linear",  
+            "yscale": "linear", 
+            "xlim": [], 
+            "ylim": [] 
+        },
+        "grid_ctrl": {
+            "alpha": 0.2,
+            "linestyle": ":", 
+            "linewidth": 1.0,
+            "color": "#0000AA"
+        },    
+        "line_ctrl": {
+            "alpha": 0.9,
+            "linestyle": "-",  
+            "linewidth": 1.0,
+            "color": "#AA55FF",
+            "drawstyle": "default",  
+            "fillstyle": "full",  
+            "markersize": 0,
+            "markeredgewidth": 0,
+            "markeredgecolor": "#3355AA",    
+            "markerfacecolor": "#AA00AA",
+            "markerfacecoloralt": "#00AA00", 
+            "marker": "",
+            "markevery": 1
+        },
+        "labels": 
+            {
+            "xlabel": "Time, us",
+            "xlabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "ylabel": "Amplitude, mV",
+            "ylabel_ctrl": {"fontsize":10, "fontweight": "normal", "color": "#AA0000", "alpha": 0.8},
+            "title": "Scintillator Pulse",
+            "title_ctrl": {"fontsize":12, "fontweight": "normal", "color": "#AA0000", "alpha": 0.9}
+            },
+        "colors": ["#AA55FF", "OrangeRed"],
+        "show": 0
+    }
+}
+
+

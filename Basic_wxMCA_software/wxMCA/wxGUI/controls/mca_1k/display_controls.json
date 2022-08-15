@@ -1,0 +1,117 @@
+{
+    "histogram":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data": {
+            "num_bins": {"value": "950", "help": "Number of bins to show"},
+            "kev_bin": {"value": "2", "help": "keV per MCA bin"},
+            "cal_kev": {"value": "661.62", "help": "Energy of calibration peak in keV"},
+            "cal_ph": {"value": "187", "help": "Amplitude of calibration peak in mV (emorpho, PMT3K, SiPM3K)"},
+            "cal_fit_xmin": {"value": "560", "help": "Left side of fit range for automatic calibration"},
+            "cal_fit_xmax": {"value": "780", "help": "Right side of fit range for automatic calibration"},
+            "mass": {"value": "0.157", "help": "Detector mass/kg: NaI-38mm->0.157, NaI-50mm->0.358"},
+            "gain_exp": {"value": "5.6", "help": "PMT gain exponent; 7.5 for 10-stage, 5.6 for 8-stage PMT."},
+            "cal_update": {"value": "1", "help": "Program new voltage or gain after calibration run."},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "smooth": {"value": "5", "help": "Number of bins used for smoothing."},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_1k/data/histogram.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+        
+    },
+    "sample_bck":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_bins": {"value": "950", "help": "Number of bins to show"},
+            "kev_bin": {"value": "2", "help": "keV per MCA bin"},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_1k/data/sample_bck.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "tar":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "fit_xmin": {"value": "10", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "500", "help": "Right side of manual fit"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_1k/data/arrival_times.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "logger":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "parameter_1": {"value": "4", "help": "Index of parameter 1 in arm_status; 5->CPU temperature"},
+            "parameter_2": {"value": "7", "help": "Index of parameter 2 in arm_status; 7->Time"},
+            "dwell_time": {"value": "2", "help": "Time step per log entry, in units of 50 milli-seconds."},
+            "draw_line": {"value": "0", "help": "1-> Draw a line between data points."},
+            "draw_item": {"value": "0", "help": "0-> par_0 vs time, 1-> par_1 vs time, 2-> par_1 vs par_2, 3-> par_2 vs par_1 "},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/logger.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        },
+        "labels": {
+            "0": "Operating Voltage",
+            "1": "Voltage_target",
+            "2": "Set Voltage",
+            "3": "Digital Gain Target",
+            "4": "CPU Temperature",
+            "5": "Sensor Temperature",
+            "6": "Average Temperature",
+            "7": "Wall Clock Time",
+            "8": "Run Status",
+            "9": "Sample Run Time",
+            "10": "Sample Count Rate",
+            "11": "Sample Count Rate Error",
+            "12": "Background Run Time",
+            "13": "Background Count Rate",
+            "14": "Background Count Rate Error",
+            "15": "Count Rate Difference",
+            "16": "Count Rate Difference Error",
+            "17": "Background Probability",
+            "18": "Background Alarmist Probability",
+            "19": "Background Cautious Probability",
+            "20": "Portal Ready",
+            "21": "Portal Alarm",
+            "22": "Portal Net Counts",
+            "23": "Portal Background Counts",
+            "24": "Portal Background Probability",
+            "25": "Portal Reset",
+            "26": "Region of Interest Count Rate",
+            "27": "Region of Interest Count Rate Error",
+            "28": "Region of Interest Count Rate",
+            "29": "Region of Interest Count Rate Error",
+            "30": "Region of Interest Count Rate Difference",
+            "31": "Region of Interest Count Rate Difference Error",
+            "32": "Region of Interest Sample Counts",
+            "33": "Region of Interest Background Counts",
+            "34": "Average LED or ROI Value",
+            "35": "DC-Baseline",
+            "36": "Trigger Level",
+            "128": "Logger Events",
+            "129": "Portal Net Counts",
+			"130": "Portal Signal Strength",
+            "131": "Sample Signal Strength"
+        }
+    },
+    "coincidence":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data": {
+            "num_bins": {"value": "512", "help": "Number of bins to show"},
+            "kev_bin": {"value": "2", "help": "keV per MCA bin"},
+            "mass": {"value": "0.157", "help": "Detector mass/kg: NaI-38mm->0.157, NaI-50mm->0.358"},
+            "gain_exp": {"value": "5.6", "help": "PMT gain exponent; 7.5 for 10-stage, 5.6 for 8-stage PMT."},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "smooth": {"value": "5", "help": "Number of bins used for smoothing."},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_1k/data/histogram.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+        
+    }
+}

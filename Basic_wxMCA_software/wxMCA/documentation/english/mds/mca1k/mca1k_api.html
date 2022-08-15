@@ -1,0 +1,129 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-1K Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">MCA-1K</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_device.html">MCA-1K Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca1k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_time_histogram.html">Time Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_logger.html">Two-channel Logger</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-1K API</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The API (mca1k_api.py) serves PMT-based and SiPM-based MCA-1K devices, such as PMT-1000 and SiPM-1000.  It takes a command and a dictionary of mca objects as its argument, executes the command and returns data, if any, in the mca.data_in_dict member of each mca object.  In the dictionary of mca objects, the keys are the unique 32-character device serial numbers.
+      </p>
+    <h2 class="narrative">Reading data</h2>
+      <p class="narrative">
+        When reading data (dir='read'), the API reads registers from the device, converts some of these into named fields and again reports some of these as physical quantities in SI-units in the user dictionary.  All three hierarchical levels are populated automatically.
+      </p>
+      
+    <h2 class="narrative">Writing data</h2>
+      <p class="narrative">
+        When writing data (dir='write'), the API writes a list of register values to the device. Named 'fields' and 'user' dictionary entries are not supported. This is useful in some cases where it is desirable to avoid the extra read in a read-modify-write command.  
+      </p>
+
+    <h2 class="narrative">Read-Modify-Write</h2>
+      <p class="narrative">
+        The most robust and easy to use method for updating parameters is to employ read-modify-write commands (dir='rmw').  When executing such a command, the API reads the current values from the target and promotes data from registers to named fields and then up to the user dictionary. 
+      </p>
+      <p class="narrative">
+        It then proceeds to update only the values given by the user.  It translates data from an input user dictionary to named fields, then merges in any user-supplied named fields, and finally copies all that into the list of data that are to be written to the device.  
+      </p>
+      <p class="narrative">
+        The advantage to the user is that they only need to supply data for the quantities they want to change and can ignore all the others. 
+      </p>
+      <p class="narrative">
+        Secondly, the MCA Data Server receives commands from any attached client and will execute them in order or receipt.  A read-modify-write command is atomic in the sense that it cannot be interrupted by another client. 
+      </p>
+        
+    <h2 class="narrative">API functions</h2>
+    <p class="narrative">
+      There are two functions to process commands and boot attached devices.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">API functions</th>
+      </tr><tr>
+        <th class="record_2">Function name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">process_cmd(user_cmd, mca_dict)</td><td class="record">Prepare all mca in the mca_dict for performing the command, perform the command on each mca and return an in_dict dictionary with data for each serial number.  For each mca, return data are also stored in  </td>
+      </tr><tr>
+        <td class="record">perform_cmd(mca)</td><td class="record"> The mca object has been prepared and all relevant command information is stored internally.  perform_cmd executes the command and loads results into mca.data_in_dict</td>
+      </tr>
+      <caption class="record">
+        The API only needs two functions.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      The API accepts a command data structure (dictionary in Python) that is the same for all commands.  
+    </p> 
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">API command structure</th>
+      </tr><tr>
+        <th class="record_2">Field</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">sn</td><td class="record">Unique, immutable, serial number consisting of 32 hex characters; eg 123456789ABCDEF123456789ABCDEF</br> Cases: </br>
+        Field is empty or is an empty string: Command applies to all mca in the mca_dict.</br>
+        Field is a non-empty string: Command applies to that mca if it is in the mca_dict.</br>
+        Field is a list of strings: Command applies to all mca in that list if they are in the mca_dict
+        </td>
+      </tr><tr>
+        <td class="record">dir</td><td class="record">read&nbsp;&rarr; Read data, short_write&nbsp;&rarr; Write data, and data are being sent to the command endpoint, write&nbsp;&rarr; Write data, and data are being sent to the data endpoint, rmw&nbsp;&rarr; Read-modify-write, and data are exchanged via the data endpoints.</td>
+      </tr><tr>
+        <td class="record">memory</td><td class="record">ram&nbsp;&rarr; target memory resides in the RAM of the ARM processor, flash&nbsp;&rarr; target memory resides in ARM non-volatile memory.</td>
+      </tr><tr>
+        <td class="record">name</td><td class="record">Command name; it must be one of the keys in the pmt_mca_api.make_new_io_obj directory</td>
+      </tr><tr>
+        <td class="record">num_items</td><td class="record">For some commands the user may want to specify explicitly the number of items to read or write. </td>
+      </tr><tr>
+        <td class="record">ctrl</td><td class="record">List of control data written to mca.command_out; Mostly used for control or action registers. </td>
+      </tr><tr>
+        <td class="record">data</td><td class="record">List of data to be routed via the data endpoints. </td>
+      </tr><tr>
+        <td class="record">cmd_type</td><td class="record">Not used by the API.  The data server will call the API only if cmd_type=='mca1k_cmd'. </td>
+      </tr>
+      <caption class="record">
+        The API command structure
+      </caption>
+    </table>
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

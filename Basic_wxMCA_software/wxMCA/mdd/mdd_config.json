@@ -1,0 +1,17 @@
+{
+"suspend": 0,  
+"comment": " Set to 1 if you want the MDD to be inactive on the next launch.",
+"mds_present": 1,  	
+"comment": " *_present: set to 1 or 0",
+
+"mds_ip": "tcp://localhost:5507",
+
+"mdd_ip": "tcp://0.0.0.0:5506",
+"timeout": 5, 
+"repeat_period": 10,
+"comment": "times are in seconds",
+
+"comment": " On Windows you need an absolute path",
+"mds_win_path": "C:\\bpi\\wxMCA\\run_mds.cmd",
+"mds_linux_path": "../run_mds.sh"
+}

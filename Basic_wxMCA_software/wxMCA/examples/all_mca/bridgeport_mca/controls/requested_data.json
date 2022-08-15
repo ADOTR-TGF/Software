@@ -1,0 +1,122 @@
+{
+    "histogram":{
+        "mode_list": ["all", "rate_histogram", "histogram"],
+        "requested_data": {
+            "emorpho": {
+                "all": {"fpga_ctrl": "read_fpga_ctrl", "fpga_results": "fpga_results", "rates": "rates", "histogram": "histogram"},
+                "rate_histogram": {"rates": "rates", "histogram": "histogram"},
+                "histogram": {"histogram": "histogram"}
+            },
+            "mca_3k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status", "arm_ctrl": "read_arm_ctrl",
+                        "fpga_status": "fpga_results", "fpga_ctrl": "read_fpga_ctrl",
+                        "rates": "rates", "histogram": "histogram"},
+                "rate_histogram": {"rates": "rates", "histogram": "histogram"},
+                "histogram": {"histogram": "histogram"}
+            },
+            "mca_2k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                        "arm_ctrl": "read_arm_ctrl", "histogram": "arm_histogram"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_histogram"},
+                "histogram": {"histogram": "arm_histogram"}
+            },
+            "mca_1k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                        "arm_ctrl": "read_arm_ctrl", "histogram": "arm_histogram"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_histogram"},
+                "histogram": {"histogram": "arm_histogram"}
+            }
+        }
+    },
+    "background": {
+        "mode_list": ["all", "rate_histogram", "histogram"],
+        "requested_data": {
+            "mca_1k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "histogram": "arm_bck"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_bck"},
+                "histogram": {"histogram": "arm_bck"}
+            },
+            "mca_2k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "histogram": "arm_bck"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_bck"},
+                "histogram": {"histogram": "arm_bck"}
+            }
+        }
+    },
+    "difference": {
+        "mode_list": ["all", "rate_histogram", "histogram"],
+        "requested_data": {
+            "mca_1k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "histogram": "arm_diff"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_diff"},
+                "histogram": {"histogram": "arm_diff"}
+            },
+            "mca_2k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "histogram": "arm_diff"},
+                "rate_histogram": {"arm_status": "arm_status", "histogram": "arm_diff"},
+                "histogram": {"histogram": "arm_diff"}
+            }
+        }
+    },
+    "pulse": {
+        "mode_list": ["all", "status_pulse", "pulse"],
+        "requested_data": {
+            "emorpho": {
+                "all": {"fpga_ctrl": "read_fpga_ctrl", "fpga_results": "fpga_results", "rates": "rates", "pulse": "pulse"},
+                "status_pulse": {"fpga_results": "fpga_results", "pulse": "pulse"},
+                "pulse": {"pulse": "pulse"}
+            },
+            "mca_3k": {
+                "all": {"arm_status": "arm_status", "fpga_ctrl": "read_fpga_ctrl", "fpga_results": "fpga_results", "rates": "rates", "pulse": "pulse"},
+                "status_pulse": {"arm_status": "arm_status", "fpga_results": "fpga_results", "pulse": "pulse"},
+                "pulse": {"pulse": "pulse"}
+            },
+            "mca_2k": {
+                "all": {"arm_status": "arm_status", "arm_ctrl": "read_arm_ctrl", "pulse": "pulse"},
+                "status_pulse": {"arm_status": "arm_status", "pulse": "pulse"},
+                "pulse": {"pulse": "pulse"}
+            }
+        }
+    },
+    "listmode": {
+        "mode_list": ["all", "status_listmode", "listmode"],
+        "requested_data": {
+            "emorpho": {
+                "all": {"fpga_ctrl": "read_fpga_ctrl", "fpga_results": "fpga_results", "rates": "rates", "listmode": "listmode"},
+                "status_listmode": {"fpga_results": "fpga_results", "listmode": "listmode"},
+                "listmode": {"listmode": "listmode"}
+            },
+            "mca_3k": {
+                "all": {"arm_status": "arm_status", "fpga_ctrl": "read_fpga_ctrl", "fpga_results": "fpga_results", "rates": "rates", "listmode": "listmode"},
+                "status_listmode": {"arm_status": "arm_status", "fpga_results": "fpga_results", "listmode": "listmode"},
+                "listmode": {"listmode": "listmode"}
+            },
+            "mca_2k": {
+                "all": {"arm_status": "arm_status", "arm_ctrl": "read_arm_ctrl", "listmode": "arm_listmode"},
+                "status_listmode": {"arm_status": "arm_status", "listmode": "arm_listmode"},
+                "listmode": {"listmode": "arm_listmode"}
+            }
+        }
+    },
+    "logger":{
+        "mode_list": ["all", "status_logger", "logger"],
+        "requested_data": {
+            "mca_1k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "arm_logger": "arm_logger"},
+                "status_logger": {"arm_status": "arm_status", "logger": "arm_logger"},
+                "logger": {"logger": "arm_logger"}
+            },
+            "mca_2k": {
+                "all": {"arm_version": "arm_version", "arm_status": "arm_status",
+                       "arm_ctrl": "read_arm_ctrl", "logger": "logger"},
+                "status_logger": {"arm_status": "arm_status", "logger": "arm_logger"},
+                "logger": {"logger": "arm_logger"}
+            }
+        }
+    }
+}

@@ -1,0 +1,146 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3K Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">wxMCA</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_ctrl.html">Controls</a></p>
+
+<h1 class="cmd_list"> MCA Data Server</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../common/mca_server.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-3K Data Structures</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The file mca3k_data.py contains definitions for data classes.  Each data class describes one set of control data or acquired data as shown in the table below.  All classes have the same structure: They contain data and a set of standardized functions which the API level uses when executing commands.  The data objects transient.  They created, used and then discarded during the execution of a command.  The data object functions mostly serve to translate between human-readable data in Si units and the bit-fields and register contents on board the MCA-3K.
+      </p>
+        
+    <h2 class="narrative">Data structures</h2>
+    <p class="narrative">
+      The mca3k_data.py module defines all data classes used for communication.  We show the ones pertaining to the FPGA and those residing in the ARM M0+ controller in two different tables.
+    </p> 
+    <p class="narrative">
+      The common structure of all data classes is explained in the table below.
+    </p>
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">MCA-3K Data Class Structure</th>
+      </tr><tr>
+        <th class="record_2">Attribute</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">registers</td><td class="record">On board data are stored in registers as arrays of data.  'registers' is a copy of that array.</td>
+      </tr><tr>
+        <td class="record">fields</td><td class="record">'fields' is a dictionary where the various components of the registers and any bit fields are stored by name.</td>
+      </tr><tr>
+        <td class="record">user</td><td class="record">'user' is a dictionary where data are stored as physical quantities in SI units.  Since this is not meaningful for all data, 'user' may only capture a subset of all data.  On the other hand, when reading data, 'user' may present an enhanced set of data containing evaluated data; eg when reading count rates. </td>
+      </tr><tr>
+        <td class="record">adc_sr</td><td class="record">The ADC sampling rate is stored as it is needed to compute some of the evaluated data.</td>
+      </tr><tr>
+        <td class="record">wr_type</td><td class="record">Identifies the device to write to (FPGA or ARM).</td>
+      </tr><tr>
+        <td class="record">rd_type</td><td class="record">Identifies the device to read from (FPGA or ARM).</td>
+      </tr><tr>
+        <td class="record">cmd_addr</td><td class="record">An ID that tells the MCA-3K device which data section is being addressed; cf the Data Classes tables below.</td>
+      </tr><tr>
+        <td class="record">data_type</td><td class="record">Tells the device driver what kind of data are being transmitted; they can be 'H', 'I' and 'f' for unsigned int16, unsigned int32 and float32 data.</td>
+      </tr><tr>
+        <td class="record">num_items</td><td class="record">Number of data items to transmit between host and MCA-3K.</td>
+      </tr><tr>
+        <td class="record">num_bytes</td><td class="record">Number of bytes to transmit between host and MCA-3K.</td>
+      </tr>
+      <caption class="record">
+        MCA-3K data class attributes.
+      </caption>
+    </table>  
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">MCA-3K Data Class Functions</th>
+      </tr><tr>
+        <th class="record_2">Function</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">registers_2_fields</td><td class="record">Convert FPGA control register values into a control register dictionary which has names for the bit fields.</td>
+      </tr><tr>
+        <td class="record">fields_2_registess</td><td class="record">Compute the values of the control registers from the fields dictionary.</td>
+      </tr><tr>
+        <td class="record">fields_2_user</td><td class="record">Convert a few field values into physical quantities in SI units. </td>
+      </tr><tr>
+        <td class="record">user_2_fields</td><td class="record">Convert user values from physical quantities in SI units into numerical fields</td>
+      </tr><tr>
+        <td class="record">add_to_cmd_out_list(mca)</td><td class="record">If a command requires auxiliary data to be sent with it (up to 14 unsigned int16) those could be copied from a designated member of an mca object.  The standard MCA-3K software does not use this feature.</td>
+      </tr>
+      <caption class="record">
+        MCA-3K data class attributes.
+      </caption>
+    </table>      
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">MCA-3K Data Classes &ndash; ARM</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record"><a href="mca3k_arm_version.html">arm_version</a></td><td class="record">Version and serial number information for FPGA and ARM firmware and software.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_arm_status.html">arm_status</a></td><td class="record">Status information (unsigned int32) from the slow-control system, including temperatures, operating voltage, etc.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_arm_ctrl.html">arm_ctrl</td></a><td class="record">Parameters (float32) to set the SiPM operating voltage, apply gain stabilization and more.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_arm_cal.html">arm_cal</td></a><td class="record">Calibration data (float32) used by the gain stabilization; eg a voltage vs temperature lookup table.</td>
+      </tr>
+      <caption class="record">
+        Table of ARM-related data structures.
+      </caption>
+    </table>
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">MCA-3K Data Classes &ndash; FPGA</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_ctrl.html">fpga_ctrl</a></td><td class="record">FPGA control registers;  These control all aspects of the real time data acquisition including triggers, count rate measurement, histograms, list mode, trace acquisition, pulse shape discrimination, etc.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_statistics.html">fpga_statistics</a></td><td class="record">Statistics data (read only) from which count rates etc are computed.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_results.html">fpga_results</td></a><td class="record">Status and telemetry data.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_histogram.html">fpga_histogram</td></a><td class="record">Histogram data; at least 4Kx32 bins are available</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_list_mode.html">fpga_list_mode</td></a><td class="record">List mode data for at least 341 events</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_trace.html">fpga_trace</td></a><td class="record">Oscilloscope trace data; at least 1024 samples are available.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_weights.html">fpga_weights</td></a><td class="record">Weights can be used during the summation of ADC data to improve energy resolution in some scintillators.</td>
+      </tr><tr>
+        <td class="record"><a href="mca3k_fpga_action.html">fpga_action</td></a><td class="record">Actions control the start and stop of data acquisition as well as momentary events, such as clearing data and resetting statistics counters.</td>
+      </tr>
+      <caption class="record">
+        Table of FPGA-related data structures.
+      </caption>
+    </table>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

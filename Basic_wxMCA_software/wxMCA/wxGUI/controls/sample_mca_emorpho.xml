@@ -1,0 +1,58 @@
+<RadInstrumentData>
+  <RadInstrumentInformation>
+	<RadInstrumentManufacturerName>Bridgeport Instruments</RadInstrumentManufacturerName>
+	<RadInstrumentModelID>mca_id_str</RadInstrumentModelID>
+	<RadInstrumentSerialNumber>serial_number</RadInstrumentSerialNumber>
+	<RadInstrumentVersion>
+	  <RadInstrumentComponentName>FPGA</RadInstrumentComponentName>
+	  <RadInstrumentComponentVersion>build</RadInstrumentComponentVersion>
+	</RadInstrumentVersion>
+  </RadInstrumentInformation>
+  <RadDetectorInformation>
+    <RadDetectorCategoryCode>Gamma</RadDetectorCategoryCode>
+	<RadDetectorKindCode>NaI</RadDetectorKindCode>
+  </RadDetectorInformation>
+  <RadDetectorCharacteristics>
+    <Characteristic>
+	  <CharacteristicName>Voltage Target</CharacteristicName>
+      <CharacteristicValue>high_voltage</CharacteristicValue>
+	  <CharacteristicValueUnits>V</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Temperature</CharacteristicName>
+      <CharacteristicValue>avg_temperature</CharacteristicValue>
+	  <CharacteristicValueUnits>Deg of C</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Trigger Threshold</CharacteristicName>
+      <CharacteristicValue>pulse_threshold</CharacteristicValue>
+	  <CharacteristicValueUnits>V</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>ADC Speed</CharacteristicName>
+      <CharacteristicValue>adc_sr</CharacteristicValue>
+	  <CharacteristicValueUnits>Hz</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Electronic Gain</CharacteristicName>
+      <CharacteristicValue>impedance</CharacteristicValue>
+	  <CharacteristicValueUnits>Ohm</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Integration Time</CharacteristicName>
+      <CharacteristicValue>integration_time</CharacteristicValue>
+	  <CharacteristicValueUnits>s</CharacteristicValueUnits>
+	</Characteristic>
+	<Characteristic>
+	  <CharacteristicName>Digital Gain</CharacteristicName>
+      <CharacteristicValue>digital_gain</CharacteristicValue>
+	</Characteristic>
+  </RadDetectorCharacteristics>
+  <RadMeasurement> 
+    <Spectrum>
+      <ChannelData>
+        histogram
+      </ChannelData> 
+    </Spectrum> 
+  </RadMeasurement> 
+</RadInstrumentData>

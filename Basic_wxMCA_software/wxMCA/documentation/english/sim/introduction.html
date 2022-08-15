@@ -1,0 +1,43 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>Simulator</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Simulator Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">MCA Simulator</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_emorpho.html">eMorpho Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca1k.html">SiPM-1000, PMT-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca3k.html">SiPM-3000, PMT-3000</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="../mds/introduction.html">MCA Data Server</a></h1>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA Simulator</h1>
+    <h2 class="narrative">Software stack</h2>
+      <p class="narrative">
+         The MCA simulator is a piece of compiled C-Code.  The MCA Data Server connects to it as it would connect to an actual MCA.  
+      </p>
+      <p class="narrative">
+        When the MCA Data Server it imports mca_device.py.  On import it executes libusb0.make_libusb0().  That function reads the rad_config/mds/mds_config.json file.  By default the simulate key is set to None: "simulate": "None".  If this is changed to one of "eMorpho", "PMT-1000", "SiPM-1000", "PMT-3000", "SiPM-3000", or "SiPM-Counter", the MDS will load the respective precompiled code (eg emorpho_simusb.dll or emorpho_simusb.so).  The *_simusb code will simulate the requested device and be accessible through ctypes and libusb0.1 just as any real hardware would be.</p>
+      <p class="narrative">
+         <span class="aviso">Simulator and hardware cannot be mixed.</span>  If the "simulate" entry in the configuration file is one of the implemented MCA's the MDS will not recognize any actual hardware plugged into the computer.
+      </p>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

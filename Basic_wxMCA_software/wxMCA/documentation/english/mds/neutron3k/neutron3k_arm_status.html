@@ -1,0 +1,201 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">wxMCA</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="neutron3k_arm_ctrl.html">Controls</a></p>
+
+<h1 class="cmd_list"> MCA Data Server</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../common/mca_server.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Neutron-3K Data Structure: arm_status</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_status data structure reports data describing the current status of the slow-control system.  Data reported include the operating voltage (SiPM-3000), temperatures and more.
+      </p>
+        
+    <h2 class="narrative">Data structures</h2>
+    <p class="narrative">
+      For arm_status there are seven 'register' and 'field' data in use.  All register data are 32-bit floats  (float32).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields &mdash; slow control and operation</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS0: op_voltage</td><td class="record">Current operating voltage (SiPM only)</td>
+      </tr><tr>
+        <td class="record">AS1: voltage_target</td><td class="record">Computed target voltage from request (directly or with correction applied)</td>
+      </tr><tr>
+        <td class="record">AS2: set_voltage</td><td class="record">Current operating voltage set by the DAC (so that op_voltage matches req_volt (directly or with correction applied; SiPM only))</td>
+      </tr><tr>
+        <td class="record">AS3: cpu_temperature</td><td class="record">Current ARM M0+ processor core temperature</td>
+      </tr><tr>
+        <td class="record">AS4: x_temperature</td><td class="record">Current temperature measured by the external temperature sensor at the PMT or SiPM.</td>
+      </tr><tr>
+        <td class="record">AS5: avg_temperature</td><td class="record">Current temperature average (from selected sensor)</td>
+      </tr><tr>
+        <td class="record">AS6: dg_target</td><td class="record">Target digital gain (reserved)</td>
+      </tr><tr>
+        <td class="record">AS7: led_target</td><td class="record">Computed LED value target, for systems with LED.</td>
+      </tr><tr>
+        <td class="record">AS8: wall_clock_time</td><td class="record">wall_clock time; Resolution is 65536/48MHz=1.365ms when wall_clock_time &lt; 2<sup>24</sup>; ie 22906&nbsp;s</td>
+      </tr><tr>
+        <td class="record">AS9: op_status</td><td class="record">Bitfield, operation status; cf user table below</td>
+      </tr><tr>
+        <td class="record">AS10: supply_voltage</td><td class="record">Measured USB supply voltage</td>
+      </tr><tr>
+        <td class="record">AS11: fpga_count</td><td class="record">Number of FPGA reboots since power on</td>
+      </tr><tr>
+        <td class="record">AS12: led_value</td><td class="record">Measured LED value from FPGA, for systems with an LED.</td>
+      </tr><tr>
+        <td class="record">AS13: dc_offset</td><td class="record">DC-offset in mV (90&lt;DC&lt;130)</td>
+      </tr><tr>
+        <td class="record">AS14: anode_current</td><td class="record">PMT or SiPM DC anode current.</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers concerning slow control and operation.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      There is only one higher-level 'user' dictionary entry for arm_status operation.  
+    </p> 
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_version user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">wall_clock_time</td><td class="record">Wall clock time in seconds; Resolution is 1.365ms.</td>
+      </tr><tr>
+        <td class="record">fpga_status</td><td class="record">1 &rArr; FPGA is booted</td>
+      </tr><tr>
+        <td class="record">alarm_status</td><td class="record">1 &rArr; Active alarm</td>
+      </tr>
+      <caption class="record">
+        arm_status 'user' dictionary entries concerning operation and slow control.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields &mdash; sample measurement: count rates and statistics </th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS15: run_time_sample</td><td class="record">Run time of the sample measurement; resolution is 1.6384ms. This has been corrected for the measured dead time: run_time = real_time&minus;dead_time.</td>
+      </tr><tr>
+        <td class="record">AS16: events</td><td class="record">Number of sample events</td>
+      </tr><tr>
+        <td class="record">AS17: trigger_rate</td><td class="record">Trigger rate in cps</td>
+      </tr><tr>
+        <td class="record">AS18: dead_time</td><td class="record">Measured dead time</td>
+      </tr><tr>
+        <td class="record">AS19: count_rate</td><td class="record">Sample count rate</td>
+      </tr><tr>
+        <td class="record">AS20: count_rate_err</td><td class="record">Sample count rate 2-&sigma; error computed using Poisson statistics.</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers concerning measuring a sample
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields &mdash; background measurement: count rates and statistics </th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS21: run_time_bck</td><td class="record">Run time of the background measurement; resolution is 1.6384ms. This has been corrected for the measured dead time: run_time = real_time&minus;dead_time.</td>
+      </tr><tr>
+        <td class="record">AS22: events_bck</td><td class="record">Number of background events</td>
+      </tr><tr>
+        <td class="record">AS23: trigger_rate_bck</td><td class="record">Trigger rate in cps</td>
+      </tr><tr>
+        <td class="record">AS24: dead_time_bck</td><td class="record">Measured dead time</td>
+      </tr><tr>
+        <td class="record">AS25: count_rate_bck</td><td class="record">Background count rate</td>
+      </tr><tr>
+        <td class="record">AS26: count_rate_bck_err</td><td class="record">Background count rate 2-&sigma; error computed using Poisson statistics.</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers concerning measuring the background.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields &mdash; sample &minus; background measurement: count rates and analysis </th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS27: count_rate_diff</td><td class="record">Sample &minus; Background count rate</td>
+      </tr><tr>
+        <td class="record">AS28: count_rate_diff_err</td><td class="record">Difference count rate 2-&sigma; error computed using Poisson statistics.</td>
+      </tr><tr>
+        <td class="record">AS29: bck_probability</td><td class="record">Probability that the sample count rate is caused by the measured background rate.</td>
+      </tr><tr>
+        <td class="record">AS30: bck_low_probability</td><td class="record">Most alarmist: P(counts > N+sigma(N) | mu-sigma(mu))</td>
+      </tr><tr>
+        <td class="record">AS31: bck_high_probability</td><td class="record">Most cautious: P(counts > N-sigma(N) | mu+sigma(mu))</td>
+      </tr><tr>
+        <td class="record">AS32: alarm_time</td><td class="record">Alarm count down until alarm turns off when alarm_time = 0_seconds</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers concerning measuring sample &minus; background and the statistical analysis.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields &mdash; portal monitor alarms </th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS33: ts_ready</td><td class="record">Portal monitor alarming system is ready</td>
+      </tr><tr>
+        <td class="record">AS34: ts_alarm</td><td class="record">&gt;0 if there is an active alarm </td>
+      </tr><tr>
+        <td class="record">AS35: ts_net</td><td class="record">Net counts above background during the last L time slices</td>
+      </tr><tr>
+        <td class="record">AS36: ts_bck</td><td class="record">Background counts above background during the last L time slices</td>
+      </tr><tr>
+        <td class="record">AS37: ts_prob</td><td class="record">Probability that ts_net is caused by the accepted background rate.</td>
+      </tr><tr>
+        <td class="record">AS38: ts_reset</td><td class="record">Time slice counters were reset due to an extended alarm (longer than arm_ctrl[AC_TS_H])</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers concerning portal monitor operation and statistical analysis.
+      </caption>
+    </table>
+      
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

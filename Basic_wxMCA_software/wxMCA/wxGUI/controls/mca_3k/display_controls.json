@@ -1,0 +1,45 @@
+{
+    "histogram":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data": {
+            "num_bins": {"value": "1000", "help": "Number of bins to show"},
+            "kev_bin": {"value": "1", "help": "keV per MCA bin"},
+            "cal_kev": {"value": "661.62", "help": "Energy of calibration peak in keV"},
+            "cal_ph": {"value": "187", "help": "Amplitude of calibration peak in mV (emorpho, PMT3K, SiPM3K)"},
+            "cal_fit_xmin": {"value": "560", "help": "Left side of fit range for automatic calibration"},
+            "cal_fit_xmax": {"value": "780", "help": "Right side of fit range for automatic calibration"},
+            "mass": {"value": "0.358", "help": "Detector mass/kg: NaI-38mm->0.157, NaI-50mm->0.358"},
+            "gain_exp": {"value": "5.6", "help": "PMT gain exponent; 7.5 for 10-stage, 5.6 for 8-stage PMT."},
+            "cal_update": {"value": "1", "help": "Program new voltage or gain after calibration run."},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "smooth": {"value": "5", "help": "Number of bins used for smoothing."},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_3k/data/histogram.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "pulse":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_pulses": {"value": "1", "help": "Number of pulses to acquire"},
+            "t_min": {"value": "0", "help": "Analysis interval [t_min, t_max]"},
+            "t_max": {"value": "25e-6", "help": "Analysis interval [t_min, t_max]"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_3k/data/pulses.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "list_mode":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_buffers": {"value": "1", "help": "Number of list mode buffers to acquire"},
+            "kev_bin": {"value": "1", "help": "keV per MCA bin"},
+            "fit_xmin": {"value": "560", "help": "Left side of peak fit interval"},
+            "fit_xmax": {"value": "780", "help": "Right side of peak fit interval"},
+			"comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "weights": {"value": "../user/mca_3k/data/weights_pvt_nai_120M.py", "help": "File that contains the weights; OR Python file"},
+            "file": {"value": "../user/mca_3k/data/list_mode.json", "help": "File name to save data"}
+        }
+    }
+}
