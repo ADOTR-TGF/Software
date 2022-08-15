@@ -1,0 +1,63 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>Simulator</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+    <td class="format_table" width="200"><a href="../introduction/introduction.html"><img src="../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table"> <h1 class="narrative">Morpho Simulator Reference</h1></td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">MCA Simulator</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_emorpho.html">eMorpho Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca1k.html">SiPM-1000, PMT-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="sim_mca3k.html">SiPM-3000, PMT-3000</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="../mds/introduction.html">MCA Data Server</a></h1>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">eMorpho Simulation Server</h1>
+    <h2 class="narrative">Introduction</h2>
+      <p class="narrative">
+        The purpose of the simulator is to provide a flavor of the device operation without having actual access to the device hardware.
+      </p>
+      <p class="narrative">
+        The simulator is reasonably realistic, and it serves data to the included data acquisition examples as well as the graphical user interface.  However, it is not a bit-accurate simulation of the real hardware, and it is not meant to be used as a validator for user software.
+      </p>
+      <p class="narrative">
+        The simulated types and data and data acquisition are summarized in the table below.
+      </p>
+      <table class="narrative">
+        <tr>
+            <th class="narrative" colspan="2">Simulation server capabilities</th>
+        </tr><tr>
+            <th class="narrative">Item</th><th class="narrative">Capability and description</th>
+        </tr><tr>
+            <td class="narrative">fpga_ctrl</td><td class="narrative">Read, write, read-modify-write as documented for the MDS.  Digital gain and high voltage are used to change the gain and the results can be observed in the histogram and the list-mode data.  Two-bank histogram acquisition is also modeled correctly.</td>
+        </tr><tr>
+            <td class="narrative">fpga_results</td><td class="narrative">Read, as documented for the MDS.  Quantities that vary in real life, such as temperatures, will also show a variation in the simulation. </td>
+        </tr><tr>
+            <td class="narrative">fpga_statistics</td><td class="narrative">Read, as documented for the MDS. Simulator implements a fixed count rate of 1500cps.  Counts in a time interval exhibit Poisson statistics</td>
+        </tr><tr>
+            <td class="narrative">fpga_histogram</td><td class="narrative">Read, as documented for the MDS. The simulator assumes a <sup>137</sup>Cs energy spectrum at 1keV per histogram bin.  The spectrum increments realistically using Poisson statistics.</td>
+        </tr><tr>
+            <td class="narrative">fpga_trace</td><td class="narrative">Read, as documented for the MDS.  The simulator creates noisy traces with NaI(Tl) shape and random amplitudes.  It also sets the trace_done bit.</td>
+        </tr><tr>
+            <td class="narrative">fpga_list_mode</td><td class="narrative">Read, as documented for the MDS.  The simulator creates a filled list-mode buffer with 340 events, according to the lm_data_switch, cf MDS documentation. Energies are sampled from the built-in histogram.  The module also sets the lm_done bit.</td>
+        </tr><tr>
+            <td class="narrative">fpga_nvmem</td><td class="narrative">Read, write, read-modify-write as documented for the MDS.  </td>
+        </tr>
+      </table>
+      </td>
+    </tr>
+    </table>
+
+</body>
+</html>

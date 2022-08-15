@@ -1,0 +1,11 @@
+{
+    "setup": {
+        "PART_NUMBER": "PMT-3K-40-N81T",
+        "MCA_TYPE": "PMT-3K",
+        "HV_BASE_TYPE": "HV_CPLD Rev F",
+        "DETECTOR": "NaI(Tl), 3x3 inch", 
+        "PMT_TYPE": "R6231",
+        "TESTER": "Jay Score",
+        "DATE": "Jun. 15, 2020"
+    }
+}

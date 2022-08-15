@@ -1,0 +1,150 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">COUNTER</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_device.html">Counter Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="counter_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_logger.html">Two-channel Logger</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_time_histogram.html">Time histogram</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Counter Data Structure: arm_logger</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_logger is implemented in an 8kB general purpose region of memory. For example users can log the change in operating voltage in response to a rapid change of count rate &ndash; to verify that the gain remains stable in such circumstances.  Or the user may log net counts over background and the resulting alarm probability &ndash; to study the performnace of the portal monitor alarm function. In case custom software is implemented on device the logger size may be reduced, or the logger may be omitted altogether.
+      </p>
+        
+      <p class="narrative">
+        The logger can be used to monitor rapidly changing parameters in time intervals ranging from 50ms to 12.75s.  The logger creates running logs for two parameters.  The parameters are chosen by the their index in the arm_status register.  The parameter index is also indicated in the wxMCA arm_status table.
+      </p>
+      
+      <table class="record">
+      <tr>
+        <th class="record" colspan="2">Programming the logger</th>
+      </tr><tr>
+        <th class="record_2">Bit ranges in the 24-bit xctrl_0 bit field</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">[0:7]: dwell_time</td><td class="record">Time interval for each logger time step.  time_step = dwell_time * 50ms; 1&le;dwell_time&le;255</td>
+      </tr><tr>
+        <td class="record">[8:15]: index_1</td><td class="record">Index of the first variable in arm_status</td>
+      </tr><tr>
+        <td class="record">[16:23]: index_2</td><td class="record">Index of the second variable in arm_status</td>
+      </tr>
+      <caption class="record">
+        Use the arm_ctrl[xctrl_0] field to program the logger.  Example: Record alarm status (idx=21) vs net counts above background (idx=22) in 100ms (=2*50ms) steps: xctrl_0 = (21&lt;&lt;16) + (22&lt;&lt;8) + 2.  For this example, the time_slice operation must be turned on; cf arm_ctrl["user"]["time_slice"]=1.
+      </caption>
+    </table>
+        
+    <h2 class="narrative">Associated commands</h2>
+    <p class="narrative">
+      The logger automatically starts, or resumes from where it last stopped, when xctrl_0 is non-zero.  Setting xctrl_0=0 halts the logger.
+    </p>
+    <p class="narrative">
+      To reset the logger set arm_ctrl["user"]["clear_logger"]=1 and issue a read-modify-write (rmw) command to the MDS.
+    </p> 
+      
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      The logger has a fixed two-word header, followed by 2&times;1023 data words.  All entries are 4-byte float numbers.
+    </p> 
+    <p class="narrative">
+      The logger is organized as a two-word header followed by two circular buffers with logger_length-1 entries each. In each time step the logger writes a parameter_1 and parameter_2 value to the respective circular buffer. When the buffers are full, the logger continues writing at the beginning of the buffer, overwriting old data.  The two-word header, however, is preserved.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Logger data structure &ndash; registers</th>
+      </tr><tr>
+        <th class="record_2">Word index</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">0: logger_length</td><td class="record">Half the number of 4-byte data words in the entire logger memory; typically 1024</td>
+      </tr><tr>
+        <td class="record">1: end</td><td class="record">Array index of last entry into the logger; 0&le;end&le;logger_length-1</td>
+      </tr><tr>
+        <td class="record">[2: logger_length]: par_1</td><td class="record">Data for parameter 1</td>
+      </tr><tr>
+        <td class="record">[logger_length+1: 2*logger_length-1]: par_2</td><td class="record">Data for parameter 2</td>
+      </tr>
+      <caption class="record">
+        Structure of the logger data array.
+      </caption>
+    </table>
+      
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Logger data structure &ndash; fields</th>
+      </tr><tr>
+        <th class="record_2">Field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">length</td><td class="record">Half the number of 4-byte data words in the entire logger memory; typically 1024</td>
+      </tr><tr>
+        <td class="record">end</td><td class="record">Array index of last entry into the logger; 0&le;end&le;logger_length-1</td>
+      </tr><tr>
+        <td class="record">var_0</td><td class="record">Data for parameter 1 as read from the device</td>
+      </tr><tr>
+        <td class="record">var_1</td><td class="record">Data for parameter 2 as read from the device</td>
+      </tr>
+      <caption class="record">
+        Structure of the logger data reported by the MDS in the fields dictionary.
+      </caption>
+    </table>
+      
+    <p class="narrative">
+      The MCA Data Server (MDS) provides time-orded data lists for both parameters.  For example, a value of end=200 indicate that the last new entry was at index 200.  Hence, the oldest data point is at index 201.  In the user record the MDS presents the data in  correct time order with the oldest datum now at index 0.  In this example user["var_0"] = fields["var_0"][201:1023] + fields["var_0"][0:201]. Here indices are in Python notation; ie highest index is not part of the selection.
+    </p> 
+    <p class="narrative">
+      Note that a logger_length=1024 means that there are two circular buffers with 1023 entries each; ie one less than the logger_length.
+    </p> 
+      
+    <table class="narrative">
+      <tr><td class="narrative"><img src="./logger_buffer.png" width="500"></tr>
+    <caption class="narrative">Logger circular buffer example</caption>
+    </table>
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Logger data structure &ndash; user</th>
+      </tr><tr>
+        <th class="record_2">user entry</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">length</td><td class="record">Half the number of 4-byte data words in the entire logger memory; typically 1024 </td>
+      </tr><tr>
+        <td class="record">var_0</td><td class="record">Time-ordered data for parameter 1 with oldest data at index 0</td>
+      </tr><tr>
+        <td class="record">var_1</td><td class="record">Time-ordered data for parameter 2 with oldest data at index 0</td>
+      </tr>
+      <caption class="record">
+        Structure of the logger data reported by the MDS in the user dictionary.
+      </caption>
+    </table>
+
+
+</body>
+</html>

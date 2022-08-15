@@ -1,0 +1,106 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">wxMCA Software Package Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca1k.html">Capabilities MCA-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca3k.html">Capabilities MCA-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_emorpho.html">Capabilities eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_neutron3k.html">Neutron-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca1k_um.pdf">User's Manual MCA-1000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca3k_um.pdf">User's Manual MCA-3000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/emorpho_um.pdf">User's Manual eMorpho (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="installation.html">Installationr</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mds/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../usart_interface/introduction.html">Serial Interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">wxMCA Software Installation</h1>
+    <p class="narrative"> The software package consists of a number of independent server and client modules serving different tasks. While there are some requirements for pre-installed software, the package itself requires no installer and the files can be copied to wherever the user wishes.  It will be advantageous, although not strictly necessary, to maintain the internal folder hierarchy.
+    </p>
+    
+    <h1 class="narrative">Requirements</h1>
+    <p class="narrative"> The package is mostly written in Python and requires Python 3.7. 
+    </p>
+    <p class="narrative"> Within the package, client-server communication is established via ZMQ (www.zeromq.org).  ZMQ is available for over 40 programming languages, and the protocol allows the client programmer to access our server software from many different programming languages.  Hence our server software acts as a bridge between the USB-based hardware and the local network, as well as acting as a bridge between programming languages.
+    </p>
+    <p class="narrative"> The graphics user interface is built using wxPython.  The graphics displays are performed using matplotlib.
+    </p>
+    <h1 class="narrative">Installation under Windows</h1>
+    <h2 class="narrative">Device driver and private Python</h2>
+      <p class="narrative">For Windows there is an <a href="../../../../bpi_driver_installer.exe">installer</a>.  It offers to place a complete Python 3.7 (64-bit) install into C:\BPISoft_V3\Python37 which will contain all the required python packages shown below.  Secondly, the installer provides a signed driver copy of libusb0.1 (libusb_win32) in the correct Windows SYS folder.  The installer also contains a stand-alone program (wxMCA/zadig-2.4.exe) to manually link an MCA to the libusb0.1 driver. 
+      </p>
+      <p class="narrative">The installer will also create a BPISoft_V3/wxMCA folder with a version of the data acquisition software.  Note that the user can copy the folder wxMCA to anywhere on the hard drive.  Further, the examples can all be operated outside the wxMCA folder.
+      </p>
+      <p class="narrative">The wxMCA folder itself can be downloaded as a zip file from <a href="../../../../bpi_driver_installer.exe">here</a>.  This zip file will often be more up to date than the wxMCA folder in the installer.
+      </p>
+      <p class="narrative">
+            If an MCA device is present during the installation, no further action is required. Alternatively, for Windows 10, you can use the zadig.exe utility. After plugging in the MCA and waiting for it to enumerate, launch zadig.exe and list all attached devices.  Select the device with a vendor ID of 0x1FA4 and install the libusb-win32 driver.  Note that after clicking on the install button, nothing happens for a while (up to 20s). Be patient.  The software bundle ships with wxMCA/zadig-2.4.exe .
+      </p>
+    <h2 class="narrative">Using pip install</h2>
+    <p class="narrative">
+        The BPI installation comes with Python 3.7 and the required modules, matplotlib, wxPython and zmq are pre-installed.  If you want to use your own existing python installation, we recommend using pip install, as shown below.
+    </p>
+    <p class="narrative">
+        Especially under Python 3.7, using pip to install new software is quite simple.  Open a cmd window in administrator mode and change the directory to your python installation; eg cd C:\\BPISoft_V3\\Python37 .
+    </p>
+    <p class="narrative">
+        <strong>ZMQ:</strong> python -m pip install zmq.
+    </p>
+    <p class="narrative">
+        <strong>matplotlib:</strong> python -m pip install matplotlib.
+    </p><p class="narrative">
+        <strong>wxPython:</strong> python -m pip install -U wxPython.
+    </p>
+      
+      
+    <h1 class="narrative">Installation under Linux</h1>  
+    <h2 class="narrative">USB driver</h2>
+    <p class="narrative">
+        We use a user-space USB driver called libusb0.1.  Most Linux-based OS ship with a working version of libusb0.1, and the user is encouraged to find the local version of the *.so file.  On most systems one of the provided binaries in the wxMCA/mds/lib folder will work, including the Raspberry Pi 3 and 4.  
+    </p>
+    <p class="narrative">
+        The mds/libusb0.py module automatically attempts to select the correct libusb_*_.so file.  In case it fails, the user can force a selection by setting the libusb_selected variable (near line 33).  
+    </p>
+    <h2 class="narrative">Using pip install for Python components</h2>
+ 
+    <p class="narrative">
+        <strong>ZMQ:</strong> python3.7 -m pip install zmq.
+    </p>
+    <p class="narrative">
+        <strong>matplotlib:</strong> python3.7 -m pip install matplotlib.
+    </p><p class="narrative">
+        <strong>wxPython:</strong> wxPython wheels can be found at https://extras.wxpython.org/wxPython4 .
+     E.g for Ubuntu 18.04:<br/>
+     python3.7 -m pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04/
+     <br/>
+     If the wxpython install fails because of missing GTK+, perform gtk install first
+     <br/>
+     sudo apt install libgtk-3-dev
+    </p>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

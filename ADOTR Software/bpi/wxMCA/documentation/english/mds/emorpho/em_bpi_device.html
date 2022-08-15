@@ -1,0 +1,125 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">eMorpho Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_bpi_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="em_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_constants.html">Module Constants</a></p>
+
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_api.html">Overview</a></p>
+
+<p class="cmd_list_h1"> Data Server</p>
+<p class="cmd_list"> <a class="cmd_list" href="em_server.html">Overview</a></p></td>
+  <td class="format_table">
+    <h1 class="narrative">USB and device driver</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The file ftdi.py is the device driver and provides the interface (via ctypes) to libusb0.1, which is the user-space USB driver.
+      </p>
+      <p class="narrative">
+        The file ftdi.py defines two small classes.  The first, bpi_usb is instantiated by the emorpho_server (or any user client) to establish the connection to all attached eMorpho units.  It only has three functions, and it is the find_all() function that makes the USB connection to the eMorpho devices.  That function returns a dictionary of mca-class objects with the serial numbers as the keys.
+      </p>
+      <p class="narrative">
+        For each attached eMorpho there will be one class <it>mca</it> object.  The object only stores minimal information about the eMorpho: most importantly the USB-handle.  The goal was to make this class completely transient, so that it is stateless and stores no data.  Instead data are stored inside the eMorpho, and, of course, by the client application.
+      </p>
+      <p class="narrative">
+        However, it is not practical open an close a USB interface for each communication, because of the associated time delay.  Hence, the mca-class object stores the USB handles and keeps the USB communication open.
+      </p>
+        
+    <h2 class="narrative">bpi_usb Class Functions</h2>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">bpi_usb Class Functions</th>
+      </tr><tr>
+        <th class="record_2">Function</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">scan_all()</td><td class="record">Count the number of attached eMorphos, but do nothing else.  This can be done at any time without disturbing the open USB communication channels.</td>
+      </tr><tr>
+        <td class="record">find_all()</td><td class="record">Find all attached eMorphos, claim the USB interfaces and open for communication.  The function returns a dictionary of mca-class objects with the serial numbers as the key.</td>
+      </tr><tr>
+        <td class="record">close_all()</td><td class="record">The bpi_usb class stores a copy of all USB handles.  As a last resort, a client can delete their mca-class object dictionary and use close_all() to close all USB communications in order to start afresh.</td>
+      </tr>
+      <caption class="record">
+        Description of the bpi_usb class.
+      </caption>
+    </table>
+    
+    <h2 class="narrative">mca-class Class Functions</h2>
+      <p class="narrative">
+        The functions of the mca-class are hardware dependent functions for I/O and configuration that are of little interest to the regular user.
+      </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">mca Class Functions</th>
+      </tr><tr>
+        <th class="record_2">Function</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">read_data(bytes_per_datum)</td><td class="record">Read data from the FT245RL USB interface chip of the eMorpho.  It strips the modem bytes from the data stream and assembles bytes into uint16 words or uint32 longs, depending on the bytes_per_datum argument (2 or 4)</td>
+      </tr><tr>
+        <td class="record">write_data()</td><td class="record">Writes data from the mca.bytes_out buffer to the FT245RL USB interface chip of the eMorpho. </td>
+      </tr>
+      <caption class="record">
+        The two I/O functions of the mca-class.
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">mca Class Data</th>
+      </tr><tr>
+        <th class="record_2">Item</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">bytes_out</td><td class="record">Byte array used to send data to the eMorpho</td>
+      </tr><tr>
+        <td class="record">num_bytes</td><td class="record">Number of bytes to read</td>
+      </tr><tr>
+        <td class="record">bytes_in</td><td class="record">A dynamically allocated byte array to receive the read data.</td>
+      </tr><tr>
+        <td class="record">data_in_list</td><td class="record">Reconstructed 2-byte or 4-byte data are stored in this list.  The meaning of these raw data depends on which data structure the client wanted to read. The emorpho_api layer uses the functions of the io_obj that was used when reading the data to convert the raw data and populate the data_in_dict dictionary.</td>
+      </tr><tr>
+        <td class="record">data_in_dict</td><td class="record">This dictionary is loaded with data data organized into three keys: 'registers', 'fields' and 'user'.  These are the three keys shown in the documentation for each data structure.</td>
+      </tr><tr>
+        <td class="record">cmd_out_list</td><td class="record">Hardware dependent communication header; Reserved.</td>
+      </tr>
+      <caption class="record">
+        Data stored in the mca-class.
+      </caption>
+    </table>
+
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

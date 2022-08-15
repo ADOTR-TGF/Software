@@ -1,0 +1,84 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_server.html">Server interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_api.html">API layer</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_device.html">Driver layer</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="libusb.html">C-types to libusb0.1</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_constants.html">Class constants</a></p>
+
+<h1 class="cmd_list"> Supported Devices</h1>
+<p class="cmd_list"> <a class="cmd_list" href="../counter/introduction.html">Counter</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mca1k/introduction.html">MCA-1K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mca3k/introduction.html">MCA-3K</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../emorpho/introduction.html">eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../neutron3k/introduction.html">Neutron-3K</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">mca3k_data.py Constants</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        There are a few module constants used to direct communication with the MCA
+      </p>
+        
+    <h2 class="narrative">Module Constants</h2>
+    <p class="narrative">
+      The constants specify the on-board hardware target (ARM or FPGA) and the address within the target.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Module communication constants</th>
+      </tr><tr>
+        <th class="record_2">Constant</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">FPGA_WRITE</td><td class="record">Command type: Write to FPGA</td>
+      </tr><tr>
+        <td class="record">FPGA_READ</td><td class="record">Command type: Read from FPGA</td>
+      </tr><tr>
+        <td class="record">ARM_WRITE</td><td class="record">Command type: Write to ARM</td>
+      </tr><tr>
+        <td class="record">ARM_READ</td><td class="record">Command type: Read from ARM</td>
+      </tr><tr>
+        <td class="record">MA_CONTROLS</td><td class="record">Command address: FPGA control registers</td>
+      </tr><tr>
+        <td class="record">MA_STATISTICS</td><td class="record">Command address: FPGA statistics registers (used for time and count rate measurement)</td>
+      </tr><tr>
+        <td class="record">MA_RESULTS</td><td class="record">Command address: FPGA results registers (version, telemetry)</td>
+      </tr><tr>
+        <td class="record">MA_HISTOGRAM</td><td class="record">Command address: FPGA histogram memory</td>
+      </tr><tr>
+        <td class="record">MA_TRACE</td><td class="record">Command address: FPGA oscilloscope trace memory</td>
+      </tr><tr>
+        <td class="record">MA_LISTMODE</td><td class="record">Command address: FPGA list mode memory</td>
+      </tr><tr>
+        <td class="record">MA_WEIGHTS</td><td class="record">Command address: FPGA summation weights</td>
+      </tr><tr>
+        <td class="record">MA_ACTIONS</td><td class="record">Command address: FPGA action registers, eg to start data acquisition or clear previous data.</td>
+      </tr>
+      <caption class="record">
+        Command type and command address module constants
+      </caption>
+    </table>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

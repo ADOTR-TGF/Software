@@ -1,0 +1,57 @@
+{
+    "0x101":{
+        "HTML": "./html/data_sheet_template_pmt1k.html",
+        "MCA_NAME": "PMT-1K",
+        "test_setup":{
+            "PART_NUMBER": "PMT1K-N81L",
+            "MCA_TYPE": "PMT-1000", "HV_BASE_TYPE": "HV-CPLD",
+            "DETECTOR": "Int-NaI50P", "PMT_TYPE": "R6231",
+            "TESTER": "Jay Score",
+            "TEST_DATE": "2020-09-03"
+        }
+    },
+    "0x201":{
+        "HTML": "./html/data_sheet_template_sipm1k.html",
+        "MCA_NAME": "SiPM-1K",
+        "test_setup":{
+            "PART_NUMBER": "SiPM-1KC",
+            "MCA_TYPE": "SiPM-1000", 
+            "DETECTOR": "NaI-50P", "SiPM_TYPE": "9&times;S4N66 &rArr;3.24cm<sup>2</sup>",
+            "TESTER": "Jay Score",
+            "TEST_DATE": "2020-09-21"
+        }        
+    },
+    "0x103":{
+        "HTML": "./html/data_sheet_template_pmt3k.html",
+        "MCA_NAME": "PMT-3K",
+        "test_setup":{
+            "PART_NUMBER": "PMT3K-40M-P10T",
+            "MCA_TYPE": "PMT3K-40M", "HV_BASE_TYPE": "HV-CPLD-F-P10T",
+            "DETECTOR": "EPIC-NaI-50mm", "PMT_TYPE": "CR105",
+            "TESTER": "Jay Score",
+            "TEST_DATE": "2020-09-18"
+        }
+    },
+    "0x203":{
+        "HTML": "./html/data_sheet_template_sipm3k.html",
+        "MCA_NAME": "SiPM-3K",
+        "test_setup":{
+            "PART_NUMBER": "SiPM-3K",
+            "MCA_TYPE": "SiPM-3000", 
+            "DETECTOR": "NaI-50P", "SiPM_TYPE": "S4N66",
+            "TESTER": "Jay Score",
+            "TEST_DATE": "2020-09-21"
+        }
+    },
+    "0x6001":{
+        "HTML": "./html/data_sheet_template_emorpho.html",
+        "MCA_NAME": "eMorpho",
+        "test_setup":{
+            "PART_NUMBER": "oemBase-120M-N81T",
+            "MCA_TYPE": "eMorpho", "HV_BASE_TYPE": "HV-CPLD",
+            "DETECTOR": "Integral-NaI-50x50mm", "PMT_TYPE": "R6231",
+            "TESTER": "Jay Score",
+            "TEST_DATE": "2020-09-05"
+        }
+    }
+}

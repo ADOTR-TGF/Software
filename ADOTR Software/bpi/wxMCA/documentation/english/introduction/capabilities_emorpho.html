@@ -1,0 +1,102 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">wxMCA Software Package Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca1k.html">Capabilities MCA-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca3k.html">Capabilities MCA-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_emorpho.html">Capabilities eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_neutron3k.html">Neutron-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca1k_um.pdf">User's Manual MCA-1000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca3k_um.pdf">User's Manual MCA-3000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/emorpho_um.pdf">User's Manual eMorpho (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="installation.html">Installationr</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mds/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../usart_interface/introduction.html">Serial Interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Introduction</h1>
+    <p class="narrative"> The eMorpho is a general-purpose device that serves many different applications. Its FPGA-based MCA supports count rates in excess of 4Mcps while also providing pulse capture and on the fly pulse shape discrimination.
+    </p>
+    <p class="narrative"> Devices in this family include the usbBase and the oemBase.  Both combine the MCA with a low-power fully transistorized high voltage supply in one compact package.
+    </p>
+    <table class="narrative" style="background-color: #EFD;">
+    <tr>
+    <th class="narrative" colspan="2"> eMorpho Standard and Optional Capabilities </th>
+    </tr><tr>
+    <th class="narrative"> Capability </th><th class="narrative"> Description </th>
+    </tr><tr>
+    <td class="narrative"> Analog</td>
+    <td class="narrative"> For systems with negative high voltage, the input of the eMorpho is DC-coupled to the PMT-anode. For units with a positive high voltage unit, signals are AC coupled. Direct anode to amplifier coupling for highest signal fidelity and best pulse shape discrimination.</td><tr>
+    <td class="narrative"> Gain stabilization</td>
+    <td class="narrative"> The eMorpho can adjust the operating voltage and the digital gain independently as a function of temperature to ensure that both gain and trigger threshold remain constant over temperature.  Such a look up table necessarily depends on the scintillator, and developers can program their own tables.</br></br>A third lookup table can be used in conjunction with LED-based gain stabilization or for custom purposes. </td>
+    </tr><tr>
+    <td class="narrative"> Two-bank counter and histogram</td>
+    <td class="narrative"> The eMorpho can count pulses in either of two active banks, one for samples to be measured and one for storing a background measurement. In dynamic environments, the two banks can be used to implement loss-less counting:  One bank acquires data while the other bank can be read at leisure. </td>
+    </tr><tr>
+    <td class="narrative"> Net counts and histograms</td>
+    <td class="narrative"> Custom eMorpho embedded software can report background-subtracted histograms and count rates. </td>
+    </tr><tr>
+    <td class="narrative"> High-speed DSP</td>
+    <td class="narrative"> In the eMorpho the MCA is implemented in an FPGA and its input data stream is the digitized scintillator pulse waveform.  As a result, the FPGA can apply pulse shape discrimination in real time.  This supports various specialty applications at the highest possible speed and throughput.  Examples are phoswiches and neutron/gamma detectors.  </td>
+    </tr><tr>
+    <td class="narrative"> Analysis</td>
+    <td class="narrative"> Custom eMorpho embedded software can report the probability that the measured sample count rate is compatible with the background count rate. Users can set an alarm threshold in terms of probability: Alarm if there is little chance (&lt;&epsilon;) that the sample count rate is caused by the measured background. </td>
+    </tr><tr>
+    <td class="narrative"> Dynamic alarming</td>
+    <td class="narrative"> Custom eMorpho software and FPGA firmware can analyze and report count rates in time slices of 100ms, ie at a rate of 10/s.  The software automatically tracks slowly changing backgrounds and will alarm on a passing source. Its digital output can be used to drive an audio or visual alarm.</td>
+    </tr><tr>
+    <td class="narrative"> Communication</td>
+    <td class="narrative"> The eMorpho implements a USB-2.0 compatible USB 1.2 interface, using an FT245RL USB controller.</td>
+    </tr>
+    </table>
+    
+    
+    <h1 class="narrative">Sensor power supply</h1>
+    <p class="narrative"> The eMorpho includes a 1400V power supply with pinouts for different PMT. 
+    </p>
+    <h1 class="narrative">Gain stabilization</h1>
+    <p class="narrative"> For the eMorpho gain stabilization is implemented by a separate software client, called the stabilzer.  The eMorpho can be equipped with an LED that shines light into the back of the photomultiplier. Using an LED can help to counteract gain drifts over time caused by aging of the photomultiplier.
+    </p>
+    
+    <h1 class="narrative">Time-slice operation</h1>
+    <p class="narrative"> There are dynamic situations, where a radioactive source can be measured only for a brief moment.  Examples are a vehicle passing through a radiation portal monitor, or a person with a backpack detector walking past a stationary source.
+    </p>
+    <p class="narrative"> The time-slice operation supports these cases.  When equipped with the appropriate software and FPGA firmware, the device tracks slow changes in the environmental background.  An alarm is created when during a summation time (L) of typically 4 seconds, the accumulated counts are significantly more than what is expected from the background.  The alarm threshold is defined as the probability that the measured counts (N) during a period L, could have been caused by the established background rate over the same period (B).A threshold of 1.0e-4 means that we alarm when P(Counts&nbsp;&ge;&nbsp;N|BCK) &lt; 1.0e-4.   
+    </p>
+    <p class="narrative"> For example, assume a summation time of 4 seconds and a background rate of 500cps for BCK=2000.  Now assume that we count 2500cps in a particular 4s-period.  The probability of the established background to cause 2224 counts or more in 4s is P(Counts&nbsp;&ge;&nbsp;2224|BCK=2000) = 2.86e-7.  This smaller than the alarm threshold of 1.0e-4, and the embedded program will generate an alarm.
+    </p>
+    <p class="narrative"> If the alarm condition is permanent, the software resets all the logic after a period of H time slices and starts counting again.  It now will accept the suddenly higher level of radioactivity as the new normal background. 
+    </p>
+    
+    <p class="narrative"> Finally, a 'wait' parameter tells the system to wait a number of time slices after turn-on or reset before being ready to alarm.  This is necessary so that the background will be known with sufficient accuracy.
+    </p>
+    
+    <p class="narrative"> All told, the time-slice firmware provides an unprecedented, and highly configurable, and fully autonomous alarming system for portal monitors.  This is ideal for very low-cost mass-produced pedestrian monitors, hand-held sweepers and similar applications.
+    </p>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

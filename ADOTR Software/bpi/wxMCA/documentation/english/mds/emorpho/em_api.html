@@ -1,0 +1,128 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">eMorpho Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_bpi_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="em_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_constants.html">Module Constants</a></p>
+
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_api.html">Overview</a></p>
+
+<p class="cmd_list_h1"> Data Server</p>
+<p class="cmd_list"> <a class="cmd_list" href="em_server.html">Overview</a></p></td>
+  <td class="format_table">
+    <h1 class="narrative">eMorpho API</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The eMorpho API (emorpho_api.py) takes a command and a dictionary of mca objects as its argument, executes the command and returns data, if any, in the mca.data_in_dict member of each mca object.
+      </p>
+    <h2 class="narrative">Reading data</h2>
+      <p class="narrative">
+        When reading data, the API reads registers from the device, converts some of these into named fields and again reports some of these as physical quantities in SI-units in the user dictionary.  All three hierarchical levels are populated automatically.
+      </p>
+    <h2 class="narrative">Writing data</h2>
+      <p class="narrative">
+        For a short_write or write command the API only accepts the list data, and they have to be complete.  For instance all 16 control registers must be given for a fpga_ctrl write to succeed.  Write and short_write commands are used only when execution speed is of utmost performance, and added USB-delays (2ms) are unacceptable.
+      </p>
+    <h2 class="narrative">Read-Modify-Write</h2>
+      <p class="narrative">
+        The most robust and easy to use method for updating parameters is to employ read-modify-write commands (dir='rmw').  When executing such a command, the API reads the current values from the target and promotes data from registers to named fields and then up to the user dictionary. 
+      </p>
+      <p class="narrative">
+        It then proceeds to update only the values given by the client.  It translates data from an input user dictionary to named fields, then merges in any client-supplied named fields, and finally copies all that into the list of data that are to be written to the device.  
+      </p>
+      <p class="narrative">
+        The advantage to the user is that they only need to supply data for the quantities they want to change and can ignore all the others. 
+      </p>
+      <p class="narrative">
+        Secondly, the Morpho Data Server receives commands from any attached client and will execute them in order or receipt.  A read-modify-write command is atomic in the sense that it cannot be interrupted by another client. 
+      </p>
+        
+    <h2 class="narrative">API functions</h2>
+    <p class="narrative">
+      There are three main functions to process commands and boot attached devices.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">API functions</th>
+      </tr><tr>
+        <th class="record_2">Function name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">process_cmd(user_cmd, mca_dict)</td><td class="record">Prepare all mca in the mca_dict for performing the command, perform the command on each mca and return an in_dict dictionary with data for each serial number.  For each mca, return data are also stored in  </td>
+      </tr><tr>
+        <td class="record">perform_cmd(mca)</td><td class="record"> The mca object has been prepared and all relevant command information is stored internally.  perform_cmd executes the command and loads results into mca.data_in_dict</td>
+      </tr>
+      <caption class="record">
+        The API only needs two functions.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      The API accepts a command data structure (dictionary in Python) that is the same for all commands.  
+    </p> 
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">API command structure</th>
+      </tr><tr>
+        <th class="record_2">Field</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">sn</td><td class="record">Serial number; eg eRC5000</br> Cases: </br>
+        Field is empty or is an empty string: Command applies to all mca in the mca_dict.</br>
+        Field is a non-empty string: Command applies to that mca if it is in the mca_dict.</br>
+        Field is a list of strings: Command applies to all mca in that list if they are in the mca_dict
+        </td>
+      </tr><tr>
+        <td class="record">dir</td><td class="record">read&nbsp;&rarr; Read data, short_write&nbsp;&rarr; Write data, used to write fpga_ctrl, write&nbsp;&rarr; Write data, used for all other writes (eg to nv-mem), rmw&nbsp;&rarr; Read-modify-write, and data are exchanged via the data endpoints.</td>
+      </tr><tr>
+        <td class="record">mem</td><td class="record">ram&nbsp;&rarr; target memory resides in FPGA, flash&nbsp;&rarr; target memory resides in on-board non-volatile memory.</td>
+      </tr><tr>
+        <td class="record">name</td><td class="record">Command name; it must be one of the keys in the emorpho_api.make_new_io_obj directory</td>
+      </tr><tr>
+        <td class="record">num_items</td><td class="record">For some commands the user may want to specify explicitly the number of items to read or write. </td>
+      </tr><tr>
+        <td class="record">data</td><td class="record">Dictionary of data to be written; includes the standard three keys: 'registers', 'fields' and 'user'. </td>
+      </tr><tr>
+        <td class="record">cmd_type</td><td class="record">Not used by the API.  The data server will call the API only if cmd_type=='em_cmd'</td>
+      </tr>
+      <caption class="record">
+        The API command structure
+      </caption>
+    </table>
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

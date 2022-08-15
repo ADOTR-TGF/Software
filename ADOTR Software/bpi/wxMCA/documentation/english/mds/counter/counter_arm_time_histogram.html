@@ -1,0 +1,113 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">COUNTER</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_device.html">Counter Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="counter_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_logger.html">Two-channel Logger</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_time_histogram.html">Time histogram</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Counter Data Structure: arm_time_histogram</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The counter can prepare a histogram of the time difference between successive events.  This feature is useful to ascertain that events truly arrive in a random fashion.  More importantly, it can be used to measure count rates precisely, without making assumptions about the dead time of the event processing.
+      </p>
+        
+      <p class="narrative">
+        Time differences are measured with a resolution of 4/3&micro;s=1.333&micro;s. The histogram memory is 1024 bins long.  The practical range of measuring count rates this way extends from 1kcps to much beyond 100kcps.
+      </p>
+      
+      <h2 class="narrative">Theory of operation</h2>
+      <p class="narrative">
+        If the incoming pulse that are to be counted are truly random in time and are not correllated with each other, then the time differences between subsequent pulses is eponentially distributed with a probability density function (pdf) as follows: pdf=exp(-t/cr) where cr=count_rate. 
+      </p> 
+      
+      <table class="narrative">
+        <tr><td class="narrative"><img src="./time_histogram.png" width="500"></tr>
+        <caption class="narrative">Histogram of pulse arrival time differences. The green line is an exponential fit.</caption>
+      </table>
+      
+      <p class="narrative">
+        One can extract the count rate from a linear fit in a semi-logarithmic plot of time difference histogram.  The slope equals -1/cr.
+      </p> 
+     
+        
+    <h2 class="narrative">Associated commands</h2>
+    <p class="narrative">
+      Set arm_ctrl["user"]["acq_type"]=1 to activate acquistion of a time histogram.
+    </p>
+    <p class="narrative">
+      To read the time histogram use the regular read_histogram command:
+    </p> 
+    <p class="narrative">
+      cmd={"name": "arm_histogram", "dir": "read"}
+    </p> 
+    <p class="narrative">
+      To clear the histogram set arm_ctrl["user"]["clear_histogram"]=1 and arm_ctrl["user"]["clear_statistics"]=1
+    </p> 
+      
+    <p class="narrative">
+      For arm_time_histogram, there are 1040 data in use.  All register data are 32-bit integers.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">MCA registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">HR0[0]: run</td><td class="record">Histogram acquisition happens while this bit is set.</td>
+      </tr><tr>
+        <td class="record">HR1: run_time</td><td class="record">Run time measured by wall clock; 1LSB=1.365ms.</td>
+      </tr><tr>
+        <td class="record">HR2: dead_time</td><td class="record">Dead time measured by wall clock; 1LSB=1.365ms.</td>
+      </tr><tr>
+        <td class="record">HR3: events</td><td class="record">Number of acquired events</td>
+      </tr><tr>
+        <td class="record">HR4: live_time</td><td class="record">Computed live time, in milliseconds</td>
+      </tr><tr>
+        <td class="record">HR5: count_rate</td><td class="record">Computed count rate, dead-time corrected, in milli-cps</td>
+      </tr><tr>
+        <td class="record">HR6: live_time_ratio</td><td class="record">Sample / background measuring time; &times; 1e6.  Only used by arm_diff.</td>
+      </tr><tr>
+        <td class="record">HR14: wall_clock_start</td><td class="record">Wall clock reading at start time in 1.365333ms units</td>
+      </tr><tr>
+        <td class="record">HR15: live_time_max</td><td class="record">Requested live time for the data acquisition, in milliseconds</td>
+      </tr><tr>
+        <td class="record">HR16 to HR1039: histogram</td><td class="record">The 1K&times;32-bit time histogram.  </td>
+      </tr>
+      <caption class="record">
+        All arm_time_histogram registers.  HRn means histogram register number n, with n=0...1039 . Bitfields are indicated as [b_low:b_high] indicating bit numbers b_low to b_high, inclusive.
+      </caption>
+    </table>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+{
+    "command_root": "../commands/",
+    "settings_root": "../settings/",
+    "mds_ip": "tcp://127.0.0.1:5507",
+
+    "device_names": {
+        0x6001: "eMorpho",
+        0x100: "PMT-Counter",
+        0x200: "SiPM-Counter",
+        0x101: "PMT-1000",
+        0x102: "PMT-2000",
+        0x103: "PMT-3000",
+        0x201: "SiPM-1000",
+        0x202: "SiPM-2000",
+        0x203: "SiPM-3000",
+        0x104: "PMT-N3K",
+        0x204: "SIPM-N3K"
+    },
+    "device_types": {
+        0x6001: "emorpho",
+        0x100: "counter",
+        0x200: "counter",
+        0x101: "mca_1k",
+        0x102: "mca_2k",
+        0x103: "mca_3k",
+        0x201: "mca_1k",
+        0x202: "mca_2k",
+        0x203: "mca_3k",
+        0x104: "neutron_3k",
+        0x204: "neutron_3k"
+    },
+
+    "command_files": {
+        0x6001: "commands_emorpho.json",
+        0x100: "commands_counter.json",
+        0x200: "commands_counter.json",
+        0x101: "commands_mca_1k.json",
+        0x102: "commands_mca_2k.json",
+        0x103: "commands_mca_3k.json",
+        0x201: "commands_mca_1k.json",
+        0x202: "commands_mca_2k.json",
+        0x203: "commands_mca_3k.json",
+        0x104: "commands_neutron_3k.json",
+        0x204: "commands_neutron_3k.json"
+    },
+
+    "comment_mds_ip": "Local: tcp://127.0.0.1:5507, on the network, eg: tcp://192.168.1.10:5507 ",
+    "comment_1": "Note the trailing '/' on all directory paths.",
+    "comment_2": "user_root is the path for MCA instrument settings and acquired data."
+}

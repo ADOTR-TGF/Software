@@ -1,0 +1,154 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3K Data Server (sipm-MDS) Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca3k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> FPGA Data structures</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_cal.html">Calibration</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">USB interface / device driver</h1>
+    <h2 class="narrative">USB interface</h2>
+      <p class="narrative">
+      The USB interface implemented in the ARM M0+ MCU is a peripheral device and has the required control endpoint plus command IN and OUT endpoints (0x81, 0x1) plus data IN and OUT endpoints (0x82, 0x2).  Here, IN and OUT are as seen by the host; hence, IN refers to the host reading data from the device.
+      </p>    
+    <h2 class="narrative">Device driver</h2>
+    <p class="narrative">
+      The device driver uses libusb0.1 as the user space usb-driver.  Note that only one application can claim a device.</p>
+    <p class="narrative">mca3k_device.py defines the 'mca' class.  An object of that class holds all information necessary to operate an MCA-3K.  Note that with the exception of its usb_handle, all information is considered transient and the class object is stateless.  For each attached MCA-3K one mca object is created, and the bpi_usb.findall() function returns a dictionary of all attached MCA-3K mca objects. 
+    </p>
+    <p class="narrative">The keys in this dictionary are the unique 32-character long serial numbers of the SAM L21 ARM M0+ processor.  These serial numbers are built-in by the manufacturer and cannot be changed or erased.
+    The device driver reads the ARM Version registers to retrieve the unique serial number of the device.      </p>
+    <p class="narrative">
+    The device driver supports any number of attached MCA-3K units.  For a device to be recognized as an MCA-3K it must have a USB vendor id of 0x1FA4 and a product ID of 0x103 (PMT-3000) or 0x203 (SiPM-3000).</p>
+    <p class="narrative">
+    Unless they require a customized driver, all MCA-3K have the same serial number ("armMorpho001", or "sipmMORPHO001") as seen by the operating system as it enumerates the devices on the USB bus.  This prevents Windows from having to install a new driver copy for every new MCA-3K.</p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Device driver functions</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">scan_all</td><td class="record">Scan for attached MCA-3K, but do not try to claim the devices and open them for communication.  Use to count MCA-3K units or check if devices have been plugged in or unplugged. </td>
+      </tr><tr>
+        <td class="record">find_all</td><td class="record">Scan for attached MCA-3K units, claim the interface and open for USB communication. It returns a dictionary of mca objects, one object per attached MCA-3K</td>
+      </tr><tr>
+        <td class="record">close_all</td><td class="record">Close USB communication for all attached devices.</td>
+      </tr><tr>
+        <td class="record">read_data</td><td class="record">Read data from the DATA_IN endpoint.  It can read data from their ARM MCU or the FPGA.</td>
+      </tr><tr>
+        <td class="record">write_data</td><td class="record">Write data to COMMAND_EP or DATA_EP.  It can send data to the ARM MCU or the FPGA.</td>
+      </tr>
+      <caption class="record">
+        Table of device driver functions.
+      </caption>
+    </table>
+    
+    <h2 class="narrative">Data I/O</h2>
+    <p class="narrative">
+    The MCA-3K USB communication uses the concept of a data port.
+    The host first writes instructions to the command endpoint and then issues a usb bulk read to retrieve the data.  The software inside the ARM MCU will populate the data_in buffer with the requested data. If the host requires more than 256 byte, the bpi_usb.read_data function will use multiple bulk-reads to satisfy the request. 
+    </p>
+    <p class="narrative">
+    The read and write functions are both completely agnostic of the data.  Data are byte arrays and the two functions look do not look inside or try to interpret the data.  Both take an mca object as their only argument.
+    </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="3">Function bpi_device.write_data(mca)</th>
+      </tr><tr>
+        <th class="record_2">Arguments</th><th class="record_2">Type</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">mca.bytes_out</td><td class="record">Byte array</td><td class="record">array.array('B')</td>
+      </tr><tr>
+        <td class="record">mca.num_bytes</td><td class="record">Integer</td><td class="record">Number of bytes to send;  Maximum is to 2<sup>16</sup>-1=65535 bytes.</td>
+      </tr><tr>
+        <td class="record">mca.write_ep</td><td class="record">Integer</td><td class="record">Endpoint; either mca.COMMAND_OUT_EP or mca.DATA_OUT_EP </td>
+      </tr><tr>
+        <td class="record">mca.usb_write_timeout</td><td class="record">Integer</td><td class="record">USB write timeout in milli-seconds. </td>
+      </tr><tr>
+        <th class="record_2" colspan="3">Returns</th>
+      </tr><tr>
+        <td class="record">None</td><td class="record">Integer</td><td class="record">None, or possibly an error code for debugging purposes only.</td>
+      </tr>
+      <caption class="record">
+        The bpi_device.write_data function.  It writes to the command_out or the data_out endpoint.  Data are written in chunks of 256 bytes or less.
+    </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="3">Function bpi_device.read_data(mca)</th>
+      </tr><tr>
+        <th class="record_2">Arguments</th><th class="record_2">Type</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">mca.bytes_in</td><td class="record">Byte array</td><td class="record">array.array('B'); Buffer to receive the data read from the device.</td>
+      </tr><tr>
+        <td class="record">mca.num_bytes</td><td class="record">Integer</td><td class="record">Number of bytes to read;  Maximum is to 2<sup>16</sup>-1=65535 bytes.</td>
+      </tr><tr>
+        <td class="record">mca.read_ep</td><td class="record">Integer</td><td class="record">Endpoint; either mca.COMMAND_IN_EP or mca.DATA_IN_EP, where mca.COMMAND_IN_EP is used for debugging only. </td>
+      </tr><tr>
+        <td class="record">mca.usb_read_timeout</td><td class="record">Integer</td><td class="record">USB read timeout in milli-seconds. </td>
+      </tr><tr>
+        <td class="record">num_bytes</td><td class="record">Integer</td><td class="record">Number of bytes to read (up to 2<sup>16</sup>-1=65535). </td>
+      </tr><tr>
+        <th class="record_2" colspan="3">Returns</th>
+      </tr><tr>
+        <td class="record">None</td><td class="record">Integer</td><td class="record">None, or possibly an error code for debugging purposes only.</td>
+      </tr>
+      <caption class="record">
+        The bpi_usb.read_data function.  Data are read in chunks of 256 bytes or less.
+    </caption>
+    </table>
+    <p class="narrative">
+    </p>
+    
+    
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

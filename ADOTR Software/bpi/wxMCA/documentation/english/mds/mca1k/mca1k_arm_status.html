@@ -1,0 +1,216 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-1K Data Server Reference</h1>
+    </td>
+  </tr> 
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">MCA-1K</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_device.html">MCA-1K Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca1k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_time_histogram.html">Time Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_logger.html">Two-channel Logger</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-1K Data Structure: arm_status</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_status data structure reports data describing the current status of the slow-control system.  Data reported include the count rates, alarm probabilities and more.  Valid for PMT-based and SiPM-based MCA-1K devices such as PMT-1000, SiPM-1000.
+      </p>
+        
+    <h2 class="narrative">Data structures</h2>
+    <p class="narrative">
+      For arm_status these are the 'register' and 'field' data in use.  All register data are 32-bit floats  (float32).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS0: op_voltage</td><td class="record">PMT-1000: always 0. SiPM-1000 only: Current SiPM operating voltage; cf note 1.</td>
+      </tr><tr>
+        <td class="record">AS1: target_volt</td><td class="record">Reads arm_ctrl["cal_ov"] when gain stabilization is off; Reads a computed target voltage when gain stabilization is on; cf note 1.</td>
+      </tr><tr>
+        <td class="record">AS2: set_voltage</td><td class="record">PMT-1000: always 0. SiPM-1000 only: Current operating voltage set by the DAC to achieve the op_voltage, cf note 1.</td>
+      </tr><tr>
+        <td class="record">AS3: target_dg</td><td class="record">Reads arm_ctrl["cal_dg"] when gain stabilization is off; Reads a computed target digital gain when gain stabilization is on; cf note 1.  Reserved for future use.</td>
+      </tr><tr>
+        <td class="record">AS4: cpu_temperature</td><td class="record">Current ARM M0+ processor core temperature</td>
+      </tr><tr>
+        <td class="record">AS5: x_temperature</td><td class="record">PMT-1000: Current temperature of the high voltage unit.  It is close to the PMT temperature.  SiPM-1000: Current SiPM temperature measured by a sensor adjacent to the SiPM.</td>
+      </tr><tr>
+        <td class="record">AS6: avg_temperature</td><td class="record">Current temperature average (from selected sensor)</td>
+      </tr><tr>
+        <td class="record">AS7: </td><td class="record">wall_clock time; Resolution is 65536/48MHz=1.365ms. Because these are float32 numbers delivered by the PMT-MCA, this field has only 23 mantissa bits and stops incrementing at 2<sup>23</sup>; ie after 11453&nbsp;s = 3.18&nbsp;hours.  (The field is repeated in the histogram data structure with full 32-bit precision, rolling over only after 67.9days.)</td>
+      </tr><tr>
+        <td class="record">AS8: run_status</td><td class="record">Run status, a bit-field.</td>
+      </tr><tr>
+        <td class="record">AS8[0]: histo_active</td><td class="record">Indicates if histogram acquisition is ongoing. </td>
+      </tr><tr>
+        <td class="record">AS8[1]: alarm_active</td><td class="record">Indicates if the alarming algorithm is active. </td>
+      </tr><tr>
+        <td class="record">AS9: run_time</td><td class="record">Run time of the foreground counter (resolution: 1.365333ms)</td>
+      </tr><tr>
+        <td class="record">AS10: count_rate</td><td class="record">Foreground or sample count rate</td>
+      </tr><tr>
+        <td class="record">AS11: count_rate_err</td><td class="record">Foreground count rate 2-&sigma; error</td>
+      </tr><tr>
+        <td class="record">AS12: run_time_bck</td><td class="record">Run time of the background counter (resolution: 1.365333ms)</td>
+      </tr><tr>
+        <td class="record">AS13: count_rate_bck</td><td class="record">Background count rate</td>
+      </tr><tr>
+        <td class="record">AS14: count_rate_bck_err</td><td class="record">Background count rate 2-&sigma; error</td>
+      </tr><tr>
+        <td class="record">AS15: count_rate_diff</td><td class="record">Foreground minus background count rate</td>
+      </tr><tr>
+        <td class="record">AS16: count_rate_diff_err</td><td class="record">Foreground minus background count rate 2-&sigma; error</td>
+      </tr><tr>
+        <td class="record">AS17: background_probability</td><td class="record">Probability that the foreground counts are caused by the measured background rate.</td>
+      </tr><tr>
+        <td class="record">AS18: bck_low_probability</td><td class="record">Most alarmist chance that the sample (S) is more radioactive than the background (B): P(counts > S+sigma(S) | B-sigma(B))</td>
+      </tr><tr>
+        <td class="record">AS19: bck_high_probability</td><td class="record">Most cautious chance that the sample (S) is more radioactive than the background (B): P(counts > S-sigma(S) | B+sigma(B))</td>
+      </tr>
+      <caption class="record">
+        All arm_status registers and fields.  Note 1: Parameter reads back zero when the lock-bit is set in arm_cal, LUT[63].
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record">Sample - Background Counting Statistics</th>
+      </tr><tr>
+        <td class="record"><img src="counting_statistics.png" width="300" </td>
+      </tr>
+      <caption class="record">
+        Illustration of alarm computation for the sample vs background measurement.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      Below follow the time slice data entries for arm_status.  
+    </p> 
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status time slice results</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS20: ts_ready</td><td class="record">1&rarr;Time slice system is ready to generate alarms.</td>
+      </tr><tr>
+        <td class="record">AS21: ts_alarm</td><td class="record">1&rarr; There has been an alarm in the last ts_H time slices.</td>
+      </tr><tr>
+        <td class="record">AS22: ts_net</td><td class="record">Net counts above background during the last L time slices</td>
+      </tr><tr>
+        <td class="record">AS23: ts_bck</td><td class="record">Background counts above background during the last L time slices</td>
+      </tr><tr>
+        <td class="record">AS24: ts_prob</td><td class="record">Probability that net is caused by the accepted background rate.</td>
+      </tr><tr>
+        <td class="record">AS25: ts_reset</td><td class="record">Time slice counters were reset due to an extended alarm (longer than arm_ctrl["ts_H"])</td>
+      </tr>
+      <caption class="record">
+        arm_status time_slice fields
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      When comparing the activity of a sample against the background activity, the results will be reported in the fields shown below.  The region of interest (ROI) is encoded in arm_ctrl at AC17, AC18: roi_low, roi_high. 
+    </p> 
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status sample vs background results</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS26: roi_rate</td><td class="record">Sample count rate in the alarm ROI</td>
+      </tr><tr>
+        <td class="record">AS27: roi_rate_err</td><td class="record">2-&sigma; error for the above.</td>
+      </tr><tr>
+        <td class="record">AS28: roi_rate_bck</td><td class="record">Background count rate in the alarm ROI</td>
+      </tr><tr>
+        <td class="record">AS29: roi_rate_bck_err</td><td class="record">2-&sigma; error for the above.</td>
+      </tr><tr>
+        <td class="record">AS30: roi_rate_diff</td><td class="record">Sample - Background count rate in the alarm ROI</td>
+      </tr><tr>
+        <td class="record">AS31: roi_rate_diff_err</td><td class="record">2-&sigma; error for the above.</td>
+      </tr><tr>
+        <td class="record">AS32: roi_events</td><td class="record">Number of sample counts in the ROI during the sample acquisition time</td>
+      </tr><tr>
+        <td class="record">AS33: roi_bck</td><td class="record">Number of projected background counts in the ROI during the sample acquisition time.</td>
+      </tr>
+      <caption class="record">
+        Detailed arm_status sample vs background counting results
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">LED</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AS34: led_val</td><td class="record">LED value, in MCA bins.</td>
+      </tr>
+      <caption class="record">
+        LED data for PMT-1000 that are equipped with an LED.
+      </caption>
+    </table>
+
+    
+    <p class="narrative">
+      The 'user' dictionary for arm_status.  
+    </p> 
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">wall_clock_time</td><td class="record">Wall clock time in seconds; Resolution is 1.365ms.</td>
+      </tr><tr>
+        <td class="record">counter_active</td><td class="record">Histogram is updating; 0 or 1</td>
+      </tr><tr>
+        <td class="record">active_bank</td><td class="record">Number of the histogram bank that is updating; 0 or 1</td>
+      </tr>
+      <caption class="record">
+        arm_status 'user' dictionary entries
+      </caption>
+    </table>
+
+   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+    "start_mca": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 1, "clear_statistics": 1, "clear_histogram": 1, "active_bank": 0}, "fields":{}}},  
+    "stop_mca": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 0, "clear_statistics": 0, "clear_histogram": 0, "active_bank": 0}, "fields":{}}},
+    "resume_mca": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 1, "clear_statistics": 0, "clear_histogram": 0, "active_bank": 0}, "fields":{}}},
+    "read_mca": {"name": "arm_histogram",  "dir": "read"},
+    "read_rates": {"name": "arm_status",  "dir": "read"},
+    
+    "start_bck": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 1, "clear_statistics": 1, "clear_histogram": 1, "active_bank": 1}, "fields":{}}},  
+    "stop_bck": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 0, "clear_statistics": 0, "clear_histogram": 0, "active_bank": 1}, "fields":{}}},
+    "resume_bck": {"name": "arm_ctrl",  "dir": "rmw", "data": {"user": {"histogram_run": 1, "clear_statistics": 0, "clear_histogram": 0, "active_bank": 1}, "fields":{}}},
+    "read_bck": {"name": "arm_bck",  "dir": "read"},
+    
+    "read_diff": {"name": "arm_diff",  "dir": "read"},
+
+    "read_arm_ctrl": {"name": "arm_ctrl",  "dir": "read"},
+
+    "nv_mem": {
+        "write_arm_ctrl": {"name": "arm_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}},
+        "read_arm_ctrl": {"name": "arm_ctrl",  "dir": "write", "mem": "flash", "data": {"registers": []}}
+    }
+}

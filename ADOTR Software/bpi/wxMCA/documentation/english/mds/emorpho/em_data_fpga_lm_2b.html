@@ -1,0 +1,149 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../documentation/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">eMorpho Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_bpi_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="em_data_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_constants.html">Module Constants</a></p>
+
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_api.html">Overview</a></p>
+
+<p class="cmd_list_h1"> Data Server</p>
+<p class="cmd_list"> <a class="cmd_list" href="em_server.html">Overview</a></p></td>
+  <td class="format_table">
+    <h1 class="narrative">eMorpho Data Structure: fpga_lm_2b</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The fpga_lm_2b data structure is available with a non-standard firmware.  It is an enhanced list mode, but with the same event structure as regular list mode. There are two data banks each of which can hold 2730 events.  While the active bank fills with new data, the client application can read and process data from the inactive bank.  A brief description can be found <a href="./list_mode_2_banks_r1.pdf">here</a>.
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For fpga_list_mode there are 4096 'register' and a number of 'fields' data in use.  All register data are 16-bit unsigned int16  (uint16).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_lm_2b registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">LM0[15]: mode</td><td class="record">Indicates event data format in the list mode data buffer. 0&nbsp;&rarr; (16-bit energy, 32-bit time), 1&nbsp;&rarr; (16-bit energy, 16-bit PID, 16-bit time).</td>
+      </tr><tr>
+        <td class="record">LM0[0:11]: num_events</td><td class="record"> Number of events stored in the list mode buffer.</td>
+      </tr><tr>
+        <td class="record">LM1 ... LM4095:</td><td class="record">Data buffer.  Its contents will be unpacked according to mode and num_events. </td>
+      </tr>
+      <caption class="record">
+        The fpga_lm_2b registers; LMn means list mode register number n, with n=0...3 . Bitfields are indicated as [b_low:b_high] indicating bit numbers b_low to b_high, inclusive.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      The list mode data buffer (LM) consists of a 16-bit header word (in LM0) followed by 4095 16-bit data words.  Into these data words, the FPGA packs up 2730 3-word events.  The structure of an event depends on 'mode' and is shown below.
+    </p> 
+    <p class="narrative">
+      Energies are shown with an extra 4-bit precision compared to Histogram entries: Energy = 16*MCA_bin.
+    </p> 
+    <p class="narrative">
+      For mode=0 the time unit is an ADC sampling clock cycle; ie 25ns for a 40MHz ADC sampling rate.  For mode=1 the time unit 64 ADC sampling clock cycles; ie 40MHz&nbsp;&rarr; 1.6&micro;s, 80MHz&nbsp;&rarr; 0.8&micro;s, 120MHz&nbsp;&rarr; 0.533&micro;s, 
+    </p> 
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">Listmode event structure</th>
+      </tr><tr>
+        <th class="record_2">mode</th><th class="record_2">Event</th>
+      </tr><tr>
+        <td class="record">0</td><td class="record">energy, short_sum, time</td>
+      </tr><tr>
+        <td class="record">1</td><td class="record"> energy, time_0, time_1</td>
+      </tr>
+      <caption class="record">
+        The fpga_lm_2b event structure for different modes.  For mode=1, the arrival time is time_0+65536*time_1.
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">List mode data fields when mode=0</th>
+      </tr><tr>
+        <th class="record_2">Field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">times</td><td class="record">List of 32-bit event arrival times</td>
+      </tr><tr>
+        <td class="record">energies</td><td class="record"> List of 16-bit energies</td>
+      </tr>
+      <caption class="record">
+        The fpga_lm_2b data fields when mode=0; 
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">List mode data fields when mode=1</th>
+      </tr><tr>
+        <th class="record_2">Field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">times</td><td class="record">List of 16-bit event arrival times</td>
+      </tr><tr>
+        <td class="record">energies</td><td class="record"> List of 16-bit energies</td>
+      </tr><tr>
+        <td class="record">short_sums</td><td class="record">List of energies measured over the shorter integration time of 'short_it'. </td>
+      </tr>
+      <caption class="record">
+        The fpga_lm_2b data fields when mode=1; 
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">List mode data user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">times</td><td class="record">List of event arrival times measured in seconds</td>
+      </tr><tr>
+        <td class="record">energies</td><td class="record"> List of 12-bit energies; 1LSB = 1 MCA_bin</td>
+      </tr><tr>
+        <td class="record">short_sums</td><td class="record">List of energies measured over the shorter integration time of 'short_it'. 1LSB = 1 MCA_bin </td>
+      </tr>
+      <caption class="record">
+        The fpga_lm_2b data fields when mode=1; 
+      </caption>
+    </table>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>USART</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="../common/favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Software V3 &ndash; Common USART interface</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">Common USART Interface</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="embedded_c.html">Embedded-C Driver</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="product_specific.html">Product-specific Implementation</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca_usart.pdf">Reference (pdf)</a></p>
+
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Common Serial Interface &ndash; Hardware Implementation</h1>
+    <p class="narrative"> The serial interface is implemented on the same I/O pins as the ARM SWD (Software Debug Interface).  If it is necessary to preserve the ability to reprogram the ARM processor, then the serial Tx/Rx pins must be connected directly to the host.  Since the low-power ARM processor can only drive 1mA, these lines can be sensitive to electromagnetic interference.  Even the powerful trigger-out pulse that is available on some devices can cause interference if the wrong type of cabling is used. 
+    </p>
+    <p class="narrative"> Connecting a wire or cable directly to the ARM processor outputs is mostly used when the counter or MCA PCB is embedded into a shielded enclosure with the host processor or host computer being nearby.
+    </p>
+    <p class="narrative"> External cable runs, outside a shielded enclosure, should not be used when connecting directly to the ARM processor I/O pins.
+    </p>  
+    <p class="narrative"> Note that the USB port of the ARM processor is much more EMI resistant than the serial interface.
+    </p>  
+    
+    <h1 class="narrative">SiPM-Counter</h1>
+    <p class="narrative"> Examples for the SiPM-Counter are located in wxMCA/examples/counter/Raspberry_Pi3_serial/ .  </p>
+      
+    <h2 class="narrative">Implementation</h2>
+    <p class="narrative"> For the SiPM-counter we show an implementation, without using the logger, that uses the same 256 byte (64-item) data buffer for read and writes to arm_version, arm_ctrl and arm_status.  The resulting software can execute in a small embedded processor requiring less than 384 bytes of RAM. </p>
+      
+    <p class="narrative"> If the host microprocessor has 1KB of RAM the SiPM-Counter can also be operated via the examples shown in wxMCA/examples/mca1k/Raspberry_Pi3_serial/ </p>
+      
+    <p class="narrative"> The logger is a built-in function of the SiPM-Counter and the MCA-1K that provides a rolling list of 1024 samples of two variables; eg operating voltage and count rate, or net counts and alarm probability.  To make full use of the logger capability, the host processor needs an additional 8kB of RAM. </p>
+      
+    <h1 class="narrative">SiPM-1000 and PMT-1000 (MCA-1K)</h1>
+    <p class="narrative"> Examples for the MCA-1K are located in wxMCA/examples/mca1k/Raspberry_Pi3_serial/ .  </p>
+      
+    <h2 class="narrative">Implementation</h2>
+    <p class="narrative"> Here we show an implementation, without using the logger, that uses distinct data arrays for arm_version, arm_status, arM-ctrl, arm_cal and the 2080-item histogram buffer that contains the foreground/sample and the background/no-sample spectrum.  The total RAM requirement for the data arrays is 9152&nbsp;bytes. </p>
+      
+    <p class="narrative"> By default, the serial baud rate is set to 115200, which translates to about 11.5kB/s.  Hence, transferring a single spectrum of 16+1024 entries takes 0.36s.  While the transfer is taking place, the MCA can not acquire data. </p>
+      
+    <p class="narrative"> The maximum possible baud rate is 3MBd, which would reduce the histogram transfer time to 14ms. </p>
+      
+    <h1 class="narrative">SiPM-3000 and PMT-3000 (MCA-3K)</h1>
+    <p class="narrative"> Examples for the MCA-3K are located in wxMCA/examples/mca3k/Raspberry_Pi3_serial/ .  </p>
+      
+    <h2 class="narrative">Implementation</h2>
+    <p class="narrative"> Here we show an implementation, that uses distinct data arrays for all ARM and FPGA data endpoints. </p>
+    <p class="narrative"> In practice, it would be unusual to communicate with the powerful MCA-3K devices via a serial link.  However, sometimes serial communication via RS485 can be a convenient and simple method to bridge long distances.</p>
+      
+    <p class="narrative"> In the MCA-3K devices, the FPGA continues to acquire data even while the ARM processor is busy transferring data.  When using two-bank mode, this enables loss-less data acquisition, independent of transfer times and compuer latencies.</p>
+    
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

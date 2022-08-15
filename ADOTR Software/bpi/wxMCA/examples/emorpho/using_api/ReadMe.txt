@@ -1,0 +1,1 @@
+These are data acquisition examples where you access the eMorpho device directly from Python, using the API-layer of the Morpho Data Server stack.  In this case, neither ZMQ nor any TCP/IP sockets are being used.

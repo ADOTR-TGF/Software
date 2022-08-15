@@ -1,0 +1,203 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">eMorpho Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_bpi_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="em_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_constants.html">Module Constants</a></p>
+
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_api.html">Overview</a></p>
+
+<p class="cmd_list_h1"> Data Server</p>
+<p class="cmd_list"> <a class="cmd_list" href="em_server.html">Overview</a></p></td>
+  <td class="format_table">
+    <h1 class="narrative">eMorpho Data Structure: fpga_ctrl</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The fpga_ctrl data structure contains the data used to control the parameters of FPGA-based data acquisition.
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For fpga_ctrl there are 16 'register' and a larger number of named 'field' data in use.  All register data are 16-bit unsigned int16  (uint16).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_ctrl registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">CR0[0:15]: fine_gain</td><td class="record">Component of the digital gain.  Range is 0 to 65535. A value of 32768 corresponds to unity gain. </td>
+      </tr><tr>
+        <td class="record">CR1[0:9]: baseline_threshold</td><td class="record">A trigger threshold for pulse height above baseline.  Pulse heights below this value will be considered to be part of the DC baseline and are added to the DC-offset average.  Unit is 0.978mV, 1023&nbsp;&rarr;1.0V. </td>
+      </tr><tr>
+        <td class="record">CR1[10:15]: cr1_upper</td><td class="record">Unused; set to zero </td>
+      </tr><tr>
+        <td class="record">CR2[0:9]: pulse_threshold</td><td class="record">A signal trigger threshold for pulse height above baseline. Pulse heights above this value will be considered to be a signal and the FPGA will attempt to measure the pulse energy.  The meaning of an LSB is the same as for baseline_threshold, above. </td>
+      </tr><tr>
+        <td class="record">CR2[10:15]: cr2_upper</td><td class="record">Unused; set to zero </td>
+      </tr><tr>
+        <td class="record">CR3[0:15]: hold_off_time</td><td class="record">Enforced minimum trigger dead time after a recognized pulse trigger. Unit: 1 ADC sampling clock cycle (ie 25ns for a 40MSPS system)</td>
+      </tr><tr>
+        <td class="record">CR4[0:15]: integration_time</td><td class="record">Pulse summation time to measure pulse energy. Unit: 1 ADC sampling clock cycle (ie 25ns for a 40MSPS system)</td>
+      </tr><tr>
+        <td class="record">CR5[0:15]: roi_bounds</td><td class="record">Region of interest bit-field: (A,B), B and A are 8-bit numbers. The region of interest is [16*A, 16*B] in mathematical notation.</td>
+      </tr><tr>
+        <td class="record">CR6[0:9]: trigger_delay</td><td class="record">Number of pre-trigger ADC samples stored with a recorded scintillator pulse, called a trace</td>
+      </tr><tr>
+        <td class="record">CR6[10:15]: cr6_upper</td><td class="record">Unused; set to zero </td>
+      </tr><tr>
+        <td class="record">CR7[0:15]: dac_data</td><td class="record">16-bit DAC data.  CR7[0:11] hold the most significant 12 bit, and CR[11:15] hold the least significant 4 bits.  In the 'fields' dict of the fpga_ctrl object, dac_data is a normal 16-bit unsigned integer.  </td>
+      </tr><tr>
+        <td class="record">CR8[0:15]: run_time_0</td><td class="record">See below </td>
+      </tr><tr>
+        <td class="record">CR9[0:15]: run_time_1</td><td class="record">RT = run_time_0 + 65536*run_time_1 </br>It is a requested runtime for histogram data acquisition.  Unit is 65536/ADC_sampling_rate; eg 1.6384ms for a 40MHz device.</br>The exact meaning depends on rtlt-value: 0&nbsp;&rarr; ignored; DAQ continues indefinitely, 1&nbsp;&rarr; limit is DAQ live time, 2&nbsp;&rarr; limit is DAQ real time, 3&nbsp;&rarr; DAQ stops at request number of accepted events</td>
+      </tr><tr>
+        <td class="record">CR10[0:15]: short_it</td><td class="record">A summation interval shorter than integration_time.  It is used together with list mode (lm_mode=1) or other on-the-fly pulse shape discrimination. Unit: 1 ADC sampling clock cycle (ie 25ns for a 40MSPS system)</td>
+      </tr><tr>
+        <td class="record">CR11[0:15]: put</td><td class="record">Pileup parameter; Content depends on the value of nai_mode.  0&nbsp;&rarr; pile up inspection is turned off.</td>
+      </tr><tr>
+        <td class="record">CR12[0:3]: ecomp</td><td class="record">Coarse-gain part of digital gain; each unit divides the energy by 2 before binning in the energy histogram. </br>Digital_Gain = fine_gain / 2<sup>ecomp</sup> * 40MHz/ADC_SR</td>
+      </tr><tr>
+        <td class="record">CR12[4:7]: pcomp</td><td class="record">Coarse-gain for PID-entries in list-mode;</td>
+      </tr><tr>
+        <td class="record">CR12[8:11]: gain_select</td><td class="record">Select transimpedance (Z, gain) of input amplifier; 0&nbsp;&rarr;100Ω, 1&nbsp;&rarr;430Ω, 2&nbsp;&rarr;1100Ω, 4&nbsp;&rarr;3400Ω, 8&nbsp;&rarr;10100Ω V_out = Z*I_SiPM; ADC has 1V input range.</td>
+      </tr><tr>
+        <td class="record">CR12[12:15]: cr12_upper</td><td class="record">Unused;  Set to zero</td>
+      </tr><tr>
+        <td class="record">CR13[0]: sel_led</td><td class="record">Usage varies; Often used to select LED-caused pulses for histogramming and trace acquisition.</td>
+      </tr><tr>
+        <td class="record">CR13[1]: gain_stab</td><td class="record">Usage varies; In non-standard firmware it is used to activated FPGA-based gain stabilization.</td>
+      </tr><tr>
+        <td class="record">CR13[2]: suspend</td><td class="record">Halt all operation and statistics counters; essentially, stop time.</td>
+      </tr><tr>
+        <td class="record">CR13[3]: segment</td><td class="record">Select a memory segment (0 or 1); used only when segment_enable is 1.</td>
+      </tr><tr>
+        <td class="record">CR13[4]: segment_enable</td><td class="record">Enable splitting the histogram memory into two banks, each with its own time and event counters.</td>
+      </tr><tr>
+        <td class="record">CR13[5]: daq_mode</td><td class="record"> 0 &rarr; Statistics counters continue after histogram DAQ has stopped; 1 &rarr; They stop when DAQ stops;</td>
+      </tr><tr>
+        <td class="record">CR13[6]: nai_mode</td><td class="record"> Select a method of pile up rejection; 0 &rarr; Good for all scintillators (especially slow ones); 1 &rarr; Optimized for fast scintillators (τ &lt; 1μs). Affects choice of PUT value.</td>
+      </tr><tr>
+        <td class="record">CR13[7]: temperature_disable</td><td class="record"> Usage varies.  In standard firmware: 0 &rarr; normal operation; 1 &rarr; Temperature measurements are disabled. Most often used to introduced FPGA-based temperature averaging.</td>
+      </tr><tr>
+        <td class="record">CR14[0:4]: opto_repeat_time</td><td class="record"> T encodes the pulser period; For an ADC sampling rate SR, the pulser period (P) and frequency (f) are </br>P = 2<sup>T+2</sup>/SR, f = SR/2<sup>T+2</sup>. </td>
+      </tr><tr>
+        <td class="record">CR14[5:8]: opto_pulse_width</td><td class="record"> W encodes the pulse width PW:
+        </br>PW = 2<sup>W+1</sup>/SR; Set T=W for a 50% duty cycle square wave.</td>
+      </tr><tr>
+        <td class="record">CR14[9:12]: opto_pulse_sep</td><td class="record">S encodes double pulse separation PS:
+        </br>PS = 2<sup>S+1</sup>/SR. </td>
+      </tr><tr>
+        <td class="record">CR14[13]: cr14_b13</td><td class="record">Unused; Set to 0</td>
+      </tr><tr>
+        <td class="record">CR14[14]: opto_trigger</td><td class="record">1 &rarr; Allow LED pulser to trigger event acquisition; </td>
+      </tr><tr>
+        <td class="record">CR14[15]: opto_enable</td><td class="record">1/0 &rarr; Enable/Disable LED pulser. </td>
+      </tr><tr>
+        <td class="record">CR15[0]: clear_statistics</td><td class="record">Reset time and event counters; self-clearing bit.</td>
+      </tr><tr>
+        <td class="record">CR15[1]: clear_histogram</td><td class="record">Erase histogram; self-clearing bit. This operation requires 4096 ADC sampling clock cycles to complete.</td>
+      </tr><tr>
+        <td class="record">CR15[2]: clear_list_mode</td><td class="record">Unlock list mode module; self-clearing bit. </td>
+      </tr><tr>
+        <td class="record">CR15[3]: clear_trace</td><td class="record">Unlock trace module; self-clearing bit. </td>
+      </tr><tr>
+        <td class="record">CR15[4]: ut_run</td><td class="record">Start untriggered trace acquisition; self-clearing bit.</td>
+      </tr><tr>
+        <td class="record">CR15[5]: program_hv</td><td class="record">Reprogram the HV-DAC; self-clearing bit.</td>
+      </tr><tr>
+        <td class="record">CR15[6]: read_nv</td><td class="record">Read non-volatile memory into USER memory; self-clearing bit. </td>
+      </tr><tr>
+        <td class="record">CR15[7]: write_nv</td><td class="record">Write non-volatile memory from USER memory; self-clearing bit. </td>
+      </tr><tr>
+        <td class="record">CR15[8]: ha_run</td><td class="record">0 &rarr; Histogram energies; 1 &rarr; Histogram pulse-heights</td>
+      </tr><tr>
+        <td class="record">CR15[9]: trace_run</td><td class="record">1 &rarr; Acquire a triggered trace (requires run = 1)</td>
+      </tr><tr>
+        <td class="record">CR15[10]: vt_run</td><td class="record">1 &rarr; Acquire a validated trace (requires run = 1)</td>
+      </tr><tr>
+        <td class="record">CR15[11]: lm_run</td><td class="record">1 &rarr; Acquire a list mode buffer (requires run = 1)</td>
+      </tr><tr>
+        <td class="record">CR15[13:14]: rtlt</td><td class="record">Governs histogram acquisition</br>0 → Indefinite DAQ; </br>
+         1 → Live time extension; </br>
+         2 → Stops when request = real_time; </br>
+         3 → Stops on 'request' histogram counts reached </td>
+      </tr><tr>
+        <td class="record">CR15[15]: run</td><td class="record">1 &rarr; allow DAQ; 0 &rarr; Stops all DAQ</td>
+      </tr>
+      <caption class="record">
+        The fpga_ctrl registers; CRn means control register number n, with n=0...15 . Bitfields are indicated as [b_low:b_high] indicating bit numbers b_low to b_high, inclusive.
+      </caption>
+    </table>
+    
+    <p class="narrative">
+        The user dictionary is used to convert some fpga_ctrl registers in to physical quantities, mostly amplitudes(V) and times(s). 
+    </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_ctrl user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">high_voltage</td><td class="record">High voltage in volts.  The eMorpho uses a 16-bit DAC to cover a high voltage range from 0V to 3000V.  Hence the resolution is 3000V/65536=0.046V.</td>
+      </tr><tr>
+        <td class="record">digital_gain</td><td class="record">Digital_Gain = fine_gain / 2<sup>ecomp</sup> * 40MHz/ADC_SR</td>
+      </tr><tr>
+        <td class="record">integration_time</td><td class="record">Summation time to measure the pulse energy</td>
+      </tr><tr>
+        <td class="record">hold_off_time</td><td class="record">Enforced minimum dead time after a trigger.  Used to avoid retriggering on the falling edge of a pulse. </td>
+      </tr><tr>
+        <td class="record">short_it</td><td class="record">Short integration time.  Used for pulse shape discrimination. </td>
+      </tr><tr>
+        <td class="record">baseline_threshold</td><td class="record">Pulse heights smaller than this values will be considered to be DC-offset baseline noise signals. </td>
+      </tr><tr>
+        <td class="record">pulse_threshold</td><td class="record">Minimum signal height to trigger an energy measurement.</td>
+      </tr><tr>
+        <td class="record">trigger_delay</td><td class="record">Amount of pre-trigger trace data shown in a recorded trace.  Increasing trigger_delay pushes the displayed pulse to the right. </td>
+      </tr><tr>
+        <td class="record">roi_low, roi_high</td><td class="record">The region of interest is [16*roi_low, 16*roi_high] in mathematical notation.</td>
+      </tr><tr>
+        <td class="record">run_time</td><td class="record">Either run time in seconds, or maximum number of counts in the histogram; cf request and rtlt in the table above.</td>
+      </tr>
+      <caption class="record">
+        The fpga_ctrl user dictionary.
+      </caption>
+    </table>   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

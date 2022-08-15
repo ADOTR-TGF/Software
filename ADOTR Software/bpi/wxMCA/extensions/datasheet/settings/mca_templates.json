@@ -1,0 +1,84 @@
+{
+    "0x6001":{
+        "type": "settings",
+        "editable": "No",
+        "data":[
+            {"name": "SERIAL_NUMBER", "format": "", "help": "Unique serial number"},
+            {"name": "SHORT_SN", "format": "", "help": "Short serial number"},
+            {"name": "MCA_ID_STR", "format": "", "help": "USB product ID of the MCA"},
+            {"name": "HIGH_VOLTAGE", "format": ":.2f", "help": "Operating voltage"},
+            {"name": "TEMPERATURE", "format": ":.2f", "help": "Temperature in deg C"},
+            {"name": "ADC_SPEED", "format": ":.0f", "help": "ADC sampling rate in MHz"},
+            {"name": "BUILD_NO", "format": ":.0f", "help": "Build number increases with every new software relaese"},
+            {"name": "CUSTOM_NO", "format": ":.0f", "help": "Identifies custom firmware"},
+            {"name": "TRIGGER_THRESHOLD", "format": ":.0f", "help": "Trigger threshold in mV"},
+            {"name": "ELECTRONIC_GAIN", "format": ":.0f", "help": "Gain of the input transimpedance amplifier in Ohm"},
+            {"name": "INTEGRATION_TIME", "format": ":.2f", "help": "Integration time in micro-seconds"},
+            {"name": "DIGITAL_GAIN", "format": ":.2f", "help": "Digital gain"}
+        ]
+    },
+    "0x103":{
+        "type": "settings",
+        "editable": "No",
+        "data":[
+            {"name": "SERIAL_NUMBER", "format": "", "help": "Unique serial number"},
+            {"name": "SHORT_SN", "format": "", "help": "Short serial number"},
+            {"name": "MCA_ID_STR", "format": "", "help": "USB product ID of the MCA"},
+            {"name": "HIGH_VOLTAGE", "format": ":.2f", "help": "Operating voltage"},
+            {"name": "TEMPERATURE", "format": ":.2f", "help": "Temperature in deg C"},
+            {"name": "ADC_SPEED", "format": ":.0f", "help": "ADC sampling rate in MHz"},
+            {"name": "BUILD_NO", "format": ":.0f", "help": "Build number increases with every new software relaese"},
+            {"name": "CUSTOM_NO", "format": ":.0f", "help": "Identifies custom firmware"},
+            {"name": "TRIGGER_THRESHOLD", "format": ":.0f", "help": "Trigger threshold in mV"},
+            {"name": "ELECTRONIC_GAIN", "format": ":.0f", "help": "Gain of the input transimpedance amplifier in Ohm"},
+            {"name": "INTEGRATION_TIME", "format": ":.2f", "help": "Integration time in micro-seconds"},
+            {"name": "DIGITAL_GAIN", "format": ":.2f", "help": "Digital gain"}
+        ]
+    },
+    "0x203":{
+        "type": "settings",
+        "editable": "No",
+        "data":[
+            {"name": "SERIAL_NUMBER", "format": "", "help": "Unique serial number"},
+            {"name": "SHORT_SN", "format": "", "help": "Short serial number"},
+            {"name": "MCA_ID_STR", "format": "", "help": "USB product ID of the MCA"},
+            {"name": "HIGH_VOLTAGE", "format": ":.2f", "help": "Operating voltage"},
+            {"name": "TEMPERATURE", "format": ":.2f", "help": "Temperature in deg C"},
+            {"name": "ADC_SPEED", "format": ":.0f", "help": "ADC sampling rate in MHz"},
+            {"name": "BUILD_NO", "format": ":.0f", "help": "Build number increases with every new software relaese"},
+            {"name": "CUSTOM_NO", "format": ":.0f", "help": "Identifies custom firmware"},
+            {"name": "TRIGGER_THRESHOLD", "format": ":.0f", "help": "Trigger threshold in mV"},
+            {"name": "ELECTRONIC_GAIN", "format": ":.0f", "help": "Gain of the input transimpedance amplifier in Ohm"},
+            {"name": "INTEGRATION_TIME", "format": ":.2f", "help": "Integration time in micro-seconds"},
+            {"name": "DIGITAL_GAIN", "format": ":.2f", "help": "Digital gain"}
+        ]
+    },
+    "0x101":{
+        "type": "settings",
+        "editable": "No",
+        "data":[
+            {"name": "SERIAL_NUMBER", "format": "", "help": "Unique serial number"},
+            {"name": "SHORT_SN", "format": "", "help": "Short serial number"},
+            {"name": "MCA_ID_STR", "format": "", "help": "USB product ID of the MCA"},
+            {"name": "HIGH_VOLTAGE", "format": ":.2f", "help": "Operating voltage"},
+            {"name": "TEMPERATURE", "format": ":.2f", "help": "Temperature in deg C"},
+            {"name": "BUILD_NO", "format": ":.0f", "help": "Build number increases with every new software relaese"},
+            {"name": "CUSTOM_NO", "format": ":.0f", "help": "Identifies custom firmware"},
+            {"name": "TRIGGER_THRESHOLD", "format": ":.0f", "help": "Trigger threshold in mV"}
+        ]
+    },
+    "0x201":{
+        "type": "settings",
+        "editable": "No",
+        "data":[
+            {"name": "SERIAL_NUMBER", "format": "", "help": "Unique serial number"},
+            {"name": "SHORT_SN", "format": "", "help": "Short serial number"},
+            {"name": "MCA_ID_STR", "format": "", "help": "USB product ID of the MCA"},
+            {"name": "HIGH_VOLTAGE", "format": ":.2f", "help": "Operating voltage"},
+            {"name": "TEMPERATURE", "format": ":.2f", "help": "Temperature in deg C"},
+            {"name": "BUILD_NO", "format": ":.0f", "help": "Build number increases with every new software relaese"},
+            {"name": "CUSTOM_NO", "format": ":.0f", "help": "Identifies custom firmware"},
+            {"name": "TRIGGER_THRESHOLD", "format": ":.0f", "help": "Trigger threshold in mV"}
+        ]
+    }
+}

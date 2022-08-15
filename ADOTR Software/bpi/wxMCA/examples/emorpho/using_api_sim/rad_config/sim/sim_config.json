@@ -1,0 +1,6 @@
+{
+    "lib_path": "./lib/",
+    "comments": {
+        "lib_path": "Path must have a trailing forward slash, / "
+    }
+}

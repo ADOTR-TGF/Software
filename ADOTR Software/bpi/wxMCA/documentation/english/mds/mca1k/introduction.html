@@ -1,0 +1,70 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-1K Data Server V3 Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">MCA-1K</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_device.html">MCA-1K Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca1k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_time_histogram.html">Time Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_arm_logger.html">Two-channel Logger</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca1k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">The MCA-1K Programmer's Model</h1>
+    <p class="narrative"> The MCA-1K has an embedded ARM M0+ MCU (Atmel SAM L21J), which includes a 32-bit ARM processor with a USB interface.  All MCA data acquisitions, gain stabilization, alarming and data analysis functions are implemented in the ARM SoC.  The MCA-1K software serves PMT-based and SiPM-based MCA-1K devices, such as the PMT-1000 and SiPM-1000.
+    </p>
+    
+    <p class="narrative">
+    The software is structured into four layers as shown in the table below.  It is written in Python and is compliant with 3.5 or higher.
+    </p>
+    <table class="narrative">
+    <tr>
+    <th class="narrative"> Layer </th><th class="narrative"> Purpose </th><th class="narrative"> Description </th>
+    </tr><tr>
+    <td class="narrative"> mca_device.py </td><td class="narrative"> USB driver </td>
+    <td class="narrative"> This layer provides a Python interface to libusb0.1 using ctypes. Compiled libusb0.1 modules are provided for a number of platforms, and are also included by default in most commercial Linux computers.</td>
+    </tr><tr>
+    <td class="narrative"> mca1k_data.py </td><td class="narrative"> Data descriptor</td>
+    <td class="narrative"> This device-specific layer provides one class for each set of control and data registers within the MCA-1K.  The classes have standardized functions to communicate with the API layer.</td>
+    </tr><tr>
+    <td class="narrative"> mca_api.py </td><td class="narrative"> API Level </td>
+    <td class="narrative"> This is the API layer used to process commands directed at a single MCA-1K or at an array of such devices.</td>
+    </tr><tr>
+    <td class="narrative"> mca_server.py </td><td class="narrative"> Data server </td>
+    <td class="narrative"> The data server is implemented using zero message queue (<a href="http://zeromq.org/"> zeromq.org</a>). The server not only acts as a bridge between the detectors on the USB bus and the Internet, but also as a bridge between programming languages. All data are serialized using JSON strings.  While the server is written in Python, clients can access the MCA-1K using any programming language they like.  Further, complex tasks can be distributed over independent clients, eg DAQ, reach back and gain stabilization, rather than creating one very complex super client.  </td>
+    </tr>
+    </table>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

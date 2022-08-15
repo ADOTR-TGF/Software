@@ -1,0 +1,106 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3K Data Server (sipm-MDS) Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca3k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> FPGA Data structures</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_cal.html">Calibration</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-3K Data Structure: arm_status</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_status data structure reports data describing the current status of the slow-control system.  Data reported include the operating voltage (SiPM-3000), temperatures and more.
+      </p>
+        
+    <h2 class="narrative">Data structures</h2>
+    <p class="narrative">
+      For arm_status there are seven 'register' and 'field' data in use.  All register data are 32-bit floats  (float32).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_status registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">0: op_volt</td><td class="record">Current operating voltage (SiPM-1000 only)</td>
+      </tr><tr>
+        <td class="record">1: target_volt</td><td class="record">Computed target voltage from request (directly or with correction applied)</td>
+      </tr><tr>
+        <td class="record">2: set_volt</td><td class="record">Current operating voltage set by the DAC (so that op_volt matches req_volt (directly or with correction applied; SiPM-3000 only))</td>
+      </tr><tr>
+        <td class="record">3: arm_temp</td><td class="record">Current ARM M0+ processor core temperature</td>
+      </tr><tr>
+        <td class="record">4: x_temp</td><td class="record">Current temperature measured by the external temperature sensor.</td>
+      </tr><tr>
+        <td class="record">5: avg_temp</td><td class="record">Current temperature average (from selected sensor)</td>
+      </tr><tr>
+        <td class="record">6: wc_time</td><td class="record">wall_clock time; Resolution is 65536/48MHz=1.365ms when wc_time &lt; 2<sup>23</sup>; ie 11450&nbsp;s</td>
+      </tr>
+      <caption class="record">
+        The arm_status registers
+      </caption>
+    </table>
+    
+    <p class="narrative">
+      There is only one higher-level 'user' dictionary entry for arm_status.  
+    </p> 
+
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_version user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">wc_time</td><td class="record">Wall clock time in seconds; Resolution is 1.365ms.</td>
+      </tr>
+      <caption class="record">
+        arm_status 'user' dictionary entries
+      </caption>
+    </table>
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

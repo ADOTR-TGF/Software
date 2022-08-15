@@ -1,0 +1,8 @@
+{
+    "setup": "./setup/",
+    "settings": "./settings/",
+    "data": "./data/",
+    
+    "comment_1": "Note the trailing '/' on all directory paths."
+    
+}

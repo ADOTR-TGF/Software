@@ -1,0 +1,146 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA-3K Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="mca3k_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> FPGA Data structures</h1>
+
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_arm_cal.html">Calibration</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="mca3k_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">MCA-3K Data Structure: fpga_statistics</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The fpga_statistics data structure contains the data acquired when measuring elapsed time, triggers and histogrammed events. 
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For fpga_statistics there are 16 'register' and a larger number of named 'field' data in use.  All register data are 32-bit unsigned int32 (uint32_t).
+    </p> 
+    <p class="narrative">
+      In default operation, only bank_0 data are populated.  Bank_1 data will be filled in only when fpga_action['segment_enable']=1 and fpga_action['segment']=1.
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_statistics registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">SR0: bank_0['ct']</td><td class="record">Real time in clock counts (1LSB = 65536 ADC sampling clock cycles)</td>
+      </tr><tr>
+        <td class="record">SR1: bank_0['ev']</td><td class="record">Number of accepted and histogrammed events</td>
+      </tr><tr>
+        <td class="record">SR2: bank_0['ts']</td><td class="record">Number of recognized triggers</td>
+      </tr><tr>
+        <td class="record">SR3: bank_0['dt']</td><td class="record">Dead time in clock counts (1LSB = 65536 ADC sampling clock cycles)</td>
+      </tr><tr>
+        <td class="record">SR4: bank_1['ct']</td><td class="record">Real time in clock counts (1LSB = 65536 ADC sampling clock cycles)</td>
+      </tr><tr>
+        <td class="record">SR5: bank_1['ev']</td><td class="record">Number of accepted and histogrammed events</td>
+      </tr><tr>
+        <td class="record">SR6: bank_1['ts']</td><td class="record">Number of recognized triggers</td>
+      </tr><tr>
+        <td class="record">SR7: bank_1['dt']</td><td class="record">Dead time in clock counts (1LSB = 65536 ADC sampling clock cycles)</td>
+      </tr><tr>
+        <td class="record">SR8: bank_0['xev0']</td><td class="record">Number of external counts by x_counter 0</td>
+      </tr><tr>
+        <td class="record">SR9: bank_0['xev1']</td><td class="record">Number of external counts by x_counter 1</td>
+      </tr><tr>
+        <td class="record">SR10: bank_0['xev2']</td><td class="record">Number of external counts by x_counter 2</td>
+      </tr><tr>
+        <td class="record">SR11: bank_0['xev3']</td><td class="record">Number of external counts by x_counter 3</td>
+      </tr><tr>
+        <td class="record">SR12: bank_1['xev0']</td><td class="record">Number of external counts by x_counter 0</td>
+      </tr><tr>
+        <td class="record">SR13: bank_1['xev1']</td><td class="record">Number of external counts by x_counter 1</td>
+      </tr><tr>
+        <td class="record">SR14: bank_1['xev2']</td><td class="record">Number of external counts by x_counter 2</td>
+      </tr><tr>
+        <td class="record">SR15: bank_1['xev3']</td><td class="record">Number of external counts by x_counter 3</td>
+      </tr>
+      <caption class="record">
+        The 32-bit fpga_statistics registers; SRn means statistics register number n, with n=0...15 . 
+      </caption>
+    </table>
+    
+    <p class="narrative">
+        The user dictionary is used to convert fpga_statistics register contents into physical quantities, mostly count rates (cps = counts per second) and times(seconds). 
+    </p>
+    <p class="narrative">
+        The user dictionary has the keys 'bank_0' and 'bank_1'.  For each key there exists a dictionary with its own keys shown in the table below.
+    </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_statistics user dictionary; keys for ['bank_0'] and ['bank_1']</th>
+      </tr><tr>
+        <th class="record_2">Key</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">run_time</td><td class="record">Run time (ie data acquisition time) in seconds.</td>
+      </tr><tr>
+        <td class="record">dead_time</td><td class="record">Dead time (ie data acquisition time) in seconds.</td>
+      </tr><tr>
+        <td class="record">event_rate</td><td class="record">Count rate of adding data to the histogram. </td>
+      </tr><tr>
+        <td class="record">trigger_rate</td><td class="record">Count rate of recognized triggers. </td>
+      </tr><tr>
+        <td class="record">pulse_rate</td><td class="record">Estimate of the real incoming pulse rate, taking into account the measured dead time.</br>pulse_rate = triggers/(run_time-dead_time)</td>
+      </tr><tr>
+        <td class="record">xev0_rate</td><td class="record">Count rate for external event counter 0</td>
+      </tr><tr>
+        <td class="record">xev1_rate</td><td class="record">Count rate for external event counter 1</td>
+      </tr><tr>
+        <td class="record">xev2_rate</td><td class="record">Count rate for external event counter 2</td>
+      </tr><tr>
+        <td class="record">xev3_rate</td><td class="record">Count rate for external event counter 3</td>
+      </tr>
+      <caption class="record">
+        The fpga_statistics user dictionary; Each top-level dictionary 'bank_0' and 'bank_1' has the same keys as shown.
+      </caption>
+    </table>   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

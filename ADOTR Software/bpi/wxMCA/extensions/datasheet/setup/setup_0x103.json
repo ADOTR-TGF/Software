@@ -1,0 +1,137 @@
+{
+    "type": "setup",
+    "editable": "Yes",
+    "colors": [
+        [
+            176,
+            224,
+            230
+        ],
+        [
+            224,
+            255,
+            255
+        ]
+    ],
+    "display": [
+        {
+            "name": "MCA_NAME",
+            "value": "PMT-3000-120M",
+            "format": "{}",
+            "help": "Exact name of the MCA in use",
+            "is_key": "yes"
+        },
+        {
+            "name": "MCA_TYPE",
+            "value": "PMT-3K",
+            "format": "{}",
+            "help": "Type of the MCA in use",
+            "is_key": "yes"
+        },
+        {
+            "name": "PART_NUMBER",
+            "value": "PMT3K-120M-N81T",
+            "format": "{}",
+            "help": "Part number of the device under test",
+            "is_key": "yes"
+        },
+        {
+            "name": "HV_BASE_TYPE",
+            "value": "HV-CPLD-F",
+            "format": "{}",
+            "help": "Type of high voltage base used",
+            "is_key": "yes"
+        },
+        {
+            "name": "DETECTOR",
+            "value": "B380 (LaBr3) 1.5x1.5-inch",
+            "format": "{}",
+            "help": "Specify the detector used for the test.",
+            "is_key": "yes"
+        },
+        {
+            "name": "PMT_TYPE",
+            "value": "R6231",
+            "format": "{}",
+            "help": "List the photomultiplier part number.",
+            "is_key": "yes"
+        },
+        {
+            "name": "TESTER",
+            "value": "Qiang Zhang",
+            "format": "{}",
+            "help": "Name of the person conducting the test.",
+            "is_key": "yes"
+        },
+        {
+            "name": "TEST_DATE",
+            "value": "2020-07-21",
+            "format": "{}",
+            "help": "Date of the test.",
+            "is_key": "yes"
+        },
+        {
+            "name": "Data_Sheets",
+            "value": "./data_sheets/",
+            "format": "{}",
+            "help": "Save data sheets in this directory.",
+            "is_key": "no"
+        },
+        {
+            "name": "Template",
+            "value": "./html/data_sheet_template_pmt3k.html",
+            "format": "{}",
+            "help": "The data sheet template file",
+            "is_key": "no"
+        },
+        {
+            "name": "Data_File",
+            "value": "./data/histogram.json",
+            "format": "{}",
+            "help": "The data file containing one or more histograms",
+            "is_key": "no"
+        },
+        {
+            "name": "index",
+            "value": "-1",
+            "format": "{}",
+            "help": "-1 -> Use the last histogram in the data file.",
+            "is_key": "no"
+        },
+        {
+            "name": "keV_bin",
+            "value": "1",
+            "format": "{}",
+            "help": "MCA calibration in keV/bin",
+            "is_key": "no"
+        },
+        {
+            "name": "fit_min",
+            "value": "560",
+            "format": "{}",
+            "help": "Minimum energy for peak fit, in keV",
+            "is_key": "no"
+        },
+        {
+            "name": "fit_max",
+            "value": "780",
+            "format": "{}",
+            "help": "Maximum energy for peak fit, in keV",
+            "is_key": "no"
+        },
+        {
+            "name": "display_min",
+            "value": "0",
+            "format": "{}",
+            "help": "Minimum energy for data sheet display, in keV",
+            "is_key": "no"
+        },
+        {
+            "name": "display_max",
+            "value": "1000",
+            "format": "{}",
+            "help": "Maximum energy for data sheet display, in keV",
+            "is_key": "no"
+        }
+    ]
+}

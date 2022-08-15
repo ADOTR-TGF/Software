@@ -1,0 +1,90 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+  <link rel="icon" href="favicon.ico">
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">wxMCA Software Package Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca1k.html">Capabilities MCA-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca3k.html">Capabilities MCA-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_emorpho.html">Capabilities eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_neutron3k.html">Neutron-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca1k_um.pdf">User's Manual MCA-1000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca3k_um.pdf">User's Manual MCA-3000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/emorpho_um.pdf">User's Manual eMorpho (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="installation.html">Installationr</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mds/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../usart_interface/introduction.html">Serial Interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Introduction</h1>
+    <p class="narrative"> The Neutron-3000 is software for a general-purpose neutron detector that serves many different applications. The software running on its embedded 32-bit ARM processor can give this device quite some extraordinary capabilities.  Besides the always implemented automatic gain stabilization, it can measure samples and background, compute alarms and even alarm on a passing neutron source.
+    </p>
+    <p class="narrative"> Devices in this family have an embedded ARM processor, and an FPGA for real-time pulse shape discrimination to provide a very high level of gamma-ray rejection.
+    </p>
+    <table class="narrative" style="background-color: #EFD;">
+    <tr>
+    <th class="narrative" colspan="2"> Neutron-3000 Standard and Optional Capabilities </th>
+    </tr><tr>
+    <th class="narrative"> Capability </th><th class="narrative"> Description </th>
+    </tr><tr>   
+    <td class="narrative"> Gain stabilization</td>
+    <td class="narrative"> The Neutron-3000 can adjust the operating voltage as a function of temperature to compensate for the temperature dependent gain of the PMT or SiPM light sensor.<br> For PMT-based neutron detectors an LED can be used to also compensate for PMT aging; ie gain reduction over time and wear. </td>
+    </tr><tr>
+    <td class="narrative"> Sample vs background and analysis</td>
+    <td class="narrative"> The Neutron-3000 embedded software reports sample, background and difference count rates independently. <br>The Neutron-3000 embedded software can compute the probability that the measured sample count rate is compatible with the background count rate. Users can set an alarm threshold in terms of probability: Raise an alarm if there is little chance (&lt;&epsilon;) that the sample count rate is caused by the measured background. </td>
+    </tr><tr>
+    <td class="narrative"> Dynamic alarming</td>
+    <td class="narrative"> The Neutron-3000 embedded software can analyze and report count rates in time slices of 50ms or longer.  The device automatically tracks slowly changing backgrounds and will alarm on a passing source. Its digital output can be used to drive an audio or visual alarm.  The user sets an alarm threshold as a minimum probability that the observed counts are compatible with the measured background.</td>
+    </tr><tr>
+    <td class="narrative"> Communication</td>
+    <td class="narrative"> The Neutron-3000 implements a USB-2.0 compatible USB 1.2 interface. </br>
+    At the board-level the Neutron-3000 implements a serial interface with a default speed of 115200 baud.</td>
+    </tr>
+    </table>
+
+    <h1 class="narrative">Gain stabilization</h1>
+    <p class="narrative"> The Neutron-3000 can use a 20-point lookup table that describes the desired operating voltage and digital gain vs temperature behavior. The embedded processor applies this to counteract the light sensor vs temperature gain drift.  Typically, the lookup table starts at lut_tmin=-30&deg;C and increments in lut_dt=5&deg;C steps up to 65&deg;C.  However, the developer can configure that to meet their requirements.  And the developer can program a lookup table of their own choice into the non-volatile memory of the Neutron-3000.
+    </p>
+    <p class="narrative"> The developer programming the lookup tables into the Neutron-3000 can set the lut_mode lock-bit to 1.  That prevents a user from reading back a proprietary gain-stabilization lookup table.
+    </p>
+    
+    <h1 class="narrative">Time-slice operation</h1>
+    <p class="narrative"> There are dynamic situations, where a radioactive source can be measured only for a brief moment.  Examples are a vehicle passing through a radiation portal monitor, or a person with a backpack detector walking past a stationary source.
+    </p>
+    <p class="narrative"> The time-slice operation supports these cases.  When equipped with the appropriate software and FPGA firmware, the device tracks slow changes in the environmental background.  An alarm is created when during a summation time (L) of typically 4 seconds, the accumulated counts are significantly more than what is expected from the background.  The alarm threshold is defined as the probability that the measured counts (N) during a period L, could have been caused by the established background rate over the same period (B).A threshold of 1.0e-4 means that we alarm when P(Counts&nbsp;&ge;&nbsp;N|BCK) &lt; 1.0e-4.   
+    </p>
+    <p class="narrative"> For example, assume a summation time of 4 seconds and a background rate of 500cps for BCK=2000.  Now assume that we count 2500cps in a particular 4s-period.  The probability of the established background to cause 2224 counts or more in 4s is P(Counts&nbsp;&ge;&nbsp;2224|BCK=2000) = 2.86e-7.  This smaller than the alarm threshold of 1.0e-4, and the embedded program will generate an alarm.
+    </p>
+    <p class="narrative"> If the alarm condition is permanent, the software resets all the logic after a period of H time slices and starts counting again.  It now will accept the suddenly higher level of radioactivity as the new normal background. 
+    </p>
+    
+    <p class="narrative"> Finally, a 'wait' parameter tells the system to wait a number of time slices after turn-on or reset before being ready to alarm.  This is necessary so that the background will be known with sufficient accuracy.
+    </p>
+    
+    <p class="narrative"> All told, the time-slice firmware provides an unprecedented, and highly configurable, and fully autonomous alarming system for portal monitors.  This is ideal for very low-cost mass-produced pedestrian monitors, hand-held sweepers and similar applications.
+    </p>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

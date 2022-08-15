@@ -1,0 +1,220 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../introduction/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">MCA Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="../../introduction/introduction.html">COUNTER</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_device.html">Counter Device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="counter_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_constants.html">Module Constants</a></p>
+
+<h1 class="cmd_list"> ARM Data structures</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_version.html">Version</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_status.html">Status</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_cal.html">Calibration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_logger.html">Two-channel Logger</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="counter_arm_time_histogram.html">Time histogram</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="counter_api.html">Overview</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Counter Data Structure: arm_ctrl</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The arm_ctrl data structure is used to control all aspects of the Counter operation.  The documentation applies to PMT and SiPM-based Counter systems, such as the PMT-Counter and the SiPM-Counter.
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For arm_ctrl these are the 'register' and 'field' data in use.  All register data are 32-bit floats (float32).
+    </p> 
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields &mdash; Operation and calibration</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC0: gain_stabilization</td><td class="record">Bit field governing gain stabilization, cf 'user' table below. </td>
+      </tr><tr>
+        <td class="record">AC1:&nbsp;peltier</td><td class="record">Either fixed Peltier power (0 to 100%) or maximum power; To allow a host control loop (only in SiPM-based systems with a Peltier controller; eg SiPM-1010).</td>
+      </tr><tr>
+        <td class="record">AC2:&nbsp;temp_ctrl</td><td class="record">0&nbsp;&rarr; Use ARM temperature sensor; 1&nbsp;&rarr; Use external temperature sensor; [4:7]=> (0&rarr; no Peltier cooling; 1&rarr; constant cooling power; 2&rarr; control loop)</td>
+      </tr><tr>
+        <td class="record">AC3:&nbsp;temp_target</td><td class="record">Reserved; In SiPM-based systems with a Peltier cooler, this field has the target temperature.</td>
+      </tr><tr>
+        <td class="record">AC4:&nbsp;temp_period</td><td class="record">Update period for temperature measurements</td>
+      </tr><tr>
+        <td class="record">AC5:&nbsp;temp_weight</td><td class="record">Weight for geometric averaging: Purpose is noise reduction or matching thermal relaxation</td>
+      </tr><tr>
+        <td class="record">AC6:&nbsp;cal_temp</td><td class="record">Temperature (in deg C) at which the detector was calibrated</td>
+      </tr><tr>
+        <td class="record">AC7:&nbsp;cal_ov</td><td class="record">Operating voltage when the detector was calibrated</td>
+      </tr><tr>
+        <td class="record">AC8:&nbsp;cal_dg</td><td class="record">Digital gain when the detector was calibrated (reserved for future use)</td>
+      </tr><tr>
+        <td class="record">AC9:&nbsp;cal_target</td><td class="record">Target value for ROI or LED measured response; used with gain_stab=2,3</td>
+      </tr><tr>
+        <td class="record">AC10:&nbsp;cal_roi_low</br>AC11:&nbsp;cal_roi_high</td><td class="record">[roi_low : roi_high] => Region of interest used when gain-stabilizing on ROI (reserved for future use).</td>
+      </tr>
+      <caption class="record">
+        All arm_ctrl registers and fields concerning operation settings and calibration
+      </caption>
+    </table>
+    
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields  &mdash; Count rate measurement</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC12:&nbsp;run_mode</td><td class="record">Run mode is a bit field</td>
+      </tr><tr>
+        <td class="record">AC13:&nbsp;run_action</td><td class="record">Run_action is a bit field, with self-clearing bits; cf 'user' table below.</td>
+      </tr><tr>
+        <td class="record">AC13[0]:&nbsp;clear_statistics</td><td class="record">Clear data for the active counter bank.</td>
+      </tr><tr>
+        <td class="record">AC14:&nbsp;run_time_sample</td><td class="record">Requested run time for sample counting; 0&rarr; forever</td>
+      </tr><tr>
+        <td class="record">AC15:&nbsp;run_time_bck</td><td class="record">Requested run time for background counting; 0&rarr; forever</td>
+      </tr><tr>
+        <td class="record">AC16:&nbsp;alarm_thr</td><td class="record">Alarm threshold for foreground vs bck;  If the probability of the foreground data being caused by the accepted background is less than this, an alarm will be raised (AS7[2])</td>
+      </tr><tr>
+        <td class="record">AC17:&nbsp;roi_low</td><td class="record">ROI for count rate and alarming purpose</td>
+      </tr><tr>
+        <td class="record">AC18:&nbsp;roi_high</td><td class="record">ROI for count rate and alarming purpose.</td>
+      </tr>
+      <caption class="record">
+        arm_ctrl registers and fields concerning count rate measurements.
+      </caption>
+    </table>
+    
+     <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl AC12 run_mode bitfield</th>
+      </tr><tr>
+        <th class="record_2">AC12 bit field</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC12[0]: RM_HISTOGRAM_RUN</td><td class="record">0-> Stop acquisition, 1-> Counting and histogramming is active</td>
+      </tr><tr>
+        <td class="record">AC12[1]: RM_ACQ_TYPE</td><td class="record">0-> Regular counting, 1->Measure arrival times</td>
+      </tr><tr>
+        <td class="record">AC12[4]: RM_ACTIVE_BANK</td><td class="record">0->sample, 1->background</td>
+      </tr><tr>
+        <td class="record">AC12[5]: RM_READ_CLEAR</td><td class="record">Enable read_and_clear feature for counting</td>
+      </tr><tr>
+        <td class="record">AC12[6]: RM_TWO_BANK</td><td class="record">Enable automatic selection of the inactive bank for reading and clearing</td>
+      </tr><tr>
+        <td class="record">AC12[8]: RM_SAMPLE_ALARM</td><td class="record">Compute alarm probability for foreground vs background</td>
+      </tr><tr>
+        <td class="record">AC12[9]: RM_TIME_SLICE</td><td class="record">Activate time slice system and dynamic alarming</td>
+      </tr>
+      <caption class="record">
+        arm_ctrl AC12 bit-fields controlling data acquisition.
+      </caption>
+    </table>
+    
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl registers and fields &mdash; time-slice operation</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">AC19: ts_period</td><td class="record">Currently fixed at 100ms. </td>
+      </tr><tr>
+        <td class="record">AC20:&nbsp;ts_reset</td><td class="record">Set to 2 to reset the time-slice (Portal Monitor) alarm system.</td>
+      </tr><tr>
+        <td class="record">AC21:&nbsp;ts_L</td><td class="record">Summation length for alarm computation</td>
+      </tr><tr>
+        <td class="record">AC22:&nbsp;ts_H</td><td class="record">History length for alarms; maximum length of alarm before resetting</td>
+      </tr><tr>
+        <td class="record">AC23:&nbsp;ts_wait</td><td class="record">Minimum wait time until we will accept alarms, having sufficient background accuracy</td>
+      </tr><tr>
+        <td class="record">AC24:&nbsp;ts_B</td><td class="record">Background averaging length</td>
+      </tr><tr>
+        <td class="record">AC25:&nbsp;ts_eps</td><td class="record">Alarm threshold for time-slice system</td>
+      </tr><tr>
+        <td class="record">AC26:&nbsp;trigger_width</td><td class="record">Output pulse width, for alarms.</td>
+      </tr><tr>
+        <td class="record">AC27:&nbsp;trigger_threshold</td><td class="record">Trigger threshold in V; typ 0.015V, range 0..3V</td>
+      </tr><tr>
+        <td class="record">AC28:&nbsp;integration_time</td><td class="record">A measure of the light-collection time, in units of CPU clock cycles of 1/48MHz.  Use 23 for NaI.</td>
+      </tr><tr>
+        <td class="record">AC29:&nbsp;led_width</td><td class="record">A measure of the LED pulse with, in units of  6CPU clock cycles, ie 6/48MHz.  Use 5 to 10.</td>
+      </tr><tr>
+        <td class="record">AC30:&nbsp;cal_events</td><td class="record">Number of events to average to create a new LED or ROI average.  Use 1000 with an LED.</td>
+      </tr><tr>
+        <td class="record">AC31:&nbsp;xctrl_0</td><td class="record">Logger control. xctrl_0[7:0] &rArr; Logger dwell time in multiples of 50ms time slices. Set to 0 to turn logger off. xctrl_0[15:8] &rArr;  Input data source for logger channel 0; xctrl_0[23:16] &rArr;  Input data source for logger channel 1. Input data source is arm_status[] index - for example 4 for CPU temperature.  There are two computed data source: 256 &rArr; number of events recorded during dwell time; 257 &rArr; number of events falling into the alarm ROI recorded during dwell time;</td>
+      </tr><tr>
+        <td class="record">AC32 to AC38:&nbsp;reserved</td><td class="record">Reserved values for use with custom data acquistion modes acq_type &gt; 3</td>
+      </tr>
+      <caption class="record">
+        arm_ctrl registers and fields concerning the time-slice subsystem
+      </caption>
+    </table>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">arm_ctrl &mdash; user entries</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">gs_mode</td><td class="record">AC0[0:3]; 0&rarr;OFF, 1&rarr;LUT, ie use lookup table for temperature correction, 2&rarr;LED, Use an LED and the LED lookup table; <!--3&rarr;ROI, ie stabilize on average energy in region of interest [cal_roi_low: cal_roi_high]. Note that this ROI is different from the ROI used for alarm computations [roi_low : roi_high]. --></td>
+      </tr><!--<tr>
+        <td class="record">gs_events</td><td class="record">AC0[4:7]; num_events = 2<sup>gs_events</sup>; Number of events needed for each measurement of the average energy in the region of interest.  When gain-stabilizing on ROI content, the system updates after this number of events.</td>-->
+      </tr><tr>
+        <td class="record">histogram_run</td><td class="record">AC12[0]; Activate acquiring counting and histogram data</td>
+      </tr><tr>
+        <td class="record">acq_type</td><td class="record">AC12[3:1]; Type of data acquisition: 0&rarr; standard histogram, 1&rarr; Counting only, 2&rarr; Histogram with noise suppression,  3&rarr; Arrival times, 4&rarr; neutron detectors.</td>
+      </tr><tr>
+        <td class="record">active_bank</td><td class="record">AC12[4]; Select which bank will be active: 0&rarr; foreground, 1&rarr; background.</td>
+      </tr><tr>
+        <td class="record">read_clear</td><td class="record">AC12[5]; 1&rarr; Enable read_and_clear feature for counting.  When enabled a histogram and counter bank is set to zero after a data read.</td>
+      </tr><tr>
+        <td class="record">two_bank</td><td class="record">AC12[6]; Enable automatic selection of the inactive bank for reading and clearing.  User then toggles active bank when desired.</td>
+      </tr><tr>
+        <td class="record">histo_2k</td><td class="record">AC12[7]; Use one 2K&times;32 sample histogram (no background histogram)</td>
+      </tr><tr>
+        <td class="record">sample_alarm</td><td class="record">AC12[8]; Compute alarm probability for foreground vs background </td>
+      </tr><tr>
+        <td class="record">time_slice</td><td class="record">AC12[9]; Activate time slice system and dynamic alarming. Performs alarm computations 10 times per second; for portal monitors and backpacks.</td>
+      </tr><tr>
+        <td class="record">clear_statistics</td><td class="record">AC13[0]; Self-clearing action; clears the time and event counter of the targeted bank.  Targeted bank is active_bank if two_bank=0.  It is the inactive bank if two_bank=1.</td>
+      </tr><tr>
+        <td class="record">clear_histogram</td><td class="record">AC13[1]; Self-clearing action; clears the histogram of the targeted bank.  Targeted bank is active_bank if two_bank=0.  It is the inactive bank if two_bank=1.</td>
+      </tr><tr>
+        <td class="record">clear_alarm</td><td class="record">AC13[2]; Self-clearing action; Clears a persisent alarm output on trigger_out; eg from a portal monitor alarm.</td>
+      </tr><tr>
+        <td class="record">clear_logger</td><td class="record">AC13[3]; Self-clearing action; Reset the logger to begin recording data at index 0.</td>
+      </tr>
+      <caption class="record">
+        The arm_ctrl user dictionary is used to pack and unpack bit fields.
+      </caption>
+    </table>
+        
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

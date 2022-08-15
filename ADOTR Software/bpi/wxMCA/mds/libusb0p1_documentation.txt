@@ -1,0 +1,524 @@
+From
+https://sourceforge.net/p/libusb-win32/wiki/Documentation/
+
+
+Help
+Create
+Join
+Login
+Open Source Software
+Business Software
+Services
+Resources
+
+Search for software or solutions
+Home Browse libusb-win32 Wiki
+libusb-win32
+libusb-win32 is a port of libusb-0.1 under Windows
+Brought to you by: donpedro2, ste_meyer, trobinso, xiaofanc
+Summary
+Files
+Reviews
+Support
+Wiki
+Mailing Lists
+Code
+Tickets ▾
+News
+Donate 
+
+Search Wiki
+Wiki Home
+Browse Pages
+Browse Labels
+Formatting Help
+Documentation   
+Authors:  Xiaofan Chen
+The following documentation is based on libusb-0.1 API documentation (http://libusb.sourceforge.net/doc/) by Johannes Erdfelt, but added with libusb-win32 specific information.
+
+Preface 
+The purpose of this document is to explain the libusb-win32 API and how to use it to make a USB aware application. Any suggestions, corrections and comments regarding this document should be sent to the libusb-win32 developers mailing list.
+
+I. Introduction
+
+This documentation will provide an overview of how the v0.1 libusb API works and relates to USB. It is assumed that the reader has a good understanding of the USB 2.0 specification. The USB 2.0 specification can be found the USB Implementers Forum website (http://www.usb.org). libusb-0.1 works under Linux, FreeBSD, NetBSD, OpenBSD; Darwin/MacOS X and Solaris. libusb-win32 is API compatible with libusb-0.1 but also includes some new features.
+
+II. API
+
+This is the external API for applications to use. The API is relatively lean and designed to closely correspond with the USB 2.0 specification.
+
+Devices and interfaces
+
+The libusb API ties an open device to a specific interface. This means that if you want to claim multiple interfaces on a device, you should open the device multiple times to receive one usb_dev_handle for each interface you want to communicate with. Don't forget to call usb_claim_interface().
+
+Timeouts in libusb are always specified in milliseconds.
+
+libusb uses both abstracted and non abstracted structures to maintain portability.
+
+All functions in the original libusb v0.1 are synchronous, meaning the functions block and wait for the operation to finish or timeout before returning execution to the calling application. libusb-win32 adds some asynchronous APIs. libusb-1.0 has more asynchronous API support.
+
+There are two types of return values used in libusb v0.1. The first is a handle returned by usb_open(). The second is an int. In all cases where an int is returned, >= 0 is a success and < 0 is an error condition.
+
+Timeout
+The unit for timeout value is ms.
+
+Under Linux libusb-0.1 (which only supports synchronous API), timeout value of 0 means infinite. libusb-win32 version 1.2.4.7 and later will follow this for synchronous API. Before that, it behaves differently from Linux libusb-0.1.
+
+Since Windows (same for Linux and Mac OS X) is not an RTOS, it is not a good idea to use small timeout value like 10ms or 100ms.
+
+Caveats of synchronous transfer when timeout happens
+How synchronous API works:
+1) Submits read request to driver
+2) Waits the specified timeout using WaitForSingleObject()
+a. if a wait timeout occurred, send abort pipe request and return -116
+b. if wait succeeded, get transfer results via GetOverlappedResults() and return error or transfer length.
+
+So, if a transfer completes just after a timeout is detected in 2a, the entire transfer is lost.
+
+There are currently a couple ways to avoid this:
+1) Use the async transfer functions and usb_reap_async_nocancel()
+2) Use the sync transfer functions from within their own thread and
+always use INFINITE for the timeout.
+
+Reported Error Codes
+
+/* Connection timed out */
+#define ETRANSFER_TIMEDOUT 116
+Standard Error Codes from WDK crt errno.h and the explanation from MinGW are listed here. Take note that not all error codes below are used.
+
+#define EPERM       1   /* Operation not permitted */ 
+#define ENOENT      2   /* No entry, ENOFILE, no such file or directory */
+#define ESRCH       3   /* No such process */
+#define EINTR       4   /* Interrupted function call */
+#define EIO     5   /* Input/output error */
+#define ENXIO       6   /* No such device or address */
+#define E2BIG       7   /* Arg list too long */
+#define ENOEXEC     8   /* Exec format error */
+#define EBADF       9   /* Bad file descriptor */
+#define ECHILD      10  /* No child processes */
+#define EAGAIN      11  /* Resource temporarily unavailable */
+#define ENOMEM      12  /* Not enough space */
+#define EACCES      13  /* Permission denied */
+#define EFAULT      14  /* Bad address */
+#define EBUSY       16  /* strerror reports "Resource device" */
+#define EEXIST      17  /* File exists */
+#define EXDEV       18  /* Improper link (cross-device link?) */
+#define ENODEV      19  /* No such device */
+#define ENOTDIR     20  /* Not a directory */
+#define EISDIR      21  /* Is a directory */
+#define EINVAL      22  /* Invalid argument */
+#define ENFILE      23  /* Too many open files in system */
+#define EMFILE      24  /* Too many open files */
+#define ENOTTY      25  /* Inappropriate I/O control operation */
+#define EFBIG       27  /* File too large */
+#define ENOSPC      28  /* No space left on device */
+#define ESPIPE      29  /* Invalid seek (seek on a pipe?) */
+#define EROFS       30  /* Read-only file system */
+#define EMLINK      31  /* Too many links */
+#define EPIPE       32  /* Broken pipe */
+#define EDOM        33  /* Domain error (math functions) */
+#define ERANGE      34  /* Result too large (possibly too small) */
+#define EDEADLK     36      /* Resource deadlock avoided */
+#define ENAMETOOLONG    38  /* Filename too long */
+#define ENOLCK      39  /* No locks available */
+#define ENOSYS      40  /* Function not implemented */
+#define ENOTEMPTY   41  /* Directory not empty */
+III. Functions
+
+1. Core
+
+These functions comprise the core of libusb. They are used by all applications that utilize libusb.
+
+usb_init()
+Name 
+usb_init -- Initialize libusb
+Description
+void usb_init(void);
+
+Just like the name implies, usb_init sets up some internal structures. usb_init must be called before any other libusb functions.
+
+usb_find_busses()
+Name
+usb_find_busses -- Finds all USB busses on system
+Description
+int usb_find_busses(void);
+
+usb_find_busses will find all of the busses on the system. Returns the number of changes since previous call to this function (total of new busses and busses removed).
+
+usb_find_devices()
+Name
+usb_find_devices -- Find all devices on all USB devices
+Description
+int usb_find_devices(void);
+
+usb_find_devices() will find all of the devices on each bus. This should be called after usb_find_busses(). Returns the number of changes since the previous call to this function (total of new device and devices removed).
+
+usb_get_busses()
+Name
+usb_get_busses -- Return the list of USB busses found
+Description
+struct usb_bus *usb_get_busses(void);
+
+usb_get_busses() simply returns the value of the global variable usb_busses. This was implemented for those languages that support C calling convention and can use shared libraries, but don't support C global variables (like Delphi).
+
+usb_set_debug()
+Name
+usb_set_debug -- set debug message verbose level
+Description
+void usb_set_debug(int level);
+
+usb_set_debug() sets the debug message verbose level. You can set it to 4 to print the debug message which is quite verbose.
+ 0  LOG_OFF,
+ 1  LOG_ERROR,
+ 2  LOG_WARNING,
+ 3  LOG_INFO,
+ 4  LOG_DEBUG
+2. Device operations
+
+This group of functions deal with the device. It allows you to open and close the device as well standard USB operations like setting the configuration, alternate settings, clearing halts and resetting the device. It also provides OS level operations such as claiming and releasing 
+interfaces.
+
+usb_open()
+Name
+usb_open -- Opens a USB device
+Description
+usb_dev_handle *usb_open(struct *usb_device dev);
+
+usb_open() is to be used to open up a device for use. usb_open must be called before attempting to perform any operations to the device. Returns a handle used in future communication with the device.
+
+usb_close()
+Name
+usb_close -- Closes a USB device
+Description
+int usb_close(usb_dev_handle *dev);
+
+usb_close closes a device opened with usb_open. No further operations may be performed on the handle after usb_close is called. Returns 0 on success or < 0 on error.
+
+usb_set_configuration()
+Name
+usb_set_configuration -- Sets the active configuration of a device
+Description
+int usb_set_configuration(usb_dev_handle *dev, int configuration);
+
+usb_set_configuration sets the active configuration of a device. The configuration parameter is the value as specified in the descriptor field bConfigurationValue. Returns 0 on success or < 0 on error.
+
+    '''Must be called'''!: usb_set_configuration must be called with a valid configuration (not 0) before you can claim the interface. This might not be necessary in the future. This behavior is different from Linux libusb-0.1.
+
+usb_set_altinterface()
+Name
+usb_set_altinterface -- Sets the active alternate setting of the current interface
+Description
+int usb_set_altinterface(usb_dev_handle *dev, int alternate);
+
+usb_set_altinterface() sets the active alternate setting of the current interface. The alternate parameter is the value as specified in the descriptor field bAlternateSetting. Returns 0 on success or < 0 on error.
+
+usb_resetep()
+Name
+usb_resetep -- Resets state for an endpoint
+Description
+int usb_resetep(usb_dev_handle *dev, unsigned int ep);
+
+usb_resetep resets all state (like toggles) for the specified endpoint. The ep parameter is the value specified in the descriptor field bEndpointAddress. Returns 0 on success or < 0 on error.
+    '''Deprecated''': usb_resetep is deprecated. You probably want to use usb_clear_halt.
+
+usb_clear_halt()
+Name
+usb_clear_halt -- Clears any halt status on an endpoint
+Description
+int usb_clear_halt(usb_dev_handle *dev, unsigned int ep);
+
+usb_clear_halt() clears any halt status on the specified endpoint. The ep parameter is the value specified in the descriptor field bEndpointAddress. Returns 0 on success or < 0 on error.
+
+usb_reset()
+Name
+usb_reset -- Resets a device
+Description
+int usb_reset(usb_dev_handle *dev);
+usb_reset() resets the specified device by sending a RESET down the port it is connected to. Returns 0 on success or < 0 on error.
+
+    '''Causes re-enumeration''': After calling usb_reset, the device will need to re-enumerate and thus requires you to find the new device and open a new handle. The handle used to call usb_reset() will no longer work.
+
+usb_claim_interface()
+Name
+usb_claim_interface -- Claim an interface of a device
+Description
+int usb_claim_interface(usb_dev_handle *dev, int interface);
+
+usb_claim_interface() claims the interface with the Operating System. The interface parameter is the value as specified in the descriptor field bInterfaceNumber. Returns 0 on success or < 0 on error.
+    '''Must be called'''!: usb_claim_interface must be called before you perform any operations related to this interface (like usb_set_altinterface, usb_bulk_write, etc).
+
+Return Codes for usb_claim_interface():
+code    description
+-EBUSY  Interface is not available to be claimed
+-ENOMEM Insufficient memory
+
+usb_release_interface()
+Name
+usb_release_interface -- Releases a previously claimed interface
+Description
+int usb_release_interface(usb_dev_handle *dev, int interface);
+
+usb_release_interface() releases an interface previously claimed with usb_claim_interface. The interface parameter is the value as specified in the descriptor field bInterfaceNumber. Returns 0 on success or < 0 on error.
+3. Control Transfers
+
+This group of functions allow applications to send messages to the default control pipe.
+
+usb_control_msg()
+Name
+usb_control_msg -- Send a control message to a device
+Description
+int usb_control_msg(usb_dev_handle *dev, int requesttype, int request, int value, int index, char *bytes, int size, int timeout);
+
+usb_control_msg() performs a control request to the default control pipe on a device. The parameters mirror the types of the same name in the USB specification. Returns number of bytes written/read or < 0 on error.
+
+usb_get_string()
+Name
+usb_get_string -- Retrieves a string descriptor from a device
+Description
+int usb_get_string(usb_dev_handle *dev, int index, int langid, char *buf, size_t buflen);
+
+usb_get_string() retrieves the string descriptor specified by index and langid from a device. The string will be returned in Unicode as specified by the USB specification. Returns the number of bytes returned in buf or < 0 on error.
+
+usb_get_string_simple()
+Name
+usb_get_string_simple -- Retrieves a string descriptor from a device using the first language
+Description
+int usb_get_string_simple(usb_dev_handle *dev, int index, char *buf, size_t buflen);
+
+usb_get_string_simple() is a wrapper around usb_get_string that retrieves the string description specified by index in the first language for the descriptor and converts it into C style ASCII. Returns number of bytes returned in buf or < 0 on error.
+
+usb_get_descriptor()
+Name
+usb_get_descriptor -- Retrieves a descriptor from a device's default control pipe
+Description
+int usb_get_descriptor(usb_dev_handle *dev, unsigned char type, unsigned char index, void *buf, int size);
+
+usb_get_descriptor() retrieves a descriptor from the device identified by the type and index of the descriptor from the default control pipe. Returns number of bytes read for the descriptor or < 0 on error.
+See usb_get_descriptor_by_endpoint() for a function that allows the control endpoint to be specified.
+
+usb_get_descriptor_by_endpoint()
+Name
+usb_get_descriptor_by_endpoint -- Retrieves a descriptor from a device
+Description
+int usb_get_descriptor_by_endpoint(usb_dev_handle *dev, int ep, unsigned char type, unsigned char index, void *buf, int size);
+
+usb_get_descriptor_by_endpoint() retrieves a descriptor from the device identified by the type and index of the descriptor from the control pipe identified by ep. Returns number of bytes read for the descriptor or < 0 on error.
+4. Bulk Transfers
+
+This group of functions allow applications to send and receive data via bulk pipes.
+
+usb_bulk_write()
+Name
+usb_bulk_write -- Write data to a bulk endpoint
+Description
+int usb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
+
+usb_bulk_write() performs a bulk write request to the endpoint specified by ep. Returns number of bytes written on success or < 0 on error.
+
+usb_bulk_read()
+Name
+usb_bulk_read -- Read data from a bulk endpoint
+Description
+int usb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
+
+usb_bulk_read() performs a bulk read request to the endpoint specified by ep. Returns number of bytes read on success or < 0 on error.
+5. Interrupt Transfers
+
+This group of functions allow applications to send and receive data via interrupt pipes.
+
+usb_interrupt_write()
+Name
+usb_interrupt_write -- Write data to an interrupt endpoint
+Description
+int usb_interrupt_write(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
+
+usb_interrupt_write() performs an interrupt write request to the endpoint specified by ep. Returns number of bytes written on success or < 0 on error.
+
+usb_interrupt_read()
+Name
+usb_interrupt_read -- Read data from a interrupt endpoint
+Description
+int usb_interrupt_read(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
+
+usb_interrupt_read performs a interrupt read request to the endpoint specified by ep. Returns number of bytes read on success or < 0 on error.
+6. Asynchronous API and Isochronous Transfer
+
+'''Windows Specific'''
+
+libusb-win32 supports Isochronous Transfer through its Asynchronous API. The libusb-win32 Asynchronous API also supports the other transfer types like Control Transfer, Interrupt Transfer and Bulk Transfer.
+
+int usb_isochronous_setup_async(usb_dev_handle *dev, void **context, unsigned char ep, int pktsize);
+
+   Allocates an asynchonous request for endpoint 'ep' and returns that request in 'context'.
+   Returns 0 on success, < 0 on failure.
+
+int usb_bulk_setup_async(usb_dev_handle *dev, void **context, unsigned char ep);
+
+   Allocates an asynchonous request for endpoint 'ep' and returns that request in 'context'.
+   Returns 0 on success, < 0 on failure.
+
+int usb_interrupt_setup_async(usb_dev_handle *dev, void **context, unsigned char ep);
+
+   Allocates an asynchonous request for endpoint 'ep' and returns that request in 'context'.
+   Returns 0 on success, < 0 on failure.
+
+int usb_submit_async(void *context, char *bytes, int size);
+
+   Submits a previously allocated request to the device. Data pointed to by 'bytes' of size 'size' will be written or read to or from the device depending on the endpoint's direction bit. 
+   Returns 0 on success, < 0 on failure.
+
+int usb_reap_async(void *context, int timeout);
+
+   Waits for the request to finish. Returns the number of bytes written/read or < 0 on failure.
+   The request will be canceled if it doesn't complete within 'timeout' (in ms).
+
+int usb_reap_async_nocancel(void *context, int timeout);
+
+   Same as usb_reap_async() but doesn't cancel the request if it times out. Therefore you can try to reap it later.
+
+int usb_cancel_async(void *context);
+
+   Cancels a request.
+
+int usb_free_async(void **context);
+
+   Frees a request.
+
+* Usage:
+
+ char data[1024];
+ void *request;
+ int read;
+ if(usb_bulk_setup_async(dev, &request, 0x81) < 0) {
+   // error handling
+ }
+ if(usb_submit_async(request, data, sizeof(data)) < 0) {
+   // error handling
+ }
+ read =  usb_reap_async(request, 1000);
+ if(read >= 0)
+ printf("read %d bytes\n", read);
+ else
+   // error handling
+ usb_free_async(&request);
+7. Non Portable
+
+These functions are non portable. They may expose some part of the USB API on one OS or perhaps more, but not all. They are all marked with the string _np at the end of the function name.
+
+A C preprocessor macro will be defined if the function is implemented. The form is LIBUSB_HAS_ prepended to the function name, without the leading "usb_", in all caps. For example, if usb_get_driver_np is implemented, LIBUSB_HAS_GET_DRIVER_NP will be defined.
+
+*Linux Specific*
+
+usb_get_driver_np()
+Name
+usb_get_driver_np -- Get driver name bound to interface
+Description
+int usb_get_driver_np(usb_dev_handle *dev, int interface, char *name, int namelen);
+
+This function will obtain the name of the driver bound to the interface specified by the parameter interface and place it into the buffer named name limited to namelen characters. Returns 0 on success or < 0 on error. Implemented on Linux only.
+
+usb_detach_kernel_driver_np()
+Name
+usb_detach_kernel_driver_np -- Detach kernel driver from interface
+Description
+int usb_detach_kernel_driver_np(usb_dev_handle *dev, int interface);
+
+This function will detach a kernel driver from the interface specified by parameter interface. Applications using libusb can then try claiming the interface. Returns 0 on success or < 0 on error. Implemented on Linux only.
+
+*Windows Specific*
+
+    /* Windows specific functions */
+
+const struct usb_version *usb_get_version(void); 
+    Return the library version.
+
+The following functions are related to driver installation (device driver mode of filter driver mode). Normally you should not use them. You can bundle the GUI Inf-Wizard with your application. Or you can choose to write your own driver installation applications.
+libwdi (http://libwdi.sf.net/) or WDK DIFX (http://msdn.microsoft.com/en-us/library/ff544838%28v=VS.85%29.aspx) can be used for that purpose. You can combine libwdi/DIFx with installers like Inno Setup (http://www.jrsoftware.org/isinfo.php) or NSIS (http://nsis.sourceforge.net/).
+
+    #define LIBUSB_HAS_INSTALL_SERVICE_NP 1
+    int usb_install_service_np(void);
+    void CALLBACK usb_install_service_np_rundll(HWND wnd, HINSTANCE instance, LPSTR cmd_line, int cmd_show);
+
+    #define LIBUSB_HAS_UNINSTALL_SERVICE_NP 1
+    int usb_uninstall_service_np(void);
+    void CALLBACK usb_uninstall_service_np_rundll(HWND wnd, HINSTANCE instance, LPSTR cmd_line, int cmd_show);
+
+    #define LIBUSB_HAS_INSTALL_DRIVER_NP 1
+    int usb_install_driver_np(const char *inf_file);
+    void CALLBACK usb_install_driver_np_rundll(HWND wnd, HINSTANCE instance, LPSTR cmd_line, int cmd_show);
+
+    #define LIBUSB_HAS_TOUCH_INF_FILE_NP 1
+    int usb_touch_inf_file_np(const char *inf_file);
+    void CALLBACK usb_touch_inf_file_np_rundll(HWND wnd, HINSTANCE instance, LPSTR cmd_line, int cmd_show);
+
+    #define LIBUSB_HAS_INSTALL_NEEDS_RESTART_NP 1
+    int usb_install_needs_restart_np(void);
+
+More details to Be Added.
+IV. Examples
+
+There are some non-intuitive parts of libusb v0.1 that aren't difficult, but are probably easier to understand with some examples.
+
+Basic Examples
+
+Before any communication can occur with a device, it needs to be found. This is accomplished by finding all of the busses and then finding all of the devices on all of the busses:
+
+{{{
+        struct usb_bus *busses;
+
+        usb_init();
+        usb_find_busses();
+        usb_find_devices();
+
+        busses = usb_get_busses();
+}}}
+After this, the application should manually loop through all of the busess and all of the devices and matching the device by whatever criteria is needed:
+
+    struct usb_bus *bus;
+    int c, i, a;
+
+    /* ... */
+
+    for (bus = busses; bus; bus = bus->next) {
+        struct usb_device *dev;
+
+        for (dev = bus->devices; dev; dev = dev->next) {
+            /* Check if this device is a printer */
+            if (dev->descriptor.bDeviceClass == 7) {
+                /* Open the device, claim the interface and do your processing */
+                ...
+            }
+
+            /* Loop through all of the configurations */
+            for (c = 0; c < dev->descriptor.bNumConfigurations; c++) {
+                /* Loop through all of the interfaces */
+                for (i = 0; i < dev->config[c].bNumInterfaces; i++) {
+                    /* Loop through all of the alternate settings */
+                    for (a = 0; a < dev->config[c].interface[i].num_altsetting; a++) {
+                        /* Check if this interface is a printer */
+                        if (dev->config[c].interface[i].altsetting[a].bInterfaceClass == 7) {
+                        /* Open the device, set the alternate setting, claim the interface and do your processing */
+                           ...
+                        }
+                    }
+                }
+            }
+        }
+    }
+About
+Site Status
+@sfnet_ops
+Create a Project
+Open Source Software
+Business Software
+Top Downloaded Projects
+Blog
+@sourceforge
+Resources
+Articles
+Site Documentation
+Support Request
+© 2018 Slashdot Media. All Rights Reserved.
+Terms Privacy Opt Out Advertise
+Get latest updates about Open Source Projects, Conferences and News.
+No, Thank you

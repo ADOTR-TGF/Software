@@ -1,0 +1,33 @@
+{
+    "histogram":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data": {
+            "num_bins": {"value": "1000", "help": "Number of bins to show"},
+            "kev_bin": {"value": "2", "help": "keV per MCA bin"},
+            "cal_kev": {"value": "661.62", "help": "Energy of calibration peak in keV"},
+            "cal_ph": {"value": "187", "help": "Amplitude of calibration peak in mV (emorpho, PMT3K, SiPM3K)"},
+            "cal_fit_xmin": {"value": "560", "help": "Left side of fit range for automatic calibration"},
+            "cal_fit_xmax": {"value": "780", "help": "Right side of fit range for automatic calibration"},
+            "gain_exp": {"value": "5.6", "help": "PMT gain exponent; 7.5 for 10-stage, 5.6 for 8-stage PMT."},
+            "cal_update": {"value": "1", "help": "Program new voltage or gain after calibration run."},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/histogram.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+        
+    },
+    "sample_bck":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_bins": {"value": "1000", "help": "Number of bins to show"},
+            "kev_bin": {"value": "1", "help": "keV per MCA bin"},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/sample_bck.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    }
+}

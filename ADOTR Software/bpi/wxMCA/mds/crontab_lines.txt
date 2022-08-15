@@ -1,0 +1,5 @@
+#in user's crontab:
+@reboot /Detector1/bpi/wxMCA/mds/sequence.sh
+
+#in root's crontab:
+@reboot /Detector1/bpi/wxMCA/mds/startmds.sh

@@ -1,0 +1,108 @@
+{
+    "histogram":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data": {
+            "num_bins": {"value": "1000", "help": "Number of bins to show"},
+            "kev_bin": {"value": "1", "help": "keV per MCA bin"},
+            "cal_kev": {"value": "661.62", "help": "Energy of calibration peak in keV"},
+            "cal_ph": {"value": "187", "help": "Amplitude of calibration peak in mV (emorpho, PMT3K, SiPM3K)"},
+            "cal_fit_xmin": {"value": "560", "help": "Left side of fit range for automatic calibration"},
+            "cal_fit_xmax": {"value": "780", "help": "Right side of fit range for automatic calibration"},
+            "mass": {"value": "0.358", "help": "Detector mass/kg: NaI-38mm->0.157, NaI-50mm->0.358"},
+            "gain_exp": {"value": "5.6", "help": "PMT gain exponent; 7.5 for 10-stage, 5.6 for 8-stage PMT."},
+            "cal_update": {"value": "1", "help": "Program new voltage or gain after calibration run."},
+            "fit_xmin": {"value": "560", "help": "Left side of manual fit"},
+            "fit_xmax": {"value": "780", "help": "Right side of manual fit"},
+            "smooth": {"value": "5", "help": "Number of bins used for smoothing."},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_3k/data/histogram.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "pulse":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_pulses": {"value": "1", "help": "Number of pulses to acquire"},
+            "t_min": {"value": "0", "help": "Analysis interval [t_min, t_max]"},
+            "t_max": {"value": "25e-6", "help": "Analysis interval [t_min, t_max]"},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/mca_3k/data/pulses.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        }
+    },
+    "list_mode":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "num_buffers": {"value": "1", "help": "Number of list mode buffers to acquire"},
+            "kev_bin": {"value": "1", "help": "keV per MCA bin"},
+            "fit_xmin": {"value": "560", "help": "Left side of peak fit interval"},
+            "fit_xmax": {"value": "780", "help": "Right side of peak fit interval"},
+            "weights": {"value": "../user/mca_3k/data/weights_pvt_nai_120M.py", "help": "File that contains the weights; OR Python file"},
+            "file": {"value": "../user/mca_3k/data/list_mode.json", "help": "File name to save data"}
+        }
+    },
+    "logger":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "parameter_1": {"value": "4", "help": "Index of parameter 1 in arm_status; 5->CPU temperature"},
+            "parameter_2": {"value": "7", "help": "Index of parameter 2 in arm_status; 7->Time"},
+            "dwell_time": {"value": "2", "help": "Time step per log entry, in units of 50 milli-seconds."},
+            "draw_line": {"value": "0", "help": "1-> Draw a line between data points."},
+            "draw_item": {"value": "0", "help": "0-> par_0 vs time, 1-> par_1 vs time, 2-> par_1 vs par_2, 3-> par_2 vs par_1 "},
+            "comment": {"value": "", "help": "Add a comment to the JSON data"},
+            "file": {"value": "../user/logger.json", "help": "File name to save data"},
+            "dummy_row": {"value": "", "help": ""}
+        },
+        "labels": {
+            "0": "Operating Voltage",
+            "1": "Voltage_target",
+            "2": "Set Voltage",
+            "3": "CPU Temperature",
+            "4": "HV-unit Temperature",
+            "5": "Average Temperature",
+            "6": "Computed digital gain target",
+            "7": "Computed LED target",
+            "8": "Wall Clock Time",
+            "9": "Run Status",
+            "10": "Supply voltage",
+            "11": "FPGA Reboot Count",
+            "12": "LED Value",
+            "13": "DC-Offset, mV",
+            "14": "Anode Current",
+            "15": "Sample Run Time",
+            "16": "Sample Events",
+            "17": "Sample Trigger Rate",
+            "18": "Sample Dead Time",
+            "19": "Sample Count Rate",
+            "20": "Sample Count Rate Error",
+            "21": "Background Run Time",
+            "22": "Background Events",
+            "23": "Background Trigger Rate",
+            "24": "Background Dead Time",
+            "25": "Background Count Rate",
+            "26": "Background Count Rate Error",
+            "27": "Count Rate Difference",
+            "28": "Count Rate Difference Error",
+            "29": "Background Probability",
+            "30": "Background Alarmist Probability",
+            "31": "Background Cautious Probability",
+            "32": "Alarm Count Down",
+            "33": "Portal Ready",
+            "34": "Portal Alarm",
+            "35": "Portal Net Counts",
+            "36": "Portal Background Counts",
+            "37": "Portal Background Probability",
+            "38": "Portal Reset",
+            "128": "Logger Events",
+            "129": "Portal Input Counts",
+            "130": "-log10(Portal probability)",
+            "131": "-log10(Background probability)"
+        }
+    },
+    "counter":{
+        "colors": [ [176, 224, 230], [224, 255, 255] ],
+        "data":{
+            "file": {"value": "../user/neutron_3k/data/counter.json", "help": "File name to save data"}
+        }
+    }
+}

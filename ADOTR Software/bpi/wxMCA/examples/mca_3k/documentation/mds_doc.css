@@ -1,0 +1,278 @@
+/*
+  CSS for on-line Morpho Data Server Documentation
+  Feb. 14, 2014
+*/
+
+.page{
+  width: 8in;
+}
+
+.format_table{
+  margin: 10px 0 0 0;
+  border-collapse:collapse;
+  border:none;
+  padding: 0 0 0 5px;
+  vertical-align: top;
+}
+
+.format_table_left{
+  margin: 10px 0 0 0;
+  border-collapse:collapse;
+  background-color: #339;
+  padding: 0 0 0 5px;
+  vertical-align: top;
+}
+
+.cmd_list{
+  color: #98DBB8;
+  background-color: #1C4E63;
+  vertical-align: top;
+}
+
+p.cmd_list{
+  font-size: medium;
+  color: #98DBB8;
+  background-color: #1C4E63;
+  vertical-align: top;
+  margin: 10px 0px 0px 0px;
+  padding: 5px 0px 0px 0px;
+}
+h1.cmd_list{
+  font-size: medium;
+  color: #FF8;
+  background-color: #1C4E63;
+  vertical-align: top;
+  margin: 10px 0px 0px 0px;
+  padding: 5px 0px 0px 0px;
+}
+
+.cmd_list_h1{ /* section header */
+  color: #FF8;
+  background-color: #1C4E63;
+  vertical-align: top;
+}
+
+
+a.cmd_list:visited, a.cmd_list:link, a.cmd_list_h1:visited, a.cmd_list_h1:link{
+  /* color: #98DBB8; */
+  background-color: #1C4E63;
+  text-decoration: none;
+}
+
+a.cmd_list:hover, a.cmd_list_h1:hover{
+  /* color: #98DBB8; */
+  background-color: #1C4E63;
+  text-decoration: underline;
+}
+
+.code_box{
+  color: #98DBB8;
+  background-color: #1C4E63;
+  border: solid;
+  border-width: 1px;
+  border-color: #000;
+}
+
+
+
+/* highlights for command elements; used with <span> */
+.cmd_record{
+  color: #093;
+  font-weight: bold;
+}
+
+.data_record{
+  color: #000;
+  background-color: #BDF;
+  font-weight: bold;
+}
+
+/* general formatting */
+
+.narrative{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  margin: 10px 10px 0 15px;
+}
+
+h1.title{
+  font-family: "Times New Roman";
+  font-size: 16pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 20px 0 10px 0;
+  page-break-after: avoid;
+}
+
+h1.narrative{
+  font-family: "Times New Roman";
+  font-size: 14pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 20px 0 10px 0;
+  page-break-after: avoid;
+}
+
+h2.narrative{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: left;
+  margin: 10px 0 5px 0;
+  page-break-after: avoid;
+}
+
+table.narrative{
+  width: 100%;
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  margin: 10px 0 10px 0px;
+  border-collapse:collapse;
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  page-break-inside: avoid;
+}
+th.narrative{
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  
+  padding: 7px 7px 7px 7px;
+  
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  border-collapse:collapse;
+}
+
+td.narrative{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-weight: normal;
+  font-style: normal;
+  
+  padding: 5px 5px 5px 5px;
+  
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  border-collapse:collapse;
+}
+
+caption.narrative{
+  text-align:left;
+  text-indent:10px;
+  font-style:italic;
+  caption-side:bottom;
+  margin: 10px 0 5px 0;
+}
+
+table.record{
+  width: 100%;
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: normal;
+  margin: 10px 0 10px 15px;
+  border-collapse:collapse;
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  page-break-inside: avoid;
+}
+th.record{
+  color: #98DBB8;
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  background-color: #1C4E63;
+  padding: 7px 7px 7px 7px;
+  
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  border-collapse:collapse;
+}
+
+th.record_2{
+  color: #98DBB8;
+  font-family: "Times New Roman";
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  background-color: #2A7594;
+  padding: 7px 7px 7px 7px;
+  
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  border-collapse:collapse;
+}
+
+td.record{
+  font-family: "Times New Roman";
+  font-size: 10pt;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #BDF;
+  
+  padding: 5px 5px 5px 5px;
+  
+  border:solid;
+  border-width:1px;
+  border-color: #aaa;
+  border-collapse:collapse;
+}
+
+caption.record{
+  text-align:left;
+  text-indent:10px;
+  font-style:italic;
+  caption-side:bottom;
+  margin: 10px 0 5px 0;
+}
+
+/* unordered list, level 1 */
+ul.ul1{
+  list-style-image: url(orgball.gif);
+  list-style-position: outside;
+  margin: 0 0 0 15px; 
+  padding: 0;
+  page-break-inside: avoid;
+}
+
+li.ul1{
+  list-style-image: url(orgball.gif);
+  list-style-position: outside;
+  margin: 0 0 5px 15px;
+  padding: 0;
+
+}
+
+/* unordered list, level 2 */
+ul.ul2{
+  list-style-image: url(orgball.gif);
+  list-style-position:outside;
+  margin: 10px 0 0 0;
+  page-break-inside: avoid;
+  /* padding: 0; */
+}
+
+li.ul2{
+  list-style-image: url(orgball.gif);
+  list-style-position: outside;
+  margin: 0 0 5px 0;
+  /* padding: 0; */
+}
+
+
+
+img {border:none;}
+
+
+

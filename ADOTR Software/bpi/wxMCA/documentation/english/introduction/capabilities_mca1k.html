@@ -1,0 +1,123 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="introduction.html"><img src="../common/bpi_logo_nrd.png" width="200"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">wxMCA Software Package Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">wxMCA Package</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca1k.html">Capabilities MCA-1000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_mca3k.html">Capabilities MCA-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_emorpho.html">Capabilities eMorpho</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="capabilities_neutron3k.html">Neutron-3000</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca1k_um.pdf">User's Manual MCA-1000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/mca3k_um.pdf">User's Manual MCA-3000 (pdf)</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../manuals/emorpho_um.pdf">User's Manual eMorpho (pdf)</a></p>
+<h1 class="cmd_list"> Components</h1>
+<p class="cmd_list"> <a class="cmd_list" href="installation.html">Installationr</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../mds/introduction.html">MCA Data Server</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../usart_interface/introduction.html">Serial Interface</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../sim/introduction.html">Simulator</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../rad_config/introduction.html">Configuration</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="../examples/introduction.html">Code Examples</a></p>
+</td>
+  <td class="format_table">
+    <h1 class="narrative">Introduction</h1>
+    <p class="narrative"> The MCA-1K devices have quite some extraordinary capabilities.  Besides automatic gain stabilization, they can measure samples and background, compute alarms and even alarm on a passing radioactive source.
+    </p>
+    <p class="narrative"> Devices in this family include the PMT-1000 for vacuum photomultiplier tubes (PMT) and the SiPM-1000 for use with SiPM-arrays.
+    </p>
+    <table class="narrative" style="background-color: #EFD;">
+    <tr>
+    <th class="narrative" colspan="2"> MCA-1K Capabilities </th>
+    </tr><tr>
+    <th class="narrative"> Capability </th><th class="narrative"> Description </th>
+    </tr><tr>
+    <td class="narrative"> Analog</td>
+    <td class="narrative"> In case of the SiPM-1000, the input of the MCA-1K is DC-coupled to the SiPM-anode. For the PMT-1000 with a positive high voltage unit, signals are AC coupled. </br>
+                           The operating voltage can be adjusted to change the gain.  Input pulses are processed via a track and hold amplifier and measured with a 12-bit ADC.
+    </td><tr>
+    <td class="narrative"> Gain stabilization</td>
+    <td class="narrative"> The MCA-1K uses either built-in or user-programmable look up tables vs temperature to adjust the operating voltage as a function of temperature. </br>  Unlike SiPM, vacuum PMT suffer from a slow gain drift over time, depending very much on the average anode current.  Hence, the PMT-1000 can perform gain stabilization on the average energy deposited by a built-in pulsed LED. </td>
+    </tr><tr>
+    <td class="narrative"> Histogram size</br>Two banks:</br>1K &times; 32-bit; or One bank</br>2K &times; 32-bit</td>
+    <td class="narrative"> The MCA histogram memory is about 8KB.  There are two banks, one for sample counting and one for background counting. Both include 16 entries for statistical data and a 1024 by 32-bit histogram. There is a histo_2k mode in which the two banks are combined into one large bank, providing a 2K &times; 32-bit histogram.</td>
+    </tr><tr>
+    <td class="narrative"> Counter and histogram</td>
+    <td class="narrative"> The MCA-1K can count pulses and acquire histograms in either of two active banks, one for samples to be measured and one for storing a background measurement.  The device reports count rates and statistical 2-&sigma; errors. Users can choose to see total counts or counts restricted to one region of interest.</td>
+    </tr><tr>
+    <td class="narrative"> Net Counter</td>
+    <td class="narrative"> The MCA-1K reports the difference between sample and background count rate, in a chosen region of interest,  together with the combined statistical 2-&sigma; errors. </td>
+    </tr><tr>
+    <td class="narrative"> Analysis</td>
+    <td class="narrative"> The MCA-1K reports the probability that the measured sample count rate is compatible with the background count rate. It also reports the effect of the statistical errors on the alarm computation. </td>
+    </tr><tr>
+    <td class="narrative"> Dynamic alarming</td>
+    <td class="narrative"> The MCA-1K can analyze and report count rates in time slices of 100ms, ie at a rate of 10/s.  The device automatically tracks slowly changing backgrounds and will alarm on a passing source. Its digital output can be used to drive an audio or visual alarm.</td>
+    </tr><tr>
+    <td class="narrative"> Loss-less counting</td>
+    <td class="narrative"> The MCA-1K implements a read-and-clear command, in which the microcontroller clears the counters right after copying data to the output buffer &ndash; for near loss-less reading of count rates. </td>
+    </tr><tr>
+    <td class="narrative"> Two-bank mode</td>
+    <td class="narrative"> In two-bank mode, the device has an active and an inactive data acquisition bank. When the host reads MCA data, the device automatically reads from the inactive bank.  When combind with the read-and-clear feature, the read also clears the inactive bank when the read is complete. </td>
+    </tr><tr>
+    <td class="narrative"> Trigger out</td>
+    <td class="narrative"> The PMT-1000 and some versions of the SiPM-1000 have a trigger output with a line driver.  The output pulse width can be programmed from 1&micro;s to infinity.</td>
+    </tr><tr>
+    <td class="narrative"> Communication</td>
+    <td class="narrative"> The MCA-1K implements a USB-2.0 compatible USB 1.2 interface. </br> The MCA-1K implements a serial interface with a default speed of 115200 baud.</td>
+    </tr><tr>
+    <td class="narrative"> Security</td>
+    <td class="narrative"> Software deployed on the MCA-1K can not be read back.</br>
+                           Gain-stabilization parameters and lookup tables can be protected by the developer against read back by programming a lock bit.</td>
+    </tr>
+    </table>
+    
+    <h1 class="narrative">Gain stabilization</h1>
+    <p class="narrative"> The MCA-1K can use a 20-point lookup table that describes the desired operating voltage vs temperature behavior. The embedded processor applies this to counteract the gain vs temperature gain drift.  Typically, the lookup table starts at lut_tmin=-30&deg;C and increments in lut_dt=5&deg;C steps up to 65&deg;C.  However, the developer can configure that to meet their requirements.  And the developer can program lookup tables of their own choice into the non-volatile memory of the MCA-1K.  If they wish, the developer can protect the lookup tables against read back.
+    </p>
+    
+    <h1 class="narrative">Count rate measurements</h1>
+   
+    <p class="narrative"> The MCA-1K provides independent count rate and histogram measurement in two banks, and this is supported by different operating modes.  Count rates can be reported as a histogram total, or be restricted to events falling into a programmable region of interest.
+    </p>
+    <p class="narrative"> When used in read_and_clear mode, the user reads the sample histogram bank frequently and the bank is cleared at the end of each read.  The client simply issues a sequence of read commands.
+    </p>
+    <p class="narrative"> When used in two-bank mode, the banks switch between being active and inactive. A read is directed towards the inactive bank, and that bank is cleared at the end of the read.  The user then switches the active and inactive banks at the desired time.  While there is still loss due to data reading, any loss due to latency of the operating system is avoided. 
+    </p>
+    <p class="narrative"> In addition, there is built-in software to compare a sample count rate against the background count rate and compute the statistical probability that the sample counts are caused by the same activity as the established background rate. The developer can set an alarm threshold and let the trigger output of the MCA-1K indicate an alarm when the sample is decidedly more radioactive than the background.
+    </p>
+        
+    <h1 class="narrative">Time-slice operation</h1>
+    <p class="narrative"> There are dynamic situations, where a radioactive source can be measured only for a brief moment.  Examples are a vehicle passing through a radiation portal monitor, or a person with a backpack detector walking past a stationary source.
+    </p>
+    <p class="narrative"> The time-slice operation supports these cases.  The built-in software tracks slow changes in the environmental background.  An alarm is created when during a summation time (L) of typically 4 seconds, the accumulated counts are significantly more than what is expected from the background.  The alarm threshold is defined as the probability that the measured counts (N) during a period L, could have been caused by the established background rate over the same period (B).A threshold of 1.0e-4 means that we alarm when P(Counts&nbsp;&ge;&nbsp;N|BCK) &lt; 1.0e-4.   
+    </p>
+    <p class="narrative"> For example, assume a summation time of 4 seconds and a background rate of 500cps for BCK=2000.  Now assume that we count 2224 events in a particular 4s-period.  The probability of the established background to cause 2224 counts or more in 4s is P(Counts&nbsp;&ge;&nbsp;2224|BCK=2000) = 2.86e-7.  This smaller than the alarm threshold of 1.0e-4, and the embedded program will generate an alarm.
+    </p>
+    <p class="narrative"> If the alarm condition is permanent, the software resets all the logic after a period of H time slices and starts counting again.  It now will accept the suddenly higher level of radioactivity as the new normal background. 
+    </p>
+    
+    <p class="narrative"> Finally, a 'wait' parameter tells the system to wait a number of time slices after turn-on or reset before being ready to alarm.  This is necessary so that the background will be known with sufficient accuracy.
+    </p>
+    
+    <p class="narrative"> All told, the time-slice firmware provides an unprecedented, and highly configurable, and fully autonomous alarming system for portal monitors.  This is ideal for very low-cost mass-produced pedestrian monitors, hand-held sweepers and similar applications.
+    </p>
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>

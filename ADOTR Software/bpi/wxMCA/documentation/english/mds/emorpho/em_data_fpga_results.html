@@ -1,0 +1,130 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- <meta http-equiv="refresh" content="5" > -->
+  <title>MDS-Reference</title>
+  <link href="../../common/mds_doc.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body class="page">
+<table class="format_table">
+  <tr>
+     <td class="format_table" width="200"><a href="../../documentation/introduction.html"><img src="../../common/bpi_logo_nrd.png"></a></td>
+    <td class="format_table">
+      <h1 class="narrative">eMorpho Data Server Reference</h1>
+    </td>
+  </tr>
+  <tr>
+  <td class="cmd_list" width="200"><h1 class="cmd_list"> <a class="cmd_list_h1" href="introduction.html">eMorpho</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="introduction.html">Introduction</a></p>
+<h1 class="cmd_list"> USB driver</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_bpi_device.html">bpi_device</a></p>
+<h1 class="cmd_list"> <a class="cmd_list_h1" href="em_data_introduction.html">Data structures</a></h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_introduction.html">Overview</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_constants.html">Module Constants</a></p>
+
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_ctrl.html">Controls</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_statistics.html">Statistics</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_results.html">Results</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_histogram.html">Histogram</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_list_mode.html">List Mode</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_trace.html">Oscilloscope Trace</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_weights.html">Summation Weights</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_time_slice.html">Time Slices</a></p>
+<p class="cmd_list"> <a class="cmd_list" href="em_data_fpga_lm_2b.html">Two-bank List Mode</a></p>
+
+<h1 class="cmd_list"> API</h1>
+<p class="cmd_list"> <a class="cmd_list" href="em_api.html">Overview</a></p>
+
+<p class="cmd_list_h1"> Data Server</p>
+<p class="cmd_list"> <a class="cmd_list" href="em_server.html">Overview</a></p></td>
+  <td class="format_table">
+    <h1 class="narrative">eMorpho Data Structure: fpga_results</h1>
+    <h2 class="narrative">Summary</h2>
+      <p class="narrative">
+        The fpga_results data structure contains FPGA version and telemetry data.. 
+      </p>
+        
+    <h2 class="narrative">Data structure</h2>
+    <p class="narrative">
+      For fpga_results there are 16 'register' and a larger number of named 'field' data in use.  All register data are 16-bit unsigned int16  (uint16).
+    </p> 
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_results registers and fields</th>
+      </tr><tr>
+        <th class="record_2">Register number and field name</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">RR0: temperature</td><td class="record">13-bit 2's complement no.; 1LSB = 1/16 K</td>
+      </tr><tr>
+        <td class="record">RR1: dc_offset</td><td class="record">16-bit DC offset; 1LSB = 1/64 mV</td>
+      </tr><tr>
+        <td class="record">RR2: status</td><td class="record">DAQ status register</td>
+      </tr><tr>
+        <td class="record">RR3, RR4: anode_current</td><td class="record">uint32_t anode current = RR3 + 65536*RR4</td>
+      </tr><tr>
+        <td class="record">RR5: roi_avg</td><td class="record">uint16_t average energy deposited in ROI (16x average mca bin)</td>
+      </tr><tr>
+        <td class="record">RR6: adc_sr</td><td class="record">ADC sampling rate in MHz</td>
+      </tr><tr>
+        <td class="record">RR7[0:7]: version</td><td class="record">FPGA firmware version (major)</td>
+      </tr><tr>
+        <td class="record">RR7[8:15]: adc_bits</td><td class="record">Number of ADC bits</td>
+      </tr><tr>
+        <td class="record">RR8: custom</td><td class="record">Customization number</td>
+      </tr><tr>
+        <td class="record">RR9: build</td><td class="record">Build number</td>
+      </tr><tr>
+        <td class="record">RR10: rr_10</td><td class="record">Results register 10, uint16_t; Customized content.</td>
+      </tr><tr>
+        <td class="record">RR11: rr_11</td><td class="record">Results register 11, uint16_t; Customized content.</td>
+      </tr><tr>
+        <td class="record">RR12: rr_12</td><td class="record">Results register 12, uint16_t; Customized content.</td>
+      </tr>
+      <caption class="record">
+        The 16-bit fpga_results registers; RRn denotes results register number n, with n=0...15 .  Registers not listed are zero. 
+      </caption>
+    </table>
+    
+    <p class="narrative">
+        The user dictionary is used to convert fpga_results register contents into physical quantities, and a few status indicators. 
+    </p>
+    
+    <table class="record">
+      <tr>
+        <th class="record" colspan="2">fpga_results user dictionary</th>
+      </tr><tr>
+        <th class="record_2">Key</th><th class="record_2">Description</th>
+      </tr><tr>
+        <td class="record">temperature</td><td class="record">Temperature in degree Celsius as measured by a sensor connected to the FPGA.</td>
+      </tr><tr>
+        <td class="record">dc_offset</td><td class="record">DC-offset at the ADC input in Volt; diagnostic use only.</td>
+      </tr><tr>
+        <td class="record">histo_done</td><td class="record">Histogram acquisition has completed and is stopped now. </td>
+      </tr><tr>
+        <td class="record">lm_done</td><td class="record">List mode acquisition has completed and is stopped now. </td>
+      </tr><tr>
+        <td class="record">trace_done</td><td class="record">Trace acquisition has completed and is stopped now. </td>
+      </tr><tr>
+        <td class="record">impedance</td><td class="record">Selected transimpedance of the I&nbsp;&rarr;V converter.</td>
+      </tr><tr>
+        <td class="record">max_volt</td><td class="record">Maximum measurable pulse height above baseline.</td>
+      </tr><tr>
+        <td class="record">max_current</td><td class="record">Maximum measurable pulse current. </td>
+      </tr><tr>
+        <td class="record">anode_current</td><td class="record">Average PMT anode current.</td>
+      </tr><tr>
+        <td class="record">adc_sr</td><td class="record">ADC sampling rate in Hz.</td>
+      </tr>
+      <caption class="record">
+        The fpga_results user dictionary.
+      </caption>
+    </table>   
+    
+  </td>
+  </tr>
+</table>
+
+</body>
+</html>
