@@ -1,0 +1,80 @@
+In general, follow installation guide at 
+http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ 
+
+My final geant4 directory sturcture on SOL is 
+
+   +- /usr/local/geant4 
+       +- geant4.10.02/
+       +- geant4.10.02-build/
+       +- geant4.10.02-install/
+       +- projects/
+			 |	+- general/
+			 |  +- general-build/
+
+Hints for my Geant4 installation (CentOS 6.7): 
+
+1.)  Building Geant4
+
+At step 2.1, set the following cmake flags 
+
+	GEANT4_USE_OPENGL_X11=ON
+	GEANT4_INSTALL_DATA=ON 
+	GEANT4_USE_SYSTEM_EXPAT=OFF
+
+i.e., in geant4.10.02-build, do 
+
+cmake -DGEANT4_USE_SYSTEM_EXPAT=OFF -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DCMAKE_INSTALL_PREFIX=../geant4.10.02-install/ ../geant4.10.02
+
+3.)  Building project
+
+create next to directory 'model' the directory 'model-build' and 'model-runs'
+
+in model-build do 
+
+#:source /usr/local/geant4/geant4.10.02-install/bin/geant4.sh
+:source /usr/local/geant4-install/bin/geant4.sh
+#:cmake -DGeant4_DIR=/usr/local/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../model
+:cmake -DGeant4_DIR=/usr/local/geant4-install/lib64/Geant4-10.05.1/ ../model
+:make
+
+4.)  Simulation specified in 'input'.  To run, in model-build do 
+
+// Stage 1
+:./run outdir='stage1/AIR_XGRND' stage1Input
+:./run outdir='stage1/RAIN_XGRND' stage1Input
+:./run outdir='stage1/RAIN_GRND_H2O' stage1Input
+
+// Stage 2
+:./run outdir='stage2/RAIN_GRND_H2O' inparticles='stage1/RAIN_GRND_H2O/stage1output.out' stage2Input  
+
+// Stage 3
+:./run outdir='stage3/RAIN_GRND_H2O' inparticles='stage2/RAIN_GRND_H2O/stage2output.out' stage3Input  
+
+5.)  Troubleshooting (on SOL)
+
+if during make you get error 
+
+CMake Error in CMakeLists.txt:
+  The compiler feature "cxx_alias_templates" is not known to CXX compiler
+
+you are not using supported version of gcc/g++ (> 4.7).  In CentOS
+it is not straightforward to upgrade compiler. First must install 
+devtoolset & enable newer version of gcc/g++ using SCL
+
+background:
+https://wiki.centos.org/AdditionalResources/Repositories/SCL
+http://linux.web.cern.ch/linux/devtoolset/
+
+when installing devtool set, enable --nogpgcheck
+http://linuxtoolkit.blogspot.com/2014/11/install-gcc-481-and-other-scientitic.html
+
+after devtoolset is installed, need to clean CMakeCache and Files in 
+general-build.  do 
+
+:rm -rf general-build
+:mkdir general-build
+:cd general-build
+:scl enable devtoolset-2 bash
+:source /usr/local/geant4/geant4.10.02-install/bin/geant4.sh
+:cmake -DGeant4_DIR=/usr/local/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../model
+:make 
