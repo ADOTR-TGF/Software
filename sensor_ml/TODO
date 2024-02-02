@@ -1,0 +1,21 @@
+# General
+consolidate functions and build dataset
+
+investigate real traces, how many counts are sucessfully picked up?
+histograms of events by energy (look at detection)
+    - compare to energy threshold, noise...
+
+frequency of events occurring at the same time?
+Or perhaps, histogram of times of seperation
+
+
+ML approaches:
+   - predict TGF energy from trace curve? We dont have a global energy def for TGF though...
+   - timeseries prediction of spikes from count train
+
+Signals Processing approaches:
+    count peaks
+    count dt > noise threshold
+    multiscale matching of wavelet
+    combining the traces directly? Seems like they dont really overlap...
+
