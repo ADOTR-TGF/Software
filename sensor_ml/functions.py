@@ -3,6 +3,12 @@ import numpy.random as ran
 from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
+import scipy.stats as st
+from scipy.linalg import circulant
+import gc
+import matplotlib.pyplot as plt
+import matplotlib.figure as f
+import matplotlib.axes._axes as ma
 
 
 def plastic_pulse(a):
@@ -15,25 +21,76 @@ def plastic_pulse(a):
     return t, fil
 
 
-def nai_pulse(a):
+def nai_pulse(a, n=-1):
     sos1 = signal.butter(3, 0.25e7, btype='low', analog=False, output='sos', fs=40e6)
     sos2 = signal.butter(2, .145e7, btype='low', analog=False, output='sos', fs=40e6)
     sos3 = signal.butter(1, .053e7, btype='low', analog=False, output='sos', fs=40e6)
-    t = np.arange(0.,2.5e-6,25e-9)
-    y = t*0
-    y[4]=1
-    fil1 = signal.sosfilt(sos1,y)
+
+    dt = 25e-9
+    start = 0
+    if n == -1:
+        stop = 2.5e-6
+    else:
+        stop = n * dt
+    t = np.arange(start, stop, dt)
+    # t = np.arange(0., 2.5e-6, 25e-9)
+    y = t * 0
+    y[4] = 1
+    fil1 = signal.sosfilt(sos1, y)
     fil1 = fil1*a/np.max(fil1)
-    fil2 = signal.sosfilt(sos2,y)
+    fil2 = signal.sosfilt(sos2, y)
     fil2 = fil2*a/np.max(fil2)
-    fil3 = signal.sosfilt(sos3,y)
+    fil3 = signal.sosfilt(sos3, y)
     fil3 = fil3*a/np.max(fil3)
-    fil = np.concatenate((fil1[0:11],fil2[11:17],fil3[17:]))
+    fil = np.concatenate((fil1[0:11], fil2[11:17], fil3[17:]))
     return t, fil
 
 
+# Trace with pulses scaled according to spectrum
+def spectrum_trace(count_rate_, length_, pulse_function_, spectrum_, noise_level_, seed=None):
+    # Freeze the random number seed for reproducibility:
+    if seed:
+        ran.seed(seed)
+
+
+
+# Trace with pulses of constant volts
+def const_trace(count_rate_, n_trace, dt_, pulse_, volts_magnitude, baseline_, base_noise_, seed=None):
+    # Freeze the random number seed for reproducibility:
+    if seed is not None:
+        ran.seed(seed)
+
+    n_pulse = len(pulse_)
+
+    t1 = dt_ * n_trace
+    time = np.linspace(0, t1, n_trace)
+    total_time = time[-1]
+
+    # Do not add a partial pulse to the end of the trace
+    n_counts = round(count_rate_ * total_time * (n_trace - n_pulse) / n_trace)
+    #TODO fix this: invalidates number of counts that coudl be used for metrics
+    time_indeces = np.random.randint(0, n_trace - n_pulse, n_counts)
+
+    # Vector of energies of photons at time indeces
+    volts = np.zeros(time.shape)
+    volts[time_indeces] += volts_magnitude  # in V,  ***( += not = )***
+
+    # Convolve energies and pulse to produce desired trace signal
+    fft_energies = np.fft.fft(volts)
+    fft_pulse = np.fft.fft(pulse_, n=n_trace)
+    trace = np.abs(np.fft.ifft(fft_energies * fft_pulse))
+
+    # add in noise and base
+    trace += baseline_
+    if base_noise_ > 0:
+        trace += np.random.normal(loc=0, scale=base_noise_, size=n_trace)
+
+    return volts, trace, time_indeces
+
+
 def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_per_ADC, keV_per_area,
-                   specscale_keV, baseline, basenoise, bits, mean, std, pulse_function, sensor_type='', seed=None):
+               baseline, basenoise, bits, mean, std, pulse_function, sensor_type, seed=None):
+
     assert sensor_type in ['plastic', 'nai']
 
     # Freeze the random number seed for reproducibility:
@@ -61,8 +118,9 @@ def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_
     # energies = line*specscale_keV + 5.   #spectrum starts at 5keV
     energies = np.abs(ran.choice(binenergies, p=spectrum / sum(spectrum), size=len(times)))
 
-    if sensor_type == 'nai':
-        times = np.sort(times) + 100e-6  # 100us of pre-TGF
+    times = np.sort(times)
+    if sensor_type == 'nal':
+        times += 100e-6  # 100us of pre-TGF
     # print(times)
 
     # define the pulse shape once
@@ -102,6 +160,9 @@ def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_
 
 
 def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
+    # note dt here is seconds before pulse
+    # tstep is conventional "dt"
+
     energies = []
     sample_times = []
     n = trace.size
@@ -127,6 +188,9 @@ def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, d
         else:
             i += 1
 
+    energies = np.array(energies)
+    sample_times = np.array(sample_times)
+    gc.collect()
     return (energies, sample_times)
 
 
@@ -137,7 +201,7 @@ def trace_trigger(trace, trace_time):
     for i in range(len(trace)):
         if counter < 0:
             counter = 0
-        if trace[i] > 110.:
+        if trace[i] > 110.:  # mV
             counter += n
         else:
             counter -= 1.
@@ -148,4 +212,107 @@ def trace_trigger(trace, trace_time):
         else:
             trigger_time = np.array([])
             trigger_index = np.array([])
-    return (trigger_time, trigger_index)
+
+    return trigger_time, trigger_index
+
+def td_convolve(x, kernel, A=None):
+    # Y = Ax
+    if A is None:  # optionally pre-specify for speed
+        c = np.concatenate((kernel, np.zeros(x.size - kernel.size)), axis=0)
+        A = circulant(c)
+    y = A * x
+    return np.sum(y, axis=1)
+
+def td_deconvolve(y, kernel, A_inv=None):
+    if A_inv is None: # optionally prespecify for speed
+        c = np.concatenate((kernel, np.zeros(y.size - kernel.size)), axis=0)
+        A = circulant(c)
+        A_inv = np.linalg.inv(A)
+    x = A_inv @ y
+    return x
+
+
+def fft_convolve(s, kernel, extra_pad=0):
+    n = len(s) + extra_pad
+    r = np.fft.fft(s, n=n) * np.fft.fft(kernel, n=n)
+    return np.abs(np.fft.ifft(r))
+
+
+def fft_deconvolve(s, kernel, extra_pad=0, signal_fft_ax=None, signal_label=None, kernel_fft_ax=None):
+    n = len(s) + extra_pad
+    signal_fft = np.fft.fft(s, n=n)
+    kernel_fft = np.fft.fft(kernel, n=n)
+    r = signal_fft / kernel_fft
+
+    if kernel_fft_ax is not None:
+        kernel_fft = np.fft.fft(kernel, n=n)
+        half = np.abs((kernel_fft[:len(kernel_fft) // 2]))
+        f = np.arange(len(half))
+        kernel_fft_ax.plot(f, half / np.max(half))
+        # kernel_fft_ax.set_title('Kernel FFT Spectrum')
+
+    if signal_fft_ax is not None:
+        half = np.abs((signal_fft[:len(signal_fft) // 2]))
+        f = np.arange(len(half))
+        signal_fft_ax.plot(f, half / np.max(half))
+        # signal_fft_ax.set_title('Signal FFT Spectrum')
+
+    return np.abs(np.fft.ifft(r))
+
+
+def threshold_detect(timeseries, threshold):
+    assert timeseries.size > 0
+    assert threshold >= 0
+
+    valid = timeseries >= threshold
+    indeces = np.where(valid)[0]
+    volts = timeseries[indeces]
+
+    return volts, indeces
+
+
+def digitize(data, bits):
+    int_trace = data/1000.*2**bits
+    for i in range(len(int_trace)):
+        int_trace[i] = float(int(int_trace[i]))
+    int_trace *= 1000./2**bits
+    return int_trace
+
+
+def plot_photons(structure, photons_, magnitude, vertical_offset=0, color='r', label_='', alpha=-1):
+    if alpha == -1:
+        num_mode = st.mode(photons_)[1]
+        alpha = 1/2/num_mode
+
+    caller = None
+    labeled = False
+    if type(structure) is f.Figure:
+        caller = plt
+    elif type(structure) is ma.Axes:
+        caller = structure
+    else:
+        print('Unhandled type:', str(type(structure)))
+        assert False
+
+    ys = None
+    if type(magnitude) in [float, int, np.float64]:
+        ys = [vertical_offset, magnitude+vertical_offset]
+        for p in photons_:
+            if not labeled:
+                caller.plot([p, p], ys, color, alpha=alpha,
+                            label=label_)
+                labeled = True
+            else:
+                caller.plot([p, p], ys, color, alpha=alpha)
+    elif type(magnitude) is np.ndarray:
+        for p, m in zip(photons_, magnitude):
+            ys = [0, m]
+            if not labeled:
+                caller.plot([p, p], ys, color, alpha=alpha,
+                            label=label_)
+                labeled = True
+            else:
+                caller.plot([p, p], ys, color, alpha=alpha)
+    else:
+        print('Unhandled type:', str(type(magnitude)))
+        assert False
