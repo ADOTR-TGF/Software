@@ -3,13 +3,7 @@ import numpy.random as ran
 from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
-import scipy.stats as st
-from scipy.linalg import circulant
 import gc
-import matplotlib.pyplot as plt
-import matplotlib.figure as f
-import matplotlib.axes._axes as ma
-
 
 def plastic_pulse(a):
     sos = signal.butter(3, 0.66e7, btype='low', analog=False, output='sos', fs=40e6)
@@ -214,105 +208,3 @@ def trace_trigger(trace, trace_time):
             trigger_index = np.array([])
 
     return trigger_time, trigger_index
-
-def td_convolve(x, kernel, A=None):
-    # Y = Ax
-    if A is None:  # optionally pre-specify for speed
-        c = np.concatenate((kernel, np.zeros(x.size - kernel.size)), axis=0)
-        A = circulant(c)
-    y = A * x
-    return np.sum(y, axis=1)
-
-def td_deconvolve(y, kernel, A_inv=None):
-    if A_inv is None: # optionally prespecify for speed
-        c = np.concatenate((kernel, np.zeros(y.size - kernel.size)), axis=0)
-        A = circulant(c)
-        A_inv = np.linalg.inv(A)
-    x = A_inv @ y
-    return x
-
-
-def fft_convolve(s, kernel, extra_pad=0):
-    n = len(s) + extra_pad
-    r = np.fft.fft(s, n=n) * np.fft.fft(kernel, n=n)
-    return np.abs(np.fft.ifft(r))
-
-
-def fft_deconvolve(s, kernel, extra_pad=0, signal_fft_ax=None, signal_label=None, kernel_fft_ax=None):
-    n = len(s) + extra_pad
-    signal_fft = np.fft.fft(s, n=n)
-    kernel_fft = np.fft.fft(kernel, n=n)
-    r = signal_fft / kernel_fft
-
-    if kernel_fft_ax is not None:
-        kernel_fft = np.fft.fft(kernel, n=n)
-        half = np.abs((kernel_fft[:len(kernel_fft) // 2]))
-        f = np.arange(len(half))
-        kernel_fft_ax.plot(f, half / np.max(half))
-        # kernel_fft_ax.set_title('Kernel FFT Spectrum')
-
-    if signal_fft_ax is not None:
-        half = np.abs((signal_fft[:len(signal_fft) // 2]))
-        f = np.arange(len(half))
-        signal_fft_ax.plot(f, half / np.max(half))
-        # signal_fft_ax.set_title('Signal FFT Spectrum')
-
-    return np.abs(np.fft.ifft(r))
-
-
-def threshold_detect(timeseries, threshold):
-    assert timeseries.size > 0
-    assert threshold >= 0
-
-    valid = timeseries >= threshold
-    indeces = np.where(valid)[0]
-    volts = timeseries[indeces]
-
-    return volts, indeces
-
-
-def digitize(data, bits):
-    int_trace = data/1000.*2**bits
-    for i in range(len(int_trace)):
-        int_trace[i] = float(int(int_trace[i]))
-    int_trace *= 1000./2**bits
-    return int_trace
-
-
-def plot_photons(structure, photons_, magnitude, vertical_offset=0, color='r', label_='', alpha=-1):
-    if alpha == -1:
-        num_mode = st.mode(photons_)[1]
-        alpha = 1/2/num_mode
-
-    caller = None
-    labeled = False
-    if type(structure) is f.Figure:
-        caller = plt
-    elif type(structure) is ma.Axes:
-        caller = structure
-    else:
-        print('Unhandled type:', str(type(structure)))
-        assert False
-
-    ys = None
-    if type(magnitude) in [float, int, np.float64]:
-        ys = [vertical_offset, magnitude+vertical_offset]
-        for p in photons_:
-            if not labeled:
-                caller.plot([p, p], ys, color, alpha=alpha,
-                            label=label_)
-                labeled = True
-            else:
-                caller.plot([p, p], ys, color, alpha=alpha)
-    elif type(magnitude) is np.ndarray:
-        for p, m in zip(photons_, magnitude):
-            ys = [0, m]
-            if not labeled:
-                caller.plot([p, p], ys, color, alpha=alpha,
-                            label=label_)
-                labeled = True
-            else:
-                caller.plot([p, p], ys, color, alpha=alpha)
-    else:
-        print('Unhandled type:', str(type(magnitude)))
-        assert False

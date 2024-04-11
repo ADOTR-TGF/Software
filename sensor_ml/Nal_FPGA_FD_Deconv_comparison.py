@@ -6,15 +6,10 @@ Created on Wed Apr 19 14:50:33 2023
 @author: enp
 """
 
-import numpy as np
-import numpy.random as ran
-import matplotlib.pyplot as plt
-import pylab as pl
 import pandas as pd
-import scipy
-import time
-from matplotlib import rcParams
-from functions import *
+from util.DataGen import *
+from util.Plotting import *
+from util.Processing import *
 
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
@@ -39,7 +34,8 @@ mV_per_ADC = 1000./4096.
 specscale_keV = 5.0  #spectrum scaling i.e. keV/line in the spectrum file
 baseline = 110
 # baseline = 0
-basenoise = .0 #units mV
+basenoise = .0001 #units mV
+quantize = True
 bits = 12  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
 #variables for integrating trace pulses into listmode events
@@ -134,10 +130,11 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     # of how the indeces are defined...
     # notice if printed they are off by one sometimes. I round to the nearest whereas the above is  rounding down.
     # This only shows up when using lognormal distribution with decimal indeces...
+
     stack_n = times.size
     stacked = np.tile(sampletimes, (1, stack_n))
-    intermediate = np.abs(stacked - times[:, None])
-    energy_time_indeces = np.argmin(intermediate, axis=1)
+    abs_diff = np.abs(stacked - times[:, None])
+    energy_time_indeces = np.argmin(abs_diff, axis=1)
 
     # remove values with time index too large
     mask = energy_time_indeces < sampletimes.size - pulse.size
@@ -154,13 +151,15 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     trace += ran.randn(n)*basenoise
     trace[trace > 1000] = 1000
 
-    # # Note digitzation adds sufficient noise to make d deconv difficult...
-    # #digitize:
-    # itrace = trace/1000.*2**bits
-    # for i in range(len(itrace)):
-    #     itrace[i] = float(int(itrace[i]))
-    # itrace = itrace*1000./2**bits
-    itrace = trace
+    # Note digitzation adds sufficient noise to make d deconv difficult...
+    if quantize:
+        #digitize:
+        itrace = trace/1000.*2**bits
+        for i in range(len(itrace)):
+            itrace[i] = float(int(itrace[i]))
+        itrace = itrace*1000./2**bits
+    else:
+        itrace = trace
     
     return itrace, times, energies, energy_time_indeces
 
@@ -182,7 +181,7 @@ def nai_trace_to_counts(trace,dt,tstep,thresh,baseline,extend,escale,int_i,dead_
                 
                 energies.append(norm_energy)
                 sample_times.append(i)
-                i+=dead_i
+                i += dead_i
               
                 #Paralyzable deadtime:keep extending the window as long as the last sample of the last interval is still high.
                 if (extend > 0):
@@ -285,9 +284,7 @@ plt.show()
 ############################ new
 print('\nDeconvolution')
 print(len(trace))
-from functions import *
 
-plt.figure(figsize=(10, 10), dpi=400)
 energies_ts = np.zeros(trace.size)
 for i in range(true_energies.shape[0]):
     e = true_energies[i]
@@ -300,52 +297,72 @@ f_conv = fft_convolve(energies_ts, pulse)
 f_conv *= mV_per_keV
 f_conv += baseline
 
-# TD deconv too slow. O(n^2) too big with this much data...
-# plt.plot(trace_time, t_conv, label='Trace by T Domain Convolution', alpha=.1)
-plt.plot(trace_time, f_conv, label='Trace by F Domain Convolution', alpha=.5)
-plt.plot(trace_time, trace, label='Trace by Addition', alpha=.5)
-plt.title('Sanity Trace')
-plt.legend()
-plt.xlim([110, 175])
-plt.xlim([135, 140])
-# plt.xlim([140, 150])
-# plt.xlim([155, 165])
-# plt.xlim([125, 135])
-# plt.xlim(150, 170)
-# plt.ylim([100, 200])
-# plt.yscale('log')
+# plt.figure(figsize=(10, 10), dpi=400)
+# # TD deconv too slow. O(n^2) too big with this much data...
+# # plt.plot(trace_time, t_conv, label='Trace by T Domain Convolution', alpha=.1)
+# plt.plot(trace_time, f_conv, label='Trace by F Domain Convolution', alpha=.5)
+# plt.plot(trace_time, trace, label='Trace by Addition', alpha=.5)
+# plt.title('Sanity Trace')
+# plt.legend()
+# plt.xlim([110, 175])
+# plt.xlim([135, 140])
+# # plt.xlim([140, 150])
+# # plt.xlim([155, 165])
+# # plt.xlim([125, 135])
+# # plt.xlim(150, 170)
+# # plt.ylim([100, 200])
+# # plt.yscale('log')
 
 
 plt.figure(figsize=(10, 10), dpi=400)
-deconv = fft_deconvolve(trace-baseline, pulse)
+# deconv = fft_deconvolve(trace-baseline, pulse)
+deconv = wiener_deconvolve(trace-baseline, pulse, basenoise)
 
-w = np.where(deconv > 1)
-deconv_filt = deconv[w]
-trace_time_filt = trace_time[w]
+# w = np.where(deconv > 1)
+# deconv_filt = deconv[w]
+# trace_time_filt = trace_time[w]
+trace_time_filt = trace_time
 
-scaled = deconv/mV_per_keV
+# scaled = deconv/mV_per_keV + baseline
+scaled = deconv + baseline
+true_volts = true_energies * mV_per_keV + baseline
+true_energies = true_volts #TODO remove this and replace vars
 
 plt.plot(trace_time, scaled, label='Deconvolution')
-plt.ylabel('Energy keV',fontsize=20)
+plt.ylabel('mV',fontsize=20)
 plt.xlabel('microseconds',fontsize=20)
 plt.title('Deconvoluted NaI list-mode data',fontsize=20)
 plt.tick_params(labelsize=18)
 
 plt.plot(times*1e6, true_energies, color='r', marker='.', linestyle='', label='Ground Truth')
 plt.xlim([np.min(trace_time_filt), np.max(trace_time_filt)])
+plt.xlim([100, 300])
+plt.xlim([150, 175])
+plt.ylim([110, 200])
 plt.legend()
 plt.show()
 
-plt.figure(figsize=(10, 10), dpi=400)
-safety_factor = 2
-threshold = baseline + safety_factor * basenoise
+safety_factor = 1 #TODO fix this
+threshold = baseline + safety_factor # const at end to stop noiseless trace from having too many
 thresh_volts, thresh_indeces = threshold_detect(scaled, threshold)
 thresh_times = trace_time[thresh_indeces]*1e6
+print('Deconv Threshold Detected {}'.format(thresh_volts.size))
+# print('SUM deconv values, true values', np.sum(scaled), np.sum(true_energies))
+# print('SUM thresholded values, true values', np.sum(thresh_volts), np.sum(true_energies))
+
+plt.figure(figsize=(10, 10), dpi=400)
 plt.plot(thresh_times/1e6, thresh_volts, color='k', marker='.', linestyle='', label='Deconv Listmode')
 plt.plot(times*1e6, true_energies, color='r', marker='o', linestyle='', label='Ground Truth', alpha=.25)
 lim = [np.min(trace_time_filt), np.max(trace_time_filt)]
-plt.plot(lim, [threshold, threshold], 'b-', label='Detection Threshold')
+plt.plot(lim, [threshold, threshold], 'r--', label='Baseline')
+plt.plot(lim, [threshold, threshold], 'r-', label='Detection Threshold')
+plt.title('FD Deconvolution List-mode')
 plt.xlim(lim)
+# plt.ylim([100, 200])
+plt.xlim([150, 175])
+plt.ylim([110, 200])
+plt.ylabel('mV',fontsize=20)
+plt.xlabel('microseconds',fontsize=20)
 plt.legend()
 plt.show()
 

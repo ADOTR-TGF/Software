@@ -1,21 +1,197 @@
 # General
-consolidate functions and build dataset
+GOAL: Improve count and identify (energies) of original pulses
 
-investigate real traces, how many counts are sucessfully picked up?
-histograms of events by energy (look at detection)
-    - compare to energy threshold, noise...
+TODO
+    Finalize dataset code. Spectrum_Trace? Separate out into smaller files?
+    Metrics on dataset and old algo
+    Start working on ML
+    May be worth thinking about how this could be tested in the lab
+        If we use on real data, dont have ground truth
+        if we use synthetic data, we cant be too sure how realistic it is
 
-frequency of events occurring at the same time?
-Or perhaps, histogram of times of seperation
+
+New chaffin questions
+   - Found note in make_trace about statistical studies. What studies had been run for this?
+   - How was spectrum determined again? How confident are we in this spectrum? Seems like this is really the end goal
+     of counting photons... If we could trust it
+   - Do we have a measured characterization of the noise from the sensor itself? Basically all noise in these
+     sensors (which is not generally true) should be internal electrical right? No external radiation (xrays should be the only thing getting in)
+     No (or statistically insignificant) neutrons...
+     Unfortunately Quantization Noise will also be an issue (I have just shown this)
+
+# Chaffin Notes
+# sensor is capped at 1 volts, so ylim upper is 1 V
+# density is really whats important. countarate vs fwhs
+# len could 40-100 micro: 1 ms. 50-300 microseconds best range
+# need to replace listmode counts with something better.... need a better estimation of the individual xrays
+# since density seems to be the primary issue, maybe make own uniform distribution rather than the log normal
+# research commercial options for counts of events in noisy data
+
+New Chaffin Discussion Points:
+    - Could you explain how you made these pulse shapes match the recorded versions using filters?
+    - Pulse shape came from lab right? Xray -> sensor?
+    - Can I extend the pulses by just increasing the number the time vector and letting 3rd filter go on...?
+    - Maybe clarify that voltage responses are generally expected to be this shape outside of saturation region?
+        - Does saturation come from the ADC maxing out?
+            - No, from analog electronics (op-amps)
+        - If we had a perfect sensor, would we see each voltage response be the same shape with any photon energy?
+
+    - Are there physical effects in the sensor like charge splitting (charge split between neighboring pixels?)
+        - Is the voltage response really deterministic based on photon energy?
+        - Basically deterministic
+
+    - Do the spectrums come from unfolding of real measurements? Or how were they determined?
+
+    - Does noise floor come from background radiation, or sensor noise? Both?
+        In real data, will we know the noise floor?
+
+    - Discussion about metrics
+    - Problem with original code: in making traces, trace indeces are set not added (= not +=)
+    - Energy:
+        - In counting algo, E(triggered) = np.sum(trace[i-5:i-6+int_i]-baseline) * escale
+        - In making traces, trace[indeces...] += energies[i] * pulse(magntiude=1)
+            if integral(pulse) != 1, does this really preserve the energy?
+
+    ML:
+        Straight SL: trace -> energies list
+        Auto Encoder: trace -> trace, but bottleneck learns energies
+        GAN: A whole new level of complexity...
+
+Vars of interest:
+    - count_rate
+    - magnitude
+    - base_noise (?) -> SNR
+
+Limits
+    - noise floor (SNR << 1)
+    - Saturation
+    - High count rate (but not necessarily coincident index of pulses)
+    - P(photons sharing integer index. Harder limit, but may be mitigated with up-sampling)
+
+Metrics
+    - % Photons counted (w/ correct index? or by histogram?)
+    - % coincident photons in photon list
+    - % energy summed together truth_list -> x
+    - % Energy counted
+    - "FP, TN error", error by scale...
+    - Loss. Calculate loss in convolved space. Given some deconv est, re-convolve with prior to then calc error
+      problem here is noise in the est can still generate high error... Is that appropriate?
+
+Investigate:
+    - HF increase as count rates go up
+    - From original scripts, also plot photons that are counted on the original trace (in mV, not keV)
+
+Approaches
+    - Time Domain deconvolution
+    - F Domain deconvolution
+    - ML
+        - GAN where A distorts and adds noise to traces. Seems like overkill, plus we might want to know
+              distortions and noise we are adding...
+        - Convolutional denoising encoder/decoder. Maybe with NAS?
+        - iterative method that accepts current estimate of energies + raw signal to produce new estimate of energies?
+          This could take advantage of knowledge of integrated energy in the signal, and potentially also probability
+          based on the spectrum...
+        - Any iterative method is probably going to work better in the pure time domain
+        - Extra variables:
+            - Prior
+            - integrated energy
+            - Known distribution of spectrum of photons. How good is this estimation if we cant already count
+              well...? If known dist was good, we might be able to create a loss function that could use those statistics...
+            - max P(deconv | data, spectrum)
+
+        - Physics informed HPCMP tutorials! Part1: https://training.hpc.mil/course/view.php?id=390
+
+    - Filters
+        - LPF. what is Fc? Would need to LPF kernel as well. Chebyshev, Elliptic, Butterworth. Forward-backward?
+        - Wiener Filter. What to use as fc
+    - At high countrates, convoluted response may appear as HF (relatively) noise. The steady state integration,
+      assuming the sensor is not saturated, can give us a limit on the total energy of photons we have received
 
 
-ML approaches:
-   - predict TGF energy from trace curve? We dont have a global energy def for TGF though...
-   - timeseries prediction of spikes from count train
+Future: using sensors with multiple scales: can we use ML to fuse data together?
+    - Lower electronic noise
+    - Higher precision ADC
+    - Can we use multiple pixels with same photomultiplier? Alterate way to improve SNR...
 
-Signals Processing approaches:
-    count peaks
-    count dt > noise threshold
-    multiscale matching of wavelet
-    combining the traces directly? Seems like they dont really overlap...
+Window functions
+    Can we apply these while keeping deconv accurate in the middle of the sample?
+    Would help with working with data in discrete chunks...
 
+
+Resources:
+Sensor physics and issues:
+    https://iopscience.iop.org/article/10.1088/1748-0221/7/03/P03003/pdf
+F domain deconv:
+    https://terpconnect.umd.edu/~toh/spectrum/Deconvolution.html
+Deconv methods for gamma spectrum:
+    https://pdf.sciencedirectassets.com/277348/1-s2.0-S1875389215X00174/1-s2.0-S1875389215014091/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEIb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCBmapkkwm%2FjqOkvHVpNxyDZMUs992mUuxCWRSt1I3xzAIhAK4rgBq5prWFxrdGTWsN2fxjnhseoaR3DemoRgi4zgEiKrMFCF4QBRoMMDU5MDAzNTQ2ODY1IgxHQ%2FJkNngWFbRVBjIqkAXb%2BdTzbIBKvXDQbfnzu6hu%2Bj0q3AukK0DQKnZnAuzevrS5Jw6pG5zX1XYn5wF5yRsn94chJIsN884ZEaPcS3gmpJ2GbUSlBe5qJ8EvNMCtSvUX9eZzQ8zTm22ZieuNTIfEh0ekKJI8YpCTrQnHPPx8pt9dHD%2Bzm9oJJyKIn3Wut%2Fo%2Bp%2FntRRg4gjd%2FKABGgvvtqFvV3XFsK8FGXDuwW1Jq7Otxi5XwhVmNOu56%2FOv%2BSClpnbayuLrrDfdcWnLAe93%2BvsAEKuujVQtEEd%2FqXzmtY2MXCFW4SxP4x%2FUDyhk99PmjAJoG5zdZ82hGLI5CM9RDIhaoBduBHap6HTgF8CfB8Z7OxezLetR1pgPGLOKy%2FKkSO6mHDOmVAYAU%2FwWaN0AlRZFwta4UJbhRcBVuX4ceqIcod5%2F40WoluWbanBqIaYUBgckl1I3FP7m9m5Ahf0cSJK3br8vmONE8%2FCLSCMhpiM38vOnSDLMeuPHXQIrc19SXCCU2zUL8%2FGDieGS0ZnkqRxmX4kniNXcOS5ZNrlYOQxUE%2FItHVZKromDVIfPARd01323BaN%2FYeY1NVSQDYmTXxb4rO2B1mmQ4fhVlFic8HMHzKnq0BLXJuXJ5RAXEsPas1zTTFtkanL0sa6ErVwzIZj3ANZ5c6MxiNf7VeIEgIyzfODQXfZTNHuLKloFNgi2oPALik5orSCrgc4ICThl372nOV4DVOq%2Fu%2FMKlZ0qB%2FBV3v21SxaSJCvgVPQIb5RuD00V84dYRIB9growWBuft2FdUlGoTHsV8wqrblOFHHtYb8wQb1MwbXcXzGZp%2Fd8h2o7HqQx3FZKlBcpNvNaa%2BheI59wPmbJgMkPQHwWrdSlb2AObRU6iz6thvn1N4QTDysaiuBjqwAYk9jeVQp2%2FnIkMZsK%2Br7cvwOZlFHMklcISfhMjEhersbP4lPlpjOAfDuEE3OzaXcEB%2FxXa%2FP5TMJ74QVEbcEmhcM1Th1cih6GOpkKv0ORUVZSnYAexhJr01ylJw7kilD5X8lQquwZLE75ZVt20XlHVd3%2FnaEaNX91W%2Byo7x4TU5AUuh6DhIUQTU9YyXfZWARlvqHxP8ZqfWfwU5tPb%2BOvIf3HOUEr06gp86t6y12Hir&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240212T141143Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTYWJVJY67I%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=8fe2d6e0cdd987a00f7b8faa7daec602204890682187aeffdaa6c7dee3bf81ea&hash=4794bd59b2d1d16781635f1e7cac7015795afab97fd62fc3c4685a54623f2b2c&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S1875389215014091&tid=spdf-c6a83dd4-d04c-4f64-88db-dcd7d377ee8c&sid=44f9ce8f25fe1344ec4b81d3b034ecb1fb4bgxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=131056525257560c55&rr=85456c23efde635c&cc=us
+General textbook:
+    https://www.dspguide.com/ch17/2.htm#:~:text=Deconvolution%20is%20the%20process%20of,frequency%20response)%20to%20be%20known.
+Image Deconv
+    https://arxiv.org/pdf/0810.4807.pdf
+Iterative method of deconvolution
+    https://www.osti.gov/servlets/purl/4634295
+MAXED
+    https://www.osti.gov/servlets/purl/663223
+Maximum Entropy Deconvolution
+    https://www.mdpi.com/1099-4300/24/9/1238
+Maximum Entropy Specotrsocpy (original paper for above)
+    https://www.proquest.com/openview/6fb085a12ca2515f921a97cb0af44254/1.pdf?pq-origsite=gscholar&cbl=18750&diss=y
+Random implementations of deconvolution
+    https://github.com/topics/deconvolution?l=matlab
+Wiener deconv for computer vision and images:
+    http://graphics.cs.cmu.edu/courses/15-463/2017_fall/lectures/lecture17.pdf
+Wiener filter lectures
+    https://www.cs.tau.ac.il/~turkel/notes/wiener.pdf
+    https://www.cs.sfu.ca/~yagiz/cpim/2019-CPIM-12-Deconvolution.pdf
+    https://aferro.dynu.net/math/wiener_deconvolution/
+
+    Could we use wiener filter with some sort of wavelet transform? Spectrogram rather than FFT? Could help with
+    localizing computation
+    https://duneece.wiscweb.wisc.edu/wp-content/uploads/sites/605/2015/11/gallaire_tfts_wieny98.pdf
+    + more... google
+
+    https://arxiv.org/pdf/2303.16640.pdf Deep Wiener filter! this paper seems really good!
+        - just denoising, but thats still super valuable
+
+Quantization noise
+    https://terpconnect.umd.edu/~toh/spectrum/AppendixI.html
+    https://en.wikipedia.org/wiki/Quantization_(signal_processing)
+    https://en.wikipedia.org/wiki/Signal-to-quantization-noise_ratio
+    https://classes.engineering.wustl.edu/ese488/Lectures/Lecture5a_QNoise.pdf
+    https://electronics.stackexchange.com/questions/260921/how-to-measure-quantization-noise
+    https://dspillustrations.com/pages/posts/misc/quantization-and-quantization-noise.html
+    https://www.ll.mit.edu/sites/default/files/publication/doc/quantization-effects-digital-filters-weinstein-tr-468.pdf
+
+    Q Error (real->discrete) in general is magnitude dependent. This is problematic because it is non constant within signal
+    However, this may be something that an ANN may be better suited to handle...
+        - Make Quantization error plot. Based on know ADC bits and voltage range, should be able to show bounds on
+          Error. Can we also compare FFT(pulse, full precision) and FFT(pulse, Discretized)?
+
+Gaussian Noise and filters
+    https://courses.engr.illinois.edu/ece361/sp2011/Newlectures/Lecture03.pdf
+
+
+############## ML Methods ##################################################################################
+Neural Blind Deconvolution Using Deep Priors -  Single shot GANs
+    https://arxiv.org/abs/1908.02197
+
+Blind Image Deconvolution using Deep Generative Priors - Generative deblurring
+    https://arxiv.org/pdf/1802.04073.pdf
+
+Good sruvery of Deconv approaches. Classical, Iteartive, and DL based approaches
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8707587/
+
+Denoising Autoencoder
+    https://paperswithcode.com/method/denoising-autoencoder
+    https://cedar.buffalo.edu/~srihari/CSE676/14.2%20Denoising%20Autoencoders.pdf
+    https://www.analyticsvidhya.com/blog/2023/07/unveiling-denoising-autoencoders/
+
+Photon Counts
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5909414/
+        very conventional techniques, good noise floor estimation though
+    https://arxiv.org/pdf/2007.03119.pdf
+    https://pubmed.ncbi.nlm.nih.gov/37379858/
+
+Big data structures
+    https://stackoverflow.com/questions/25471026/python-storing-big-data-structures
