@@ -5,6 +5,19 @@ rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
 import gc
 
+
+def summed_listmode_local(indeces, values):
+    # idk if this is the best way but its easy
+    # combine values and find non zero values
+    vec = np.zeros(0, np.max(indeces))
+    for i, v in zip(indeces, values):
+        vec[i] += v
+
+    new_indeces = np.where(vec)
+    new_values = vec[new_indeces]
+    return new_indeces, new_values
+
+
 def plastic_pulse(a):
     sos = signal.butter(3, 0.66e7, btype='low', analog=False, output='sos', fs=40e6)
     t = np.arange(0., 0.5e-6, 25e-9)
@@ -15,12 +28,12 @@ def plastic_pulse(a):
     return t, fil
 
 
-def nai_pulse(a, n=-1):
+def nai_pulse(a, n=-1, sampling_ratio=1):
     sos1 = signal.butter(3, 0.25e7, btype='low', analog=False, output='sos', fs=40e6)
     sos2 = signal.butter(2, .145e7, btype='low', analog=False, output='sos', fs=40e6)
     sos3 = signal.butter(1, .053e7, btype='low', analog=False, output='sos', fs=40e6)
 
-    dt = 25e-9
+    dt = 25e-9 /sampling_ratio #TODO implement sampling ratio...
     start = 0
     if n == -1:
         stop = 2.5e-6
@@ -41,15 +54,74 @@ def nai_pulse(a, n=-1):
 
 
 # Trace with pulses scaled according to spectrum
-def spectrum_trace(count_rate_, length_, pulse_function_, spectrum_, noise_level_, seed=None):
+def spectrum_trace(count_rate_, dt_, total_time_, pulse_, bin_energies_, spectrum_, mV_per_keV_, noise_std_, baseline_,
+                   sampling_ratio_, discretize=True, bits_=12, seed_=None, clip=True, debug=False):
+
+    #TODO add data generated at higher sampling rate, then downsample
+    # issue is that it messes up the metrics.py if we dont have "true" values at integer indeces...
+    # unless we also estimate an upsampled deconvolution s.t. its the same as original...?
+    assert sampling_ratio_ > 0 and type(sampling_ratio_) is int
+
     # Freeze the random number seed for reproducibility:
-    if seed:
-        ran.seed(seed)
+    if seed_ is not None:
+        ran.seed(seed_)
+
+    time_vector = np.arange(0, total_time_, dt_ / sampling_ratio_)
+    photon_time_indeces = np.sort(np.random.choice(
+        np.arange(time_vector.size-len(pulse_)),
+        size=int(count_rate_ * total_time_)))
+
+
+    energies_list = np.random.choice(bin_energies_, p=spectrum_ / sum(spectrum_), size=photon_time_indeces.size)
+
+    trace = np.zeros(time_vector.size)
+    pulse_len = len(pulse_)
+    mx_list_size_index = photon_time_indeces.size
+    for i, t in enumerate(photon_time_indeces):
+        # print(t, len(trace))
+        if t + pulse_len < trace.size:
+            trace[t:t + pulse_len] += pulse_ * energies_list[i]
+            mx_list_size_index = t
+
+    time_vector = time_vector[0: trace.size]
+    # energies_list = energies_list[photon_time_indeces < mx_list_size_index]
+    # energy_time_indeces = photon_time_indeces[photon_time_indeces < mx_list_size_index]
+    energy_time_indeces = photon_time_indeces
+
+    # # Sparse summed photon vector
+    # summed_index_list, summed_volts_list = summed_listmode_local(energy_time_indeces, energies_list)
+
+    # Downsample data
+    if sampling_ratio_ != 1:
+        trace = signal.decimate(trace, sampling_ratio_)
+
+    # add baseline and noise, and clip:
+    trace *= mV_per_keV_
+    trace += baseline_
+    trace += ran.randn(trace.size) * noise_std_
+
+    if clip:
+        trace[trace > 1000] = 1000
+
+    volts_list = energies_list * mV_per_keV_
+    volts_time_indeces = energy_time_indeces
+
+    if discretize:
+        # digitize:
+        itrace = trace / 1000. * 2 ** bits_
+        for i in range(len(itrace)):
+            itrace[i] = float(int(itrace[i]))
+        itrace = itrace * 1000. / 2 ** bits_
+    else:
+        itrace = trace
+
+    return itrace, time_vector, volts_list, volts_time_indeces
 
 
 
 # Trace with pulses of constant volts
-def const_trace(count_rate_, n_trace, dt_, pulse_, volts_magnitude, baseline_, base_noise_, seed=None):
+def const_trace(count_rate_, n_trace, dt_, pulse_, volts_magnitude, baseline_, base_noise_,
+                seed=None, quantize=False, bits=12):
     # Freeze the random number seed for reproducibility:
     if seed is not None:
         ran.seed(seed)
@@ -62,7 +134,7 @@ def const_trace(count_rate_, n_trace, dt_, pulse_, volts_magnitude, baseline_, b
 
     # Do not add a partial pulse to the end of the trace
     n_counts = round(count_rate_ * total_time * (n_trace - n_pulse) / n_trace)
-    #TODO fix this: invalidates number of counts that coudl be used for metrics
+    #TODO fix this: invalidates number of counts that coudl be used for metrics.py
     time_indeces = np.random.randint(0, n_trace - n_pulse, n_counts)
 
     # Vector of energies of photons at time indeces
@@ -151,60 +223,3 @@ def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_
     itrace = itrace * 1000. / 2 ** bits
 
     return (itrace)
-
-
-def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
-    # note dt here is seconds before pulse
-    # tstep is conventional "dt"
-
-    energies = []
-    sample_times = []
-    n = trace.size
-
-    di = int(dt / tstep)
-
-    i = di
-
-    while i < n - dead_i - 1:
-        if trace[i] > thresh + baseline:  # find a value above trigger threshold.
-            energy = np.sum(trace[
-                            i - 5:i - 6 + int_i] - baseline)  # Integrate pulse over int_i samples starting with first above threshold.
-            norm_energy = energy * escale  # Convert energy into channels to compare to real data spectrum
-
-            energies.append(norm_energy)
-            sample_times.append(i)
-            i += dead_i
-
-            # Paralyzable deadtime:keep extending the window as long as the last sample of the last interval is still high.
-            if (extend > 0):
-                while (trace[i - 1] > thresh + baseline and i < n - di - extend):
-                    i += extend
-        else:
-            i += 1
-
-    energies = np.array(energies)
-    sample_times = np.array(sample_times)
-    gc.collect()
-    return (energies, sample_times)
-
-
-def trace_trigger(trace, trace_time):
-    n = 30
-    m = 10500
-    counter = 0
-    for i in range(len(trace)):
-        if counter < 0:
-            counter = 0
-        if trace[i] > 110.:  # mV
-            counter += n
-        else:
-            counter -= 1.
-        if counter >= m:
-            trigger_time = trace_time[i]
-            trigger_index = i
-            break
-        else:
-            trigger_time = np.array([])
-            trigger_index = np.array([])
-
-    return trigger_time, trigger_index

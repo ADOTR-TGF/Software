@@ -10,6 +10,7 @@ import pandas as pd
 from util.DataGen import *
 from util.Plotting import *
 from util.Processing import *
+from util.metrics import *
 
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
@@ -33,8 +34,7 @@ keV_per_area = .147 #determined by trial and error to match energy range of inst
 mV_per_ADC = 1000./4096.
 specscale_keV = 5.0  #spectrum scaling i.e. keV/line in the spectrum file
 baseline = 110
-# baseline = 0
-basenoise = .0001 #units mV
+basenoise = .01 #units mV
 quantize = True
 bits = 12  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
@@ -151,7 +151,8 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     trace += ran.randn(n)*basenoise
     trace[trace > 1000] = 1000
 
-    # Note digitzation adds sufficient noise to make d deconv difficult...
+    print(trace)
+
     if quantize:
         #digitize:
         itrace = trace/1000.*2**bits
@@ -297,26 +298,9 @@ f_conv = fft_convolve(energies_ts, pulse)
 f_conv *= mV_per_keV
 f_conv += baseline
 
-# plt.figure(figsize=(10, 10), dpi=400)
-# # TD deconv too slow. O(n^2) too big with this much data...
-# # plt.plot(trace_time, t_conv, label='Trace by T Domain Convolution', alpha=.1)
-# plt.plot(trace_time, f_conv, label='Trace by F Domain Convolution', alpha=.5)
-# plt.plot(trace_time, trace, label='Trace by Addition', alpha=.5)
-# plt.title('Sanity Trace')
-# plt.legend()
-# plt.xlim([110, 175])
-# plt.xlim([135, 140])
-# # plt.xlim([140, 150])
-# # plt.xlim([155, 165])
-# # plt.xlim([125, 135])
-# # plt.xlim(150, 170)
-# # plt.ylim([100, 200])
-# # plt.yscale('log')
-
-
 plt.figure(figsize=(10, 10), dpi=400)
-# deconv = fft_deconvolve(trace-baseline, pulse)
-deconv = wiener_deconvolve(trace-baseline, pulse, basenoise)
+deconv = fft_deconvolve(trace-baseline, pulse)
+# deconv = wiener_deconvolve(trace-baseline, pulse, basenoise)
 
 # w = np.where(deconv > 1)
 # deconv_filt = deconv[w]
@@ -337,14 +321,15 @@ plt.tick_params(labelsize=18)
 plt.plot(times*1e6, true_energies, color='r', marker='.', linestyle='', label='Ground Truth')
 plt.xlim([np.min(trace_time_filt), np.max(trace_time_filt)])
 plt.xlim([100, 300])
-plt.xlim([150, 175])
-plt.ylim([110, 200])
+# plt.xlim([150, 175])
+# plt.ylim([110, 200])
 plt.legend()
 plt.show()
 
 safety_factor = 1 #TODO fix this
 threshold = baseline + safety_factor # const at end to stop noiseless trace from having too many
-thresh_volts, thresh_indeces = threshold_detect(scaled, threshold)
+threshold = 120
+thresh_volts, thresh_indeces = threshold_listmode(scaled, threshold)
 thresh_times = trace_time[thresh_indeces]*1e6
 print('Deconv Threshold Detected {}'.format(thresh_volts.size))
 # print('SUM deconv values, true values', np.sum(scaled), np.sum(true_energies))
@@ -358,9 +343,8 @@ plt.plot(lim, [threshold, threshold], 'r--', label='Baseline')
 plt.plot(lim, [threshold, threshold], 'r-', label='Detection Threshold')
 plt.title('FD Deconvolution List-mode')
 plt.xlim(lim)
-# plt.ylim([100, 200])
-plt.xlim([150, 175])
-plt.ylim([110, 200])
+plt.xlim([100, 300])
+# plt.xlim([150, 175])
 plt.ylabel('mV',fontsize=20)
 plt.xlabel('microseconds',fontsize=20)
 plt.legend()

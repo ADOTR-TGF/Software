@@ -2,60 +2,72 @@
 GOAL: Improve count and identify (energies) of original pulses
 
 TODO
-    Finalize dataset code. Spectrum_Trace? Separate out into smaller files?
+    Downsampling data generation and benefits of upsampling in deconvolution
+    Identify cause of mis-scaling of wiener deconvolved photons
+            Coincident photons
+            Small values (also more numerous, could be related...)
+            dT to nearest neighbor
+            possible soln: Transform measured spectrum to spectrum estimate by matrix transformation that accounts
+                           for various factors measured in data (countrate, energy etc...)
+                           Maybe use very small K value in wiener filter, only to keep deconv output form blowing up,
+                           but not doing significant filtering. This output can be more raw
+           Different K values could be causing phase shifts that are causing "big errors..."
+           Research: when doing IFFT, can we calculate the amount each frequency affects any particular TD Val?
+                     If we could, we could calculate the effect of K and what values "should be"
+           # TRY separating photon magnitude and
     Metrics on dataset and old algo
-    Start working on ML
-    May be worth thinking about how this could be tested in the lab
-        If we use on real data, dont have ground truth
-        if we use synthetic data, we cant be too sure how realistic it is
+    Might be able to use the LGPL multi-scale kernel approach as a way to eliminate broadband Noise issue by having
+       kernel matrix have bit precision built in... But this might not work well due issues when summing values of
+       two different magnitudes and precisions...
+
+TODO Data Generation
+    Up/Down sampling
+    Greater number of bins to sample from interpolated discrete log response? Is this really important?
+    Simulation of entire electronics?
+
+TODO Questions
+    Are discretization error "noise" and electronics white noise both white? Can we quantify them together to find optimal K?
+           - discretization error larger at low represented values...
+    Can we figure out the frequency content of a value in TD given the strength of FD? How did the wiener deconvolution
+        factor for each f affect the magnitude of that f
+    How to deal with definite time windows for deconvolution...
+    Holland info:
+        Can we use a simpler HF filter instead of wiener filter?  He doesnt like the "undoing" of magnitude...
+
+TODO June 25th meeting
+    Issue with old histogram plot was potting counts without bins...
+    I propose we develop a non-linear physics-accurate model of the entire sensor. (Xray stream -> voltage)
+        doing so will give us accurate data for better algo testing
+        doing so may inform the design of a better processing algo
+    How different will the response of PhotoE look from Compton scattering? My intuition is it will be a similar pulse shape but sharper on the leading edge
+    Rather than take histograms of data, find a way to approx. pdf of the energy/rate density function...
+        Generate hist at much higher bin count, then fit curves to interpolate to regular intervals
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rv_histogram.html
+    Meeting Results
+        Metrics by converting (counts or countrates)/energy into probablity density function
+        Develop data generation with time-varying countrate structure
+        Develop method to measure varying photon rate per energy
+        +new later, quantify limits of pileup photon counting. Eventually, pileup will shift spectrum measured...
+        Testing the performance of different algos across different simulation parameters (noise, bit depth, countrate)
+            Localized estimation of photon rate
+        One other limitation to consider is that current testing methods may be testing statistical performance in the limit of
+            a very long pulse. However, TGF may not have that many photons, which reduces the probablity that we average out counting issues
+            On the other hand, interpolating counts will still help make superior distribution estimation...
+        Instantaneous countrate?
+            Counting discrete means counting over interval, or gaussian smoothing.
 
 
-New chaffin questions
-   - Found note in make_trace about statistical studies. What studies had been run for this?
-   - How was spectrum determined again? How confident are we in this spectrum? Seems like this is really the end goal
-     of counting photons... If we could trust it
-   - Do we have a measured characterization of the noise from the sensor itself? Basically all noise in these
-     sensors (which is not generally true) should be internal electrical right? No external radiation (xrays should be the only thing getting in)
-     No (or statistically insignificant) neutrons...
-     Unfortunately Quantization Noise will also be an issue (I have just shown this)
+TODO Theory
+    Chained convolution! Assume that true energy deposition of photon on sensor is not delta function (what is the
+        ratio of time magnitude of deposition relative to sampling rate?) If we want to deconvolve into delta function,
+        does chained conv/deconv allow this?
 
-# Chaffin Notes
-# sensor is capped at 1 volts, so ylim upper is 1 V
-# density is really whats important. countarate vs fwhs
-# len could 40-100 micro: 1 ms. 50-300 microseconds best range
-# need to replace listmode counts with something better.... need a better estimation of the individual xrays
-# since density seems to be the primary issue, maybe make own uniform distribution rather than the log normal
-# research commercial options for counts of events in noisy data
-
-New Chaffin Discussion Points:
-    - Could you explain how you made these pulse shapes match the recorded versions using filters?
-    - Pulse shape came from lab right? Xray -> sensor?
-    - Can I extend the pulses by just increasing the number the time vector and letting 3rd filter go on...?
-    - Maybe clarify that voltage responses are generally expected to be this shape outside of saturation region?
-        - Does saturation come from the ADC maxing out?
-            - No, from analog electronics (op-amps)
-        - If we had a perfect sensor, would we see each voltage response be the same shape with any photon energy?
-
-    - Are there physical effects in the sensor like charge splitting (charge split between neighboring pixels?)
-        - Is the voltage response really deterministic based on photon energy?
-        - Basically deterministic
-
-    - Do the spectrums come from unfolding of real measurements? Or how were they determined?
-
-    - Does noise floor come from background radiation, or sensor noise? Both?
-        In real data, will we know the noise floor?
-
-    - Discussion about metrics
-    - Problem with original code: in making traces, trace indeces are set not added (= not +=)
-    - Energy:
-        - In counting algo, E(triggered) = np.sum(trace[i-5:i-6+int_i]-baseline) * escale
-        - In making traces, trace[indeces...] += energies[i] * pulse(magntiude=1)
-            if integral(pulse) != 1, does this really preserve the energy?
-
-    ML:
-        Straight SL: trace -> energies list
-        Auto Encoder: trace -> trace, but bottleneck learns energies
-        GAN: A whole new level of complexity...
+TODO Future sensor design
+    Design parameters necessary to design better sensor: Dynamic range of energies to detect, max countrate
+        From these, what is the maximum steady state energy flux?
+        What is the probability of saturation?
+        Can we "LPF" the counts during saturation if its fast enough?
+            Or rather can we omit exceptions (saturated points) from the interpolation of instantaneous countrate
 
 Vars of interest:
     - count_rate
@@ -73,9 +85,14 @@ Metrics
     - % coincident photons in photon list
     - % energy summed together truth_list -> x
     - % Energy counted
-    - "FP, TN error", error by scale...
-    - Loss. Calculate loss in convolved space. Given some deconv est, re-convolve with prior to then calc error
+    - "FP, TN error", in both counts and percents...
+            - can do total count in list mode
+              or energy vector vs (listmode -> energy vector) which is really deconv_volts > threshold
+    - Expected discretization error. Total signal and by counted photons. Could also do per photon energy bin
+
+    - ML Only: Loss. Calculate loss in convolved space. Given some deconv est, re-convolve with prior to then calc error
       problem here is noise in the est can still generate high error... Is that appropriate?
+
 
 Investigate:
     - HF increase as count rates go up
@@ -107,15 +124,15 @@ Approaches
     - At high countrates, convoluted response may appear as HF (relatively) noise. The steady state integration,
       assuming the sensor is not saturated, can give us a limit on the total energy of photons we have received
 
+Window functions
+    Can we apply these while keeping deconv accurate in the middle of the sample?
+    Would help with working with data in discrete chunks...
 
 Future: using sensors with multiple scales: can we use ML to fuse data together?
     - Lower electronic noise
     - Higher precision ADC
     - Can we use multiple pixels with same photomultiplier? Alterate way to improve SNR...
-
-Window functions
-    Can we apply these while keeping deconv accurate in the middle of the sample?
-    Would help with working with data in discrete chunks...
+    - What if we apply FPGA integration method but add in offset to foloowing from pervious count based on some threshold
 
 
 Resources:
@@ -171,6 +188,12 @@ Quantization noise
 Gaussian Noise and filters
     https://courses.engr.illinois.edu/ece361/sp2011/Newlectures/Lecture03.pdf
 
+Downsampling
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.decimate.html
+    https://docs.scipy.org/doc/scipy/reference/signal.html
+    https://en.wikipedia.org/wiki/Anti-aliasing_filter
+    Need to filter before doing this !!!!!! Which is problematic....
+
 
 ############## ML Methods ##################################################################################
 Neural Blind Deconvolution Using Deep Priors -  Single shot GANs
@@ -195,3 +218,44 @@ Photon Counts
 
 Big data structures
     https://stackoverflow.com/questions/25471026/python-storing-big-data-structures
+
+
+##################### Archive ##############################################################################
+
+# Chaffin Notes
+# sensor is capped at 1 volts, so ylim upper is 1 V
+# density is really whats important. countarate vs fwhs
+# len could 40-100 micro: 1 ms. 50-300 microseconds best range
+# need to replace listmode counts with something better.... need a better estimation of the individual xrays
+# since density seems to be the primary issue, maybe make own uniform distribution rather than the log normal
+# research commercial options for counts of events in noisy data
+
+New Chaffin Discussion Points:
+    - Could you explain how you made these pulse shapes match the recorded versions using filters?
+    - Pulse shape came from lab right? Xray -> sensor?
+    - Can I extend the pulses by just increasing the number the time vector and letting 3rd filter go on...?
+    - Maybe clarify that voltage responses are generally expected to be this shape outside of saturation region?
+        - Does saturation come from the ADC maxing out?
+            - No, from analog electronics (op-amps)
+        - If we had a perfect sensor, would we see each voltage response be the same shape with any photon energy?
+
+    - Are there physical effects in the sensor like charge splitting (charge split between neighboring pixels?)
+        - Is the voltage response really deterministic based on photon energy?
+        - Basically deterministic
+
+    - Do the spectrums come from unfolding of real measurements? Or how were they determined?
+
+    - Does noise floor come from background radiation, or sensor noise? Both?
+        In real data, will we know the noise floor?
+
+    - Discussion about metrics
+    - Problem with original code: in making traces, trace indeces are set not added (= not +=)
+    - Energy:
+        - In counting algo, E(triggered) = np.sum(trace[i-5:i-6+int_i]-baseline) * escale
+        - In making traces, trace[indeces...] += energies[i] * pulse(magntiude=1)
+            if integral(pulse) != 1, does this really preserve the energy?
+
+    ML:
+        Straight SL: trace -> energies list
+        Auto Encoder: trace -> trace, but bottleneck learns energies
+        GAN: A whole new level of complexity...
