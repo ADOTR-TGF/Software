@@ -96,14 +96,14 @@ def spectrum_trace(count_rate_, dt_, total_time_, pulse_, bin_energies_, spectru
         trace = signal.decimate(trace, sampling_ratio_)
 
     # add baseline and noise, and clip:
-    trace *= mV_per_keV_
+    trace *= mV_per_keV_ # Trace in mV
     trace += baseline_
     trace += ran.randn(trace.size) * noise_std_
 
     if clip:
         trace[trace > 1000] = 1000
 
-    volts_list = energies_list * mV_per_keV_
+    volts_list = energies_list * mV_per_keV_ # now in mV
     volts_time_indeces = energy_time_indeces
 
     if discretize:

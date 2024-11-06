@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-rcParams['figure.figsize'] = [15, 7]
+rcParams['figure.figsize'] = [8, 5]
 
 plt.figure()
 

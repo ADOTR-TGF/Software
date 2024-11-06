@@ -25,15 +25,6 @@ TODO Data Generation
     Greater number of bins to sample from interpolated discrete log response? Is this really important?
     Simulation of entire electronics?
 
-TODO Questions
-    Are discretization error "noise" and electronics white noise both white? Can we quantify them together to find optimal K?
-           - discretization error larger at low represented values...
-    Can we figure out the frequency content of a value in TD given the strength of FD? How did the wiener deconvolution
-        factor for each f affect the magnitude of that f
-    How to deal with definite time windows for deconvolution...
-    Holland info:
-        Can we use a simpler HF filter instead of wiener filter?  He doesnt like the "undoing" of magnitude...
-
 TODO June 25th meeting
     Issue with old histogram plot was potting counts without bins...
     I propose we develop a non-linear physics-accurate model of the entire sensor. (Xray stream -> voltage)
@@ -57,17 +48,6 @@ TODO June 25th meeting
             Counting discrete means counting over interval, or gaussian smoothing.
 
 
-TODO Theory
-    Chained convolution! Assume that true energy deposition of photon on sensor is not delta function (what is the
-        ratio of time magnitude of deposition relative to sampling rate?) If we want to deconvolve into delta function,
-        does chained conv/deconv allow this?
-
-TODO Future sensor design
-    Design parameters necessary to design better sensor: Dynamic range of energies to detect, max countrate
-        From these, what is the maximum steady state energy flux?
-        What is the probability of saturation?
-        Can we "LPF" the counts during saturation if its fast enough?
-            Or rather can we omit exceptions (saturated points) from the interpolation of instantaneous countrate
 
 Vars of interest:
     - count_rate
@@ -202,7 +182,7 @@ Neural Blind Deconvolution Using Deep Priors -  Single shot GANs
 Blind Image Deconvolution using Deep Generative Priors - Generative deblurring
     https://arxiv.org/pdf/1802.04073.pdf
 
-Good sruvery of Deconv approaches. Classical, Iteartive, and DL based approaches
+Good sruvery of Deconv approaches for images. Classical, Iteartive, and DL based approaches
     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8707587/
 
 Denoising Autoencoder
