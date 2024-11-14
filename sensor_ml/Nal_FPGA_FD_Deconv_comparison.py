@@ -95,14 +95,14 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     sigma = (fwhm/2.355)*1e-6  #one standard deviation of the time distribution in units seconds    
     
     #lognormal arguments: (mean, std, size) sigma is used to scale the output of lognormal to the width of a TGF trace
-    # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the asymetry (std)
+    # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the assymetry (std)
     times = ran.lognormal(mean,std,counts)*sigma
 
     #times = ran.uniform(low=0,high=7.0,size=counts)*sigma 
     #line = np.abs(ran.choice(len(spectrum),  p=spectrum/sum(spectrum), size = len(times))) #chooses energies from an input spectrum based on probabilites 
     #energies = line*specscale_keV + 5.   #spectrum starts at 5keV
     energies = np.abs(ran.choice(binenergies, p=spectrum/sum(spectrum), size=len(times)))
-    times = np.sort(times)+100e-6 #100us of pre-TGF  
+    times = np.sort(times)+100e-6 #100us of pre-TGF
     #print(times)
     
     #define the pulse shape once

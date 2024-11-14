@@ -4,3 +4,4 @@ data/*
 TODO
 __pycache__
 .idea/
+*.xtr

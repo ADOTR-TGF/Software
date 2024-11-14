@@ -17,9 +17,11 @@ from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
 
+from util.Processing import *
+
 #variables for creating the trace
 countrate= 1e7
-fwhm = 65.0 
+fwhm = 5 # 65 originally
 TGF_duration = fwhm*3e-6
 #print(TGF_duration)
 counts = int(countrate*TGF_duration)
@@ -32,11 +34,11 @@ std = .5 #detemines the amount of asymetry in the TGF trace distribution
 dt = 1e-9 # seconds before pulse
 tstep = 25e-9 #sampling rate in seconds. 40MHz
 #tstep = 2e-9 #sampling rate in seconds. 500MHz
-trace_length = 28000 #number of samples in a trace file (700us at 40MHz=28000)
+trace_length = 2000 #number of samples in a trace file (700us at 40MHz=28000)
 keV_per_area = 1.6 #determined by trial and error to match energy range of instrument 
 mV_per_ADC = 1000./4096.
 baseline = 105
-basenoise = 1.
+basenoise = 0
 bits = 12  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
 #variables for integrating trace pulses into listmode events
@@ -47,8 +49,8 @@ extend = 1    #extendable dead time parameter
 escale = 6.63  #being used to scale the pulse integration value to energy in keV
 
 #example spectrum of TGF energy deposit in a plastic detector
-LgPl_Response = np.loadtxt('LgPl_Response',usecols=(1),dtype=float)
-bins = np.loadtxt('LgPl_Response',usecols=(0),dtype=float)
+LgPl_Response = np.loadtxt('../original/LgPl_Response',usecols=(1),dtype=float)
+bins = np.loadtxt('../original/LgPl_Response',usecols=(0),dtype=float)
 #s = np.genfromtxt('/home/enp//Desktop/Emorpho Analysis Software and Calibration data/Emorpho Simulations/alt5SFT_noaa_plane_rough.out', usecols = (2), skip_footer=2)
 
 spectrum = LgPl_Response
@@ -56,7 +58,7 @@ binenergies = bins*1e3 #units keV
 #spectrum[49]= 2000 #49 is 1000keV, 85 is 6800keV
 
 #real plastic trace data
-tracedata = pd.read_csv('real_plastic_trace.csv')
+tracedata = pd.read_csv('../original/real_plastic_trace.csv')
 
 def plastic_pulse(a):
     sos = signal.butter(3, 0.66e7, btype='low', analog=False, output='sos', fs=40e6)
@@ -91,7 +93,8 @@ def make_plastic_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV
     
     #lognormal arguments: (mean, std, size) sigma is used to scale the output of lognormal to the width of a TGF trace
     # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the asymetry (std)
-    times = ran.lognormal(mean,std,counts)*sigma 
+    times = ran.lognormal(mean,std,counts)*sigma
+    print(mean, std, counts, sigma)
     energies_bin = np.abs(ran.choice(binenergies, p=spectrum/sum(spectrum), size = len(times)))
     energies = np.empty(len(energies_bin))
     sigma_blur = 3
@@ -134,7 +137,6 @@ def make_plastic_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV
     for i in range(len(itrace)):
         itrace[i] = float(int(itrace[i]))
     itrace = itrace*1000./2**bits
-    
     return(itrace,energies,times)
 
 def plastic_trace_to_counts(trace,dt,tstep,thresh,baseline,extend,escale,int_i,dead_i):
@@ -188,7 +190,7 @@ def trace_trigger(trace,trace_time):
 
 
 #calling the sample trace pulse and real trace data
-pulsetimes,pulse = plastic_pulse(1.)
+pulsetimes, pulse = plastic_pulse(1.)
 nsamples = len(pulse)
 tdatatime = tracedata.Seconds[261:281]-tracedata.Seconds[261]
 tdata = (tracedata.Tracesample[261:281]-25)/(max(tracedata.Tracesample)-25)
@@ -203,11 +205,10 @@ trace_time = np.arange(len(trace))*tstep*1e6 #converts samples to time in micros
 #calling the trace triggering function
 trigger_time, trigger_index = trace_trigger(trace, trace_time)
 
-#array slicing the original TGF energies and time to match real detector constraints
+# #array slicing the original TGF energies and time to match real detector constraints
 TGF_Times=TGF_Times*1e6
-TGF_times = np.delete(TGF_Times,np.where(TGF_energies<140))
-TGF_energies = np.delete(TGF_energies,np.where(TGF_energies<140))
-
+# TGF_times = np.delete(TGF_Times,np.where(TGF_energies<140))
+# TGF_energies = np.delete(TGF_energies,np.where(TGF_energies<140))
 
 
 print('input counts = ',counts)                  
@@ -231,11 +232,12 @@ plt.xlabel('nanoseconds',fontsize=16)
 plt.title('Modeled plastic pulse',fontsize=16)
 plt.tick_params(labelsize=12)
 plt.legend(fontsize=10)
+plt.show()
 
 #full trace
 plt.figure(figsize=(10,5))
 plt.plot(trace_time,trace,color='black')
-plt.xlim(0,200)
+plt.xlim(0,15)
 #plt.xlim(100,110)
 plt.ylim(50,600)
 #plt.grid()
@@ -245,14 +247,15 @@ plt.title('Simulated plastic trace data',fontsize=20)
 #plt.tick_params(labelsize=18)
 #if trigger_time.size > 0:
 #    plt.vlines(trigger_time,105,max(trace),color='red')
+plt.show()
 
 # simulated listmode energy vs time plot
 plt.figure(figsize=(10,5))
 plt.scatter(event_time,energies,color='black',s=5.0,label='List-Mode_Data')
-plt.scatter(TGF_times,TGF_energies,color='green',s=5.0,alpha=.2,label='Incident TGF Photons')
+plt.scatter(TGF_Times,TGF_energies,color='green',s=5.0,alpha=.2,label='Incident TGF Photons')
 #plt.grid(which='both')
 #plt.xlim(-10,500)
-plt.xlim(0,200)
+plt.xlim(0,15)
 plt.ylim(120,20000)
 plt.yscale('log')
 plt.ylabel('Energy keV',fontsize=20)
@@ -260,3 +263,55 @@ plt.xlabel('microseconds',fontsize=20)
 plt.title('Simulated plastic list-mode data',fontsize=20)
 plt.tick_params(labelsize=18)
 plt.legend()
+plt.show()
+
+
+# NNLSR Deconvolution Listmode
+print(trace.size)
+threshold = 1
+nnlsr_size = 2000
+
+base_est, _ = scipy.stats.mode(trace)
+trace -= base_est
+
+area_per_peak = np.sum(pulse) / max(pulse)
+mV_per_keV = mV_per_ADC / (keV_per_area * area_per_peak)
+trace /= mV_per_keV
+
+if trace.size <= nnlsr_size:
+    blocks = 1
+else:
+    blocks = trace.size // nnlsr_size
+    if blocks * nnlsr_size != trace.size:
+        blocks += 1
+nnlsr_deconv = []
+for i in range(blocks):
+    data = trace[i * nnlsr_size:(i + 1) * nnlsr_size]
+    print(data.shape, pulse.shape)
+    nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
+nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
+
+mtime = np.arange(trace.size) * (dt/tstep) - 10
+mask = nnlsr_deconv > threshold
+
+TGF_Times = np.array(TGF_Times)
+TGF_energies = np.array(TGF_energies)
+print(np.max(TGF_Times))
+
+# fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
+# axis.plot(TGF_Times, TGF_energies-base_est, color='k', marker='o', linestyle='', label='Events', alpha=.1)
+# axis.plot(index[mask], nnlsr_deconv[mask], 'r', marker='.', linestyle='', markersize=5, label='Detected')
+# axis.legend()
+# plt.xlim([0, 30])
+# plt.show()
+
+
+fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
+axis.plot(TGF_Times, TGF_energies-base_est, 'k', marker='.', linestyle='', label='Events')
+plt.scatter(event_time, energies, color='r', alpha=.25, label='FPGA Algo')
+axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='Wiener Deconv', alpha=.5)
+axis.legend()
+plt.xlim([0, 50])
+plt.yscale('log')
+plt.title('Plastic Scintillator FPGA vs NNLSR')
+plt.show()

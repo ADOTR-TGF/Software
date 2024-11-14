@@ -19,8 +19,8 @@ import scipy.signal as signal
 #import Response_matrix
 
 #variables for creating the trace
-countrate= 1e7
-fwhm = 65.0 
+countrate= 1e6
+fwhm = 5
 TGF_duration = fwhm*3e-6
 counts = int(countrate*TGF_duration) #total counts incident on the detector   
 #fwhm = 50.0 #fwhm of the total TGF count distribution in units microseconds
@@ -30,13 +30,13 @@ mean = .7 #mean of the TGF trace distribution
 std = .5 #detemines the amount of asymetry in the TGF trace distribution
 dt = 1e-9 # seconds before pulse
 tstep = 25e-9 #sampling rate in seconds. 40MHz
-trace_length = 28000 #number of samples in a trace file (700us at 40MHz)
+trace_length = 2000 #number of samples in a trace file (700us at 40MHz)
 keV_per_area = .147 #determined by trial and error to match energy range of instrument 
 mV_per_ADC = 1000./4096.
 specscale_keV = 5.0  #spectrum scaling i.e. keV/line in the spectrum file
 baseline = 110
 basenoise = 0. #units mV
-bits = 12  #use 12 for doing listmode but use 10 to compare traces to real trace files
+bits = 20  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
 #variables for integrating trace pulses into listmode events
 thresh = 8.0     #units of mV  this is the pulse trigger threshold
@@ -46,8 +46,8 @@ extend = 1    #extendable dead time parameter
 escale = .63  #being used to scale the pulse integration value to energy in keV. experimentally determined.
 
 #example spectrum of TGF energy deposit in a detector
-NaI_Response = np.loadtxt('NaI_Response',usecols=(1),dtype=float)
-bins = np.loadtxt('NaI_Response',usecols=(0),dtype=float)
+NaI_Response = np.loadtxt('../original/NaI_Response',usecols=(1),dtype=float)
+bins = np.loadtxt('../original/NaI_Response',usecols=(0),dtype=float)
 #s = np.genfromtxt('/home/enp//Desktop/Emorpho Analysis Software and Calibration data/Emorpho Simulations/alt5SFT_noaa_plane_rough.out', usecols = (2), skip_footer=2)
 
 spectrum = NaI_Response
@@ -55,7 +55,7 @@ binenergies = bins*1e3 #units keV
 #spectrum[49]= 2000 #49 is 1000keV, 85 is 6800keV
 
 #real NaI trace example data
-tracedata = pd.read_csv('real_nai_trace.csv')
+tracedata = pd.read_csv('../original/real_nai_trace.csv')
 
 def nai_pulse(a):
     sos1 = signal.butter(3, 0.25e7, btype='low', analog=False, output='sos', fs=40e6)
@@ -81,7 +81,8 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     #ran.seed()
 
     #one trace file worth of data.
-    sampletimes = np.linspace(-dt,tstep*trace_length+dt,trace_length+int(2*dt/tstep),endpoint=False) 
+    sampletimes = np.linspace(-dt,tstep*trace_length+dt,trace_length+int(2*dt/tstep),endpoint=False)
+    print(np.max(sampletimes))
 
     
     #if running a statistical study using countrates Get in advance the number of counts that will be used to populate each trace.
@@ -97,6 +98,8 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     #lognormal arguments: (mean, std, size) sigma is used to scale the output of lognormal to the width of a TGF trace
     # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the asymetry (std)
     times = ran.lognormal(mean,std,counts)*sigma
+    print(np.max(times))
+    print(mean, std, counts, sigma)
     #times = ran.uniform(low=0,high=7.0,size=counts)*sigma 
     #line = np.abs(ran.choice(len(spectrum),  p=spectrum/sum(spectrum), size = len(times))) #chooses energies from an input spectrum based on probabilites 
     #energies = line*specscale_keV + 5.   #spectrum starts at 5keV
@@ -106,9 +109,9 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     for i in range(len(energies_bin)-1):
         r = np.random.normal(energies_bin[i],sigma_blur)
         energies[i] = r
-    times = np.sort(times)#+100e-6 #100us of pre-TGF  
-    #print(times)
-    
+    times = np.sort(times)+10e-6 #100us of pre-TGF
+    print(np.max(times))
+
     #define the pulse shape once
     pulsetimes,pulse = nai_pulse(1.)
     nsamples = len(pulse)
@@ -142,7 +145,6 @@ def make_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per
     for i in range(len(itrace)):
         itrace[i] = float(int(itrace[i]))
     itrace = itrace*1000./2**bits
-    
     return(itrace,energies,times)
 
 def nai_trace_to_counts(trace,dt,tstep,thresh,baseline,extend,escale,int_i,dead_i):
@@ -211,8 +213,8 @@ trace_time = np.arange(len(trace))*tstep*1e6 #converts samples to time in micros
 trigger_time, trigger_index = trace_trigger(trace, trace_time)
 
 #array slicing the original TGF energies and time to match real detector constraints
-TGF_times = np.delete(TGF_times,np.where(TGF_energies<50))
-TGF_energies = np.delete(TGF_energies,np.where(TGF_energies<50))
+# TGF_times = np.delete(TGF_times,np.where(TGF_energies<50))
+# TGF_energies = np.delete(TGF_energies,np.where(TGF_energies<50))
 
              
 print('input counts = ',counts)          
@@ -239,7 +241,7 @@ plt.legend(fontsize=12)
 plt.figure(figsize=(10,5))
 plt.plot(trace_time,trace,color='black')
 #plt.xlim(0,700)
-plt.xlim(0,200)
+plt.xlim(0,50)
 #plt.ylim(105,1100)
 #plt.grid()
 plt.ylabel('mV',fontsize=20)
@@ -255,7 +257,7 @@ plt.scatter(event_time,energies,color='black',s=5.0,label='List-Mode Data')
 plt.scatter(TGF_times*1e6,TGF_energies,color='green',marker='*',s=5.0,alpha=.2,label='Incident TGF Photons')
 #plt.grid(which='both')
 #plt.xlim(0,70)
-plt.xlim(0,200)
+plt.xlim(0,50)
 plt.ylim(40,20000)
 plt.yscale('log')
 plt.ylabel('Energy keV',fontsize=20)
@@ -263,4 +265,60 @@ plt.xlabel('microseconds',fontsize=20)
 plt.title('Simulated NaI list-mode data',fontsize=20)
 plt.tick_params(labelsize=18)
 plt.legend()
+
+
+
+# NNLSR Deconvolution Listmode
+from util.Processing import *
+
+print(trace.size)
+threshold = 0
+nnlsr_size = 2000
+
+base_est, _ = scipy.stats.mode(trace)
+trace -= base_est
+
+area_per_peak = np.sum(pulse) / max(pulse)
+mV_per_keV = mV_per_ADC / (keV_per_area * area_per_peak)
+trace /= mV_per_keV
+
+if trace.size <= nnlsr_size:
+    blocks = 1
+else:
+    blocks = trace.size // nnlsr_size
+    if blocks * nnlsr_size != trace.size:
+        blocks += 1
+nnlsr_deconv = []
+for i in range(blocks):
+    data = trace[i * nnlsr_size:(i + 1) * nnlsr_size]
+    print(data.shape, pulse.shape)
+    nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
+nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
+
+mtime = np.arange(trace.size) * (dt/tstep)-10
+mask = nnlsr_deconv > threshold
+
+TGF_times = np.array(TGF_times)
+TGF_energies = np.array(TGF_energies)
+print(np.max(TGF_times))
+
+# fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
+# axis.plot(TGF_times*1e6, TGF_energies-base_est, 'k', marker='.', linestyle='', label='Events')
+# axis.plot(index[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='Wiener Deconv', alpha=.5)
+# axis.legend()
+# plt.xlim([0, 50])
+# plt.yscale('log')
+# plt.show()
+
+
+fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
+axis.plot(TGF_times*1e6, TGF_energies-base_est, 'k', marker='.', markersize=3, alpha=.25, linestyle='', label='Events')
+plt.scatter(event_time, energies, color='r', alpha=.25, label='FPGA Algo')
+axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='NNLSR', alpha=.5)
+axis.legend()
+plt.xlim([0, 50])
+plt.ylim([1, 1E3])
+plt.yscale('log')
+plt.title('NaI Scintillator FPGA vs NNLSR')
+plt.show()
 

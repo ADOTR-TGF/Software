@@ -102,6 +102,7 @@ def td_deconvolve(y, kernel, A_inv=None):
     return x
 
 def td_nnlsr_deconvolve(y, kernel, C=None):
+    # TODO README note that sklearn version is just wrapper of scipy... not helpful
     if C is None:  # optionally prespecify for speed
         c = np.concatenate((kernel, np.zeros(y.size - kernel.size)), axis=0)
         C = circulant(c)
