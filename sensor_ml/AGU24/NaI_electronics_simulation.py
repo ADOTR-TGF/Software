@@ -9,17 +9,17 @@ Created on Wed Apr 19 14:50:33 2023
 import numpy as np
 import numpy.random as ran
 import matplotlib.pyplot as plt
-import pylab as pl
 import pandas as pd
 import scipy
 import time
 from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
-#import Response_matrix
+
+from sensor_ml.util.Processing import *
 
 #variables for creating the trace
-countrate= 1e6
+countrate= 5e6
 fwhm = 5
 TGF_duration = fwhm*3e-6
 counts = int(countrate*TGF_duration) #total counts incident on the detector   
@@ -36,7 +36,7 @@ mV_per_ADC = 1000./4096.
 specscale_keV = 5.0  #spectrum scaling i.e. keV/line in the spectrum file
 baseline = 110
 basenoise = 0. #units mV
-bits = 20  #use 12 for doing listmode but use 10 to compare traces to real trace files
+bits = 10  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
 #variables for integrating trace pulses into listmode events
 thresh = 8.0     #units of mV  this is the pulse trigger threshold
@@ -46,8 +46,8 @@ extend = 1    #extendable dead time parameter
 escale = .63  #being used to scale the pulse integration value to energy in keV. experimentally determined.
 
 #example spectrum of TGF energy deposit in a detector
-NaI_Response = np.loadtxt('../original/NaI_Response',usecols=(1),dtype=float)
-bins = np.loadtxt('../original/NaI_Response',usecols=(0),dtype=float)
+NaI_Response = np.loadtxt('../original/NaI_Response', usecols=(1), dtype=float)
+bins = np.loadtxt('../original/NaI_Response', usecols=(0), dtype=float)
 #s = np.genfromtxt('/home/enp//Desktop/Emorpho Analysis Software and Calibration data/Emorpho Simulations/alt5SFT_noaa_plane_rough.out', usecols = (2), skip_footer=2)
 
 spectrum = NaI_Response
@@ -203,7 +203,7 @@ tdatatime = tracedata.Seconds[253:350]-tracedata.Seconds[253]
 tdata = (tracedata.Tracesample[253:350]-27)/(max(tracedata.Tracesample)-27)
 
 #calling the trace and listmode event functions  
-trace, TGF_energies, TGF_times = make_nai_trace(counts, fwhm, spectrum,binenergies, dt, tstep, trace_length, mV_per_ADC, keV_per_area, specscale_keV, baseline, basenoise, bits,mean,std)
+trace, TGF_energies, TGF_Times = make_nai_trace(counts, fwhm, spectrum,binenergies, dt, tstep, trace_length, mV_per_ADC, keV_per_area, specscale_keV, baseline, basenoise, bits,mean,std)
 energies, event_sample = nai_trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i)
 energies = np.array(energies)
 event_time = np.array(event_sample)*tstep*1e6 #converts samples to time in microseconds
@@ -254,7 +254,7 @@ plt.title('Simulated NaI trace data',fontsize=20)
 # simulated listmode energy vs time plot
 plt.figure(figsize=(10,5))
 plt.scatter(event_time,energies,color='black',s=5.0,label='List-Mode Data')
-plt.scatter(TGF_times*1e6,TGF_energies,color='green',marker='*',s=5.0,alpha=.2,label='Incident TGF Photons')
+plt.scatter(TGF_Times*1e6,TGF_energies,color='green',marker='*',s=5.0,alpha=.2,label='Incident TGF Photons')
 #plt.grid(which='both')
 #plt.xlim(0,70)
 plt.xlim(0,50)
@@ -266,10 +266,7 @@ plt.title('Simulated NaI list-mode data',fontsize=20)
 plt.tick_params(labelsize=18)
 plt.legend()
 
-
-
 # NNLSR Deconvolution Listmode
-from util.Processing import *
 
 print(trace.size)
 threshold = 0
@@ -295,26 +292,17 @@ for i in range(blocks):
     nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
 nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
 
-mtime = np.arange(trace.size) * (dt/tstep)-10
+mtime = np.arange(trace.size) * tstep * 1E6
 mask = nnlsr_deconv > threshold
 
-TGF_times = np.array(TGF_times)
+TGF_Times = np.array(TGF_Times) * 1E6
 TGF_energies = np.array(TGF_energies)
-print(np.max(TGF_times))
-
-# fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
-# axis.plot(TGF_times*1e6, TGF_energies-base_est, 'k', marker='.', linestyle='', label='Events')
-# axis.plot(index[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='Wiener Deconv', alpha=.5)
-# axis.legend()
-# plt.xlim([0, 50])
-# plt.yscale('log')
-# plt.show()
 
 
 fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
-axis.plot(TGF_times*1e6, TGF_energies-base_est, 'k', marker='.', markersize=3, alpha=.25, linestyle='', label='Events')
 plt.scatter(event_time, energies, color='r', alpha=.25, label='FPGA Algo')
-axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='NNLSR', alpha=.5)
+axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', markersize=10, linestyle='', label='NNLSR', alpha=.5)
+axis.plot(TGF_Times, TGF_energies, 'k', marker='.', markersize=3, linestyle='', label='Events')
 axis.legend()
 plt.xlim([0, 50])
 plt.ylim([1, 1E3])

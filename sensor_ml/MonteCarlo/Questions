@@ -1,0 +1,30 @@
+Correct Histogram methods - normalization, sampling from non-constant bin widths in numpy?
+
+Correct mixture formulation: Dirichlet, multinomial, neither?
+
+Posterior mean best metric?
+Given that mixture weight should form a distribution, should the posterior means be normalized?
+    Perhaps instead we could use numerical optimization to find the most likely, regularized combination of weights equal to one
+
+Is it possible results are shifted right due to the handling of bins/bin centers?
+
+
+Car notes:
+Would be nice to calculate number of photons per energy bin per time index directly
+-skip deconvolution so we can use statistical effects to account for coincidence
+- may be better for high count rates... Does this really help over deconvolution first? The only advantage is that
+  deconv first necessarily must threshold the list to cut out noise (non events) from sample. Alternatively, could use statsitical model
+  post deconvolution to estimate measured spectrum as rates, accounting for gaussian noise
+
+Given bin width issues: do we need to divide out bin widths in the MCMC model sampling?
+- probably not? But definitely need to do so on plot time...
+- but maybe important id using distributions representing rates rather than P(events...)
+
+
+What does prior in Dirichlet distribution mean? Adding Swyer prior seems like a good idea.
+Is the default prior on dirichlet effectively uniform?
+
+google mixtures of log-distributed mixtures
+
+test whether default 1E-3 low/high energies related to 1000 photons or samples by changing those vars...
+investigate distributions of these variables...

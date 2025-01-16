@@ -38,8 +38,8 @@ trace_length = 2000 #number of samples in a trace file (700us at 40MHz=28000)
 keV_per_area = 1.6 #determined by trial and error to match energy range of instrument 
 mV_per_ADC = 1000./4096.
 baseline = 105
-basenoise = 0
-bits = 12  #use 12 for doing listmode but use 10 to compare traces to real trace files
+basenoise = 1
+bits = 10  #use 12 for doing listmode but use 10 to compare traces to real trace files
 
 #variables for integrating trace pulses into listmode events
 thresh =  9.5     #units of mV  this is the pulse trigger threshold
@@ -291,27 +291,20 @@ for i in range(blocks):
     nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
 nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
 
-mtime = np.arange(trace.size) * (dt/tstep) - 10
+mtime = np.arange(trace.size) * tstep * 1E6
 mask = nnlsr_deconv > threshold
 
 TGF_Times = np.array(TGF_Times)
 TGF_energies = np.array(TGF_energies)
 print(np.max(TGF_Times))
 
-# fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
-# axis.plot(TGF_Times, TGF_energies-base_est, color='k', marker='o', linestyle='', label='Events', alpha=.1)
-# axis.plot(index[mask], nnlsr_deconv[mask], 'r', marker='.', linestyle='', markersize=5, label='Detected')
-# axis.legend()
-# plt.xlim([0, 30])
-# plt.show()
-
-
 fig, axis = plt.subplots(1,1, figsize=(5, 5), dpi=200)
-axis.plot(TGF_Times, TGF_energies-base_est, 'k', marker='.', linestyle='', label='Events')
 plt.scatter(event_time, energies, color='r', alpha=.25, label='FPGA Algo')
-axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', linestyle='', label='Wiener Deconv', alpha=.5)
+axis.plot(mtime[mask], nnlsr_deconv[mask], 'g', marker='.', markersize=10, linestyle='', label='NNLSR', alpha=.5)
+axis.plot(TGF_Times, TGF_energies, 'k', marker='.', markersize=3, linestyle='', label='Events')
 axis.legend()
 plt.xlim([0, 50])
+plt.ylim([1, 1E3])
 plt.yscale('log')
 plt.title('Plastic Scintillator FPGA vs NNLSR')
 plt.show()

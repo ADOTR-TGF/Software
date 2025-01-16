@@ -4,20 +4,6 @@ rcParams['figure.figsize'] = [15, 7]
 from scipy.linalg import circulant
 from scipy.optimize import nnls, lsq_linear
 import gc
-import time
-
-def print_time(t0):
-    t1 = time.time()
-
-    dt = t1 - t0
-
-    if dt > 3600:
-        print('Total Time: {:.2f} Hours'.format(dt / 3600))
-    elif dt > 60:
-        print('Total Time: {:.2f} Minutes'.format(dt / 60))
-    else:
-        print('Total Time: {:.2f} Seconds'.format(dt))
-    return dt
 
 
 def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
