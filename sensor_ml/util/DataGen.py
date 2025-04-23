@@ -223,3 +223,71 @@ def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_
     itrace = itrace * 1000. / 2 ** bits
 
     return (itrace)
+
+
+def lognormal_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,mV_per_ADC,keV_per_area,
+                        specscale_keV,baseline,basenoise,bits,mean,std, kernel, vpp=1, saturation=True,seed=42):
+
+    #Freeze the random number seed for reproducibility:
+    seed=seed
+    ran.seed(seed)
+    #ran.seed()
+
+    # Define response template
+    nsamples = len(kernel)
+    # print('Kernel', np.sum(kernel), max(kernel))
+    area_per_peak = np.sum(kernel)/max(kernel)
+    # print('area_per_peak', area_per_peak)
+    mV_per_keV = mV_per_ADC/(keV_per_area*area_per_peak)
+    # print('mV_per_keV', mV_per_keV)
+
+    #one trace file worth of data.
+    sampletimes = np.linspace(-dt,tstep*trace_length+dt,trace_length+int(2*dt/tstep),endpoint=False)
+
+    #initialize a clear trace
+    n = len(sampletimes)
+    trace = np.zeros(sampletimes.size)
+
+    sigma = (fwhm/2.355)*1e-6  #one standard deviation of the time distribution in units seconds
+
+    #lognormal arguments: (mean, std, size) sigma is used to scale the output of lognormal to the width of a TGF trace
+    # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the asymetry (std)
+    photon_times = ran.lognormal(mean,std,counts)*sigma
+
+    energies = np.abs(ran.choice(binenergies, p=spectrum/sum(spectrum), size = len(photon_times)))
+    peak_volts = energies * mV_per_keV + baseline
+
+    # print('energies', energies)
+
+    photon_times = np.sort(photon_times)+100e-6 #100us of pre-TGF
+    photon_index = np.digitize(photon_times, bins=sampletimes, right=False)
+
+    #For every incident count, create a pulse and add it to the trace:
+    i=0
+    for t in photon_times:
+        t_index = (sampletimes > t-dt).nonzero()
+        t_index0 = (t_index[0])[0]
+        navailable =  len(trace[t_index0:t_index0+nsamples])
+        if navailable == nsamples:
+            trace[t_index0:t_index0+nsamples] = trace[t_index0:t_index0+nsamples] + kernel*energies[i]
+        i=i+1
+        #print(i)
+
+    #scale to mV, add baseline and noise, and clip:
+
+    trace = trace*mV_per_keV
+    trace += baseline
+    trace += ran.randn(n)*basenoise
+
+    v_limit = vpp * 1000
+    if saturation:
+        trace[trace > v_limit] = v_limit
+
+    #digitize:
+    itrace = trace/vpp/v_limit*2**bits
+    for i in range(len(itrace)):
+        itrace[i] = float(int(itrace[i]))
+    itrace = itrace*vpp*v_limit/2**bits
+
+    return sampletimes, itrace, photon_index, energies, peak_volts
+

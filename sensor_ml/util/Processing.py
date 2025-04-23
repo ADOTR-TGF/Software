@@ -92,14 +92,8 @@ def trace_by_addition(N, kernel, energies, indeces):
             ts[i0:ts.size+1] += kernel[kernel.size-(ts.size-index):] * energies[i]
     return ts
 
-#TODO get from scripts
-# def photon_list_to_vec()
-# time or index input?
 def td_convolve(x, kernel, A=None):
-    #TODO may be able to strcture A s.t. doesnt wrap around ends. Take the circulant matrix and zero out indeces s.t.
-    #TODO partial kernels on ends are independent. Note that this will now not make a square matrix. for kernel length
-    #TODO N, (n=100, really 101) there should be ~2N "partial" kernels...
-    # Y = Ax
+    # Note to avoid A's end wrap, pad (each pad=kernel.size) the data with zeros on back end
     if A is None:  # optionally pre-specify for speed
         c = np.concatenate((kernel, np.zeros(x.size - kernel.size)), axis=0)
         A = circulant(c)
@@ -108,7 +102,7 @@ def td_convolve(x, kernel, A=None):
 
 def td_deconvolve(y, kernel, A_inv=None):
     #TODO see above
-    if A_inv is None: # optionally prespecify for speed
+    if A_inv is None: # optionally pre-specify for speed
         c = np.concatenate((kernel, np.zeros(y.size - kernel.size)), axis=0)
         A = circulant(c)
         A_inv = np.linalg.inv(A)
@@ -185,11 +179,20 @@ def summed_listmode(indeces, values, time):
 
 
 def discretize(data, bits):
-    int_trace = data/1000.*2**bits
-    for i in range(len(int_trace)):
-        int_trace[i] = float(int(int_trace[i]))
-    int_trace *= 1000./2**bits
-    return int_trace
+    if type(data) is list:
+        data = np.ndarray(list)
+
+    if type(data) is np.ndarray:
+        int_trace = data/1000.*2**bits
+        for i in range(int_trace.size):
+            int_trace[i] = float(int(int_trace[i]))
+        int_trace *= 1000./2**bits
+        return int_trace
+    else:
+        int_trace = data/1000.*2**bits
+        int_trace = float(int(int_trace))
+        int_trace *= 1000. / 2 ** bits
+        return int_trace
 
 
 def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):

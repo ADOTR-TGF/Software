@@ -10,10 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 import scipy.signal as signal
-from Processing import td_nnlsr_deconvolve, td_convolve
-from util.DataGen import nai_pulse
-
-########################################################################### Test Repeated NNLSR on sim
+from Processing import td_nnlsr_deconvolve
 
 # Load real trace data
 trace_file_path = 'NaI_trace_filtered_220726_045157_buffer_0.txt'
@@ -31,8 +28,7 @@ nai_listmode_data = np.loadtxt(nai_listmode_file, skiprows=1)  # Skip header row
 nai_listmode_time = nai_listmode_data[:, 0]  # Time in seconds of the day
 nai_listmode_energy = nai_listmode_data[:, 1]  # Energy in keV
 
-
-########################################################################### Constants
+# Constants
 mV_per_ADC = 1000. / 4096.
 tstep = 12e-9  # Sampling rate in seconds (80 MHz)
 trace_length = len(real_trace)  # Use real trace length
@@ -53,14 +49,15 @@ pulse_data = np.loadtxt(file_path, skiprows=1)  # Skip the header row
 # Extract time and amplitude
 pulsetimes = pulse_data[:, 0]  # Time column (in µs)
 pulse = pulse_data[:, 1]  # Amplitude column (normalized)
-pulse = pulse[83:170]
+pulse = pulse[1:250]
 
 # Normalize the pulse
-pulse -= np.min(pulse)
 pulse /= np.max(pulse)  # Ensures the peak is at 1.0
 print(pulse.shape, np.argmax(pulse), np.max(pulse), np.min(pulse))
+
 # pulsetimes and pulse are now equivalent to nai_pulse(1.)
 nsamples = len(pulse)
+
 
 # Pulse Integration Method that was used with simulated traces
 def nai_trace_to_counts(trace, dt, tstep, thresh, baseline, extend, E_per_int, int_i, dead_i):
@@ -97,22 +94,12 @@ energies, event_sample = nai_trace_to_counts(real_trace_ADC, dt, tstep, thresh, 
 event_time = event_sample * tstep * 1e6  # Convert samples to time in microseconds
 
 # Prepare the real trace for NNLSR
-# plt.plot(real_trace_ADC)
-# plt.show()
-#
-# hist, bins = np.histogram(real_trace_ADC, bins=np.arange(1000))
-# centers = bins[:-1] + np.diff(bins)
-# plt.plot(centers, hist, 'r*')
-# plt.title('Trace Histogram')
-# plt.show()
-
-trace = real_trace_ADC.copy() * mV_per_ADC
+trace = real_trace_ADC.copy()
 base_est, _ = scipy.stats.mode(trace, keepdims=True)
 trace -= base_est
 
 # NNLSR Deconvolution
-# threshold = 40  # keeps the deconvolution energy output above the real lower limit of the detector # 40
-threshold = 1
+threshold = 40  # keeps the deconvolution energy output above the real lower limit of the detector # 40
 nnlsr_size = min(1000, trace.size)
 blocks = (trace.size + nnlsr_size - 1) // nnlsr_size
 nnlsr_deconv = []
@@ -122,18 +109,10 @@ for i in range(blocks):
     nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
 nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
 
-# nnlsr_energy = nnlsr_deconv * 5.  # Convert channels to energy using real list mode data for calibration
-mtime = (np.arange(
-    trace.size) * tstep * 1e6
-         # + 1.7  # The 1.7 adjustment aligns the timing of the listmode data and deconvolved data by eye for the isolated pulses at 100us and ~130us
-         )
-# mask = nnlsr_energy > threshold
-mask = np.ones_like(nnlsr_deconv).astype(bool)
-mask = nnlsr_deconv > 0
-
-# # Readd baseline to data
-# trace += base_est
-# nnlsr_deconv += base_est
+nnlsr_energy = nnlsr_deconv * 5.  # Convert channels to energy using real list mode data for calibration
+mtime = np.arange(
+    trace.size) * tstep * 1e6 + 1.7  # The 1.7 adjustment aligns the timing of the listmode data and deconvolved data by eye for the isolated pulses at 100us and ~130us
+mask = nnlsr_energy > threshold
 
 ''' #uncomment to print out statitics
 print('NNLSR Count = ',len(nnlsr_energy[mask]))
@@ -148,70 +127,40 @@ print('std NNLSR time = ',np.std(mtime[mask]))
 print('std Listmode time = ',np.std(nai_listmode_time*0.96))
 '''
 
-# plt.legend(loc=2, fontsize=12)
-# plt.show()
+# Plot 1: Real Trace
+figure = plt.figure(figsize=(12, 6), dpi=300)
+ax1 = figure.add_subplot()
+ax2 = ax1.twinx()
+trace_time = np.arange(len(real_trace)) * tstep * 1e6
+ax1.plot(trace_time, real_trace_ADC * mV_per_ADC, color='blue', alpha=0.8, label='Real Trace')
+ax2.scatter(event_time, energies, color='black', marker='.', s=100, label='Synthetic Pulse Integration (FPGA)')
+ax2.plot(mtime[mask], nnlsr_energy[mask], 'r.', markersize=20, label='NNLSR Deconvolution', alpha=.5)
+ax1.set_xlabel('Time (µs)', fontsize=18)
+ax1.set_ylabel('mV', fontsize=18)
+# ax1.set_ylim(100,140)
+ax2.set_ylabel('Energy (keV)', fontsize=18)
+plt.title('Real NaI Trace from THOR Observation Campaign', fontsize=20)
+# plt.ylim(100,230)
+# ax1.set_xlim(10,15)
+ax1.set_xlim(0, 290)
+# ax1.set_xlim(15, 35)
+# ax1.set_xlim(30, 70)
+ax2.set_yscale('log')
+ax2.set_ylim(10, 10000)
+ax2.tick_params(axis='y', labelsize=12)
 
-index = np.arange(trace.size)
-block_starts = np.arange(trace.size // nnlsr_size + 2) * nnlsr_size
+# Add listmode data to the plot
+ax2.scatter(
+    nai_listmode_time * 0.96,
+    # there is a bug in the timing alignment for the THOR listmode data causing it to be slighly out of alignment with the trace. multiplying by 0.96 fixes the issue (temporarily until I can fix it at the source)
+    nai_listmode_energy,
+    color='purple',
+    marker='x',
+    s=125,
+    label='NaI Real Listmode Data',
+    alpha=1.0
+)
 
-figure, axis = plt.subplots(1,1, figsize=(12, 6), dpi=300)
-axis.plot(index, trace, color='cyan', alpha=1, label='Trace Ref Kernel')
-slice = trace[10775:10900]
-loc = np.argmax(slice)+10775-np.argmax(pulse)
-axis.plot(np.arange(pulse.size) + loc, pulse * slice.max(), color='red', alpha=0.8, label='Ref Kernel')
-axis.set_xlim(10775, 10900)
-axis.set_ylim(-25, 400)
-axis.legend(loc=2, fontsize=12)
-axis.tick_params(axis='y', labelsize=12)
-plt.show()
-
-
-figure, axis = plt.subplots(1,1, figsize=(12, 6), dpi=300)
-axis.plot(index, trace, color='cyan', alpha=0.8, label='Comp. Trace')
-axis.plot(index[mask], nnlsr_deconv[mask], 'r.', markersize=10, label='NNLSR Deconvolution', alpha=.7)
-axis.plot(block_starts, np.ones_like(block_starts), 'g.', markersize=20, label='NNLSR Block Boundary')
-axis.set_xlabel('Trace Index', fontsize=18)
-axis.set_ylabel('mV', fontsize=18)
-axis.set_title('Real NaI Trace from THOR Observation Campaign', fontsize=20)
-axis.set_xlim(0, index.size)
-# axis.set_ylim([0, 1000])
-axis.tick_params(axis='y', labelsize=12)
 plt.legend(loc=2, fontsize=12)
-plt.show()
-
-intervals = [[1000, 2500], [3600, 3900], [4000, 5000], [8000, 8500], [10500, 12000],
-             [13000, 14000],[21650, 21750], [21600, 22400], [21600, 23000]]
-
-# n_ = 15
-# # smooth_sum = np.convolve(nnlsr_deconv, np.ones(n_) / n_, mode='same')
-# smooth_sum = np.convolve(nnlsr_deconv, np.ones(n_), mode='same') \
-#               # - base_est * n_mask
-
-for interval in intervals:
-
-    figure, axis = plt.subplots(1, 1, figsize=(12, 6), dpi=300)
-
-    axis.plot(index, trace, color='cyan', alpha=0.8, label='Comp. Trace')
-    axis.plot(index[mask], nnlsr_deconv[mask], 'r.', markersize=15, label='NNLSR Deconv', alpha=.5)
-    # axis.plot(index, smooth_sum, 'r', label='Smoothed Deconv', alpha=.25)
-    axis.plot(block_starts, np.ones_like(block_starts), 'g.', markersize=20, label='NNLSR Block Boundary')
-
-    axis.set_xlabel('Trace Index', fontsize=18)
-    axis.set_ylabel('mV', fontsize=18)
-    axis.set_xlim(interval)
-    axis.set_ylim([-5, np.max(trace[interval[0]:interval[1]])])
-    axis.tick_params(axis='y', labelsize=12)
-    axis.legend(loc=2, fontsize=12)
-
-    axis2 = axis.twinx()
-    non_zero_index = np.where(mask)[0]
-    nonzero_diffs = np.diff(non_zero_index)
-    lim = 2
-    non_zero_index = non_zero_index[:-1][nonzero_diffs < lim]
-    nonzero_diffs = nonzero_diffs[np.abs(nonzero_diffs) < lim]
-
-    # axis2.plot(non_zero_index, nonzero_diffs, 'g*')
-    axis2.plot(non_zero_index[:-1], np.sign(np.diff(nnlsr_deconv)[non_zero_index[:-1]]).astype(int), 'bo', alpha=.1)
-    axis2.set_ylim(-2, 2)
 plt.show()
 

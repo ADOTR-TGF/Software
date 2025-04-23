@@ -175,7 +175,7 @@ def discretize(data, bits):
     for i in range(len(int_trace)):
         int_trace[i] = float(int(int_trace[i]))
     int_trace *= 1000./2**bits
-    return int_trace
+    return np.floor(int_trace)
 
 
 def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
