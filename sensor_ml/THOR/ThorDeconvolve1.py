@@ -96,122 +96,91 @@ energies, event_sample = nai_trace_to_counts(real_trace_ADC, dt, tstep, thresh, 
                                              dead_i)
 event_time = event_sample * tstep * 1e6  # Convert samples to time in microseconds
 
-# Prepare the real trace for NNLSR
-# plt.plot(real_trace_ADC)
-# plt.show()
-#
-# hist, bins = np.histogram(real_trace_ADC, bins=np.arange(1000))
-# centers = bins[:-1] + np.diff(bins)
-# plt.plot(centers, hist, 'r*')
-# plt.title('Trace Histogram')
-# plt.show()
 
 trace = real_trace_ADC.copy() * mV_per_ADC
 base_est, _ = scipy.stats.mode(trace, keepdims=True)
 trace -= base_est
 
-# NNLSR Deconvolution
-# threshold = 40  # keeps the deconvolution energy output above the real lower limit of the detector # 40
-threshold = 1
-nnlsr_size = min(1000, trace.size)
-blocks = (trace.size + nnlsr_size - 1) // nnlsr_size
-nnlsr_deconv = []
+fig, axes = plt.subplots(1,1, figsize=(10, 6), dpi=200)
+axes.plot(trace)
 
-for i in range(blocks):
-    data = trace[i * nnlsr_size:(i + 1) * nnlsr_size]
-    nnlsr_deconv.append(td_nnlsr_deconvolve(data, pulse))
-nnlsr_deconv = np.concatenate(nnlsr_deconv, axis=0)
 
-# nnlsr_energy = nnlsr_deconv * 5.  # Convert channels to energy using real list mode data for calibration
-mtime = (np.arange(
-    trace.size) * tstep * 1e6
-         # + 1.7  # The 1.7 adjustment aligns the timing of the listmode data and deconvolved data by eye for the isolated pulses at 100us and ~130us
-         )
-# mask = nnlsr_energy > threshold
-mask = np.ones_like(nnlsr_deconv).astype(bool)
-mask = nnlsr_deconv > 0
+# Segment trace into sections #############################################################################
+bound = 5
+desired_pad = 2 * pulse.size
 
-# # Readd baseline to data
-# trace += base_est
-# nnlsr_deconv += base_est
-
-''' #uncomment to print out statitics
-print('NNLSR Count = ',len(nnlsr_energy[mask]))
-print('Listmode Count = ',len(nai_listmode_energy))
-print('mean NNLSR = ',np.mean(nnlsr_energy[mask]))
-print('mean Listmode = ',np.mean(nai_listmode_energy))
-print('std NNLSR = ',np.std(nnlsr_energy[mask]))
-print('std Listmode = ',np.std(nai_listmode_energy))
-print('mean NNLSR time = ',np.mean(mtime[mask]))
-print('mean Listmode time = ',np.mean(nai_listmode_time*0.96))
-print('std NNLSR time = ',np.std(mtime[mask]))
-print('std Listmode time = ',np.std(nai_listmode_time*0.96))
-'''
-
-# plt.legend(loc=2, fontsize=12)
-# plt.show()
-
+valid = np.logical_and(-bound < trace, trace < bound)
+invalid = np.logical_not(valid)
 index = np.arange(trace.size)
-block_starts = np.arange(trace.size // nnlsr_size + 2) * nnlsr_size
 
-figure, axis = plt.subplots(1,1, figsize=(12, 6), dpi=300)
-axis.plot(index, trace, color='cyan', alpha=1, label='Trace Ref Kernel')
-slice = trace[10775:10900]
-loc = np.argmax(slice)+10775-np.argmax(pulse)
-axis.plot(np.arange(pulse.size) + loc, pulse * slice.max(), color='red', alpha=0.8, label='Ref Kernel')
-axis.set_xlim(10775, 10900)
-axis.set_ylim(-25, 400)
-axis.legend(loc=2, fontsize=12)
-axis.tick_params(axis='y', labelsize=12)
+invalid_index = index[invalid]
+invalid_spacing = np.diff(invalid_index)
+# axes.plot(invalid_index[:-1], invalid_spacing)
+# axes.plot(index[invalid], trace[invalid], marker='*', color='blue', linestyle='', alpha=.05)
+
+optimal = invalid_spacing > desired_pad
+a = invalid_index[:-1][optimal]
+segment_bounds = np.concatenate((a+desired_pad//2, a + invalid_spacing[optimal]-desired_pad//2))
+segment_bounds = np.sort(segment_bounds)
+# axes.plot(segment_bounds, np.zeros_like(segment_bounds), marker='*', color='red', linestyle='', alpha=1)
 plt.show()
 
 
-figure, axis = plt.subplots(1,1, figsize=(12, 6), dpi=300)
-axis.plot(index, trace, color='cyan', alpha=0.8, label='Comp. Trace')
-axis.plot(index[mask], nnlsr_deconv[mask], 'r.', markersize=10, label='NNLSR Deconvolution', alpha=.7)
-axis.plot(block_starts, np.ones_like(block_starts), 'g.', markersize=20, label='NNLSR Block Boundary')
-axis.set_xlabel('Trace Index', fontsize=18)
-axis.set_ylabel('mV', fontsize=18)
-axis.set_title('Real NaI Trace from THOR Observation Campaign', fontsize=20)
-axis.set_xlim(0, index.size)
-# axis.set_ylim([0, 1000])
-axis.tick_params(axis='y', labelsize=12)
-plt.legend(loc=2, fontsize=12)
+# Seperate segments
+no_event_traces =[]
+event_traces = []
+for i in range(segment_bounds.size-1):
+    sub_trace = trace[segment_bounds[i]:segment_bounds[i+1]]
+
+    if np.any(np.logical_or(sub_trace < -bound, bound < sub_trace)):
+        event_traces.append((sub_trace, (segment_bounds[i], segment_bounds[i+1])))
+    else:
+        no_event_traces.append((sub_trace))
+
+plt.figure(figsize=(8,4), dpi=200)
+for sub_trace in no_event_traces:
+    plt.plot(sub_trace, alpha=.2)
+plt.title('Segments without Events')
 plt.show()
 
-intervals = [[1000, 2500], [3600, 3900], [4000, 5000], [8000, 8500], [10500, 12000],
-             [13000, 14000],[21650, 21750], [21600, 22400], [21600, 23000]]
-
-# n_ = 15
-# # smooth_sum = np.convolve(nnlsr_deconv, np.ones(n_) / n_, mode='same')
-# smooth_sum = np.convolve(nnlsr_deconv, np.ones(n_), mode='same') \
-#               # - base_est * n_mask
-
-for interval in intervals:
-
-    figure, axis = plt.subplots(1, 1, figsize=(12, 6), dpi=300)
-
-    axis.plot(index, trace, color='cyan', alpha=0.8, label='Comp. Trace')
-    axis.plot(index[mask], nnlsr_deconv[mask], 'r.', markersize=15, label='NNLSR Deconv', alpha=.5)
-    # axis.plot(index, smooth_sum, 'r', label='Smoothed Deconv', alpha=.25)
-    axis.plot(block_starts, np.ones_like(block_starts), 'g.', markersize=20, label='NNLSR Block Boundary')
-
-    axis.set_xlabel('Trace Index', fontsize=18)
-    axis.set_ylabel('mV', fontsize=18)
-    axis.set_xlim(interval)
-    axis.set_ylim([-5, np.max(trace[interval[0]:interval[1]])])
-    axis.tick_params(axis='y', labelsize=12)
-    axis.legend(loc=2, fontsize=12)
-
-    axis2 = axis.twinx()
-    non_zero_index = np.where(mask)[0]
-    nonzero_diffs = np.diff(non_zero_index)
-    lim = 2
-    non_zero_index = non_zero_index[:-1][nonzero_diffs < lim]
-    nonzero_diffs = nonzero_diffs[np.abs(nonzero_diffs) < lim]
-
-    # axis2.plot(non_zero_index, nonzero_diffs, 'g*')
-    axis2.plot(non_zero_index[:-1], np.sign(np.diff(nnlsr_deconv)[non_zero_index[:-1]]).astype(int), 'bo', alpha=.1)
-    axis2.set_ylim(-2, 2)
+plt.figure(figsize=(8,4), dpi=200)
+for sub_trace, bounds in event_traces:
+    plt.plot(sub_trace, alpha=.5)
+plt.title('Segments With Events')
 plt.show()
+
+# NNLSR on Segments ##########################################################################
+
+for sub_trace, bounds in event_traces:
+    plt.figure(figsize=(8, 4), dpi=200)
+    t = np.arange(bounds[0], bounds[1])
+    plt.plot(t, sub_trace, alpha=1, label='Trace', zorder=0)
+
+    # Dense NNLSR Deconv
+    threshold = 2
+    deconv = td_nnlsr_deconvolve(sub_trace, pulse)
+    mask = deconv > threshold
+
+    diff = np.diff(t[mask])
+    print(bounds, diff)
+    plt.plot(t[mask], deconv[mask], marker='.', linestyle='', label='Dense TD NNLSR Deconv', zorder=2)
+
+    # Sum nearby events
+    # Notide for the 12800 trace 2 does poorly. Need more...
+    for n in range(2,6):
+        summed = np.convolve(deconv, np.ones(n), mode='same')
+        peaks,_ = scipy.signal.find_peaks(summed, prominence=3)
+        if peaks.size > 0:
+            plt.plot(t[peaks], summed[peaks],
+                     marker='*', linestyle='', alpha=.3,
+                     label='Conv [1]*{} Peaks '.format(n), zorder=1)
+        else:
+            plt.plot(t, summed,
+                     marker='*', linestyle='', alpha=.3,
+                     label='Conv [1]*{} Peaks '.format(n), zorder=1)
+
+    plt.title('Trace [{}, {}]'.format(bounds[0], bounds[1]))
+    plt.legend()
+    plt.xlabel('Whole Trace Index')
+    plt.show()
 
