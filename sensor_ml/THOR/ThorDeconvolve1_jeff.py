@@ -13,7 +13,7 @@ import scipy.signal as signal
 from Processing import td_nnlsr_deconvolve
 
 # Load real trace data
-trace_file_path = 'NaI_trace_filtered_220726_045157_buffer_0.txt'
+trace_file_path = 'data/NaI_trace_filtered_220726_045157_buffer_0.txt'
 real_trace = np.loadtxt(trace_file_path, skiprows=1)
 # Extract time and voltage columns
 real_trace_time = real_trace[:, 0]  # Relative time in µs
@@ -21,7 +21,7 @@ real_trace_ADC = real_trace[:, 1]  # ADC amplitudes
 
 # load real listmode data
 # Load NaI listmode data from the text file
-nai_listmode_file = "NaI_listmode_filtered_220726_045157.txt"  # Use the saved file name
+nai_listmode_file = "data/NaI_listmode_filtered_220726_045157.txt"  # Use the saved file name
 nai_listmode_data = np.loadtxt(nai_listmode_file, skiprows=1)  # Skip header row
 
 # Extract time and energy
@@ -43,7 +43,7 @@ int_i = 96  # Integration time (samples)
 dead_i = int_i  # Dead time
 
 # Load the real pulse data for the kernal
-file_path = 'NaI_trace_pulse_220726_045157_buffer_0.txt'
+file_path = 'data/NaI_trace_pulse_220726_045157_buffer_0.txt'
 pulse_data = np.loadtxt(file_path, skiprows=1)  # Skip the header row
 
 # Extract time and amplitude

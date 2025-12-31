@@ -45,7 +45,7 @@ def coincident_pct(indeces_list, volts_list, time):
 
     return coincident_photons_pct, coincident_voltage_pct
 
-def coincident_pct_per_v(indeces_list, volts_list, volts_bins):
+def coincident_pct_per_v(indeces_list, volts_list):
     """
     Pct of photons that are coincident
     """
@@ -67,12 +67,12 @@ def coincident_energy_per_v(indeces_list, volts_list):
     pct_per_index_per_volt = volts_x_indeces / p_per_index[:, None]  # TODO these dim might be off
     return np.mean(pct_per_index_per_volt, axis=1)
 
-def photons_counted_pct(indeces_list, true_indeces_list):
-    return indeces_list.size / true_indeces_list.size
-
-
 def volts_counted_pct(volts_list, true_volts_list):
     return np.sum(volts_list) / np.sum(true_volts_list)
+
+def events_counted(volts_list, true_volts_list):
+    assert true_volts_list.size > 0 # we should never fail this...
+    return volts_list.size /  true_volts_list.size
 
 def volts_counted_hist(true_volts_list, volts_list, bins, range_=None):
     original_counts, original_values = np.histogram(true_volts_list, bins=bins, range=range_)

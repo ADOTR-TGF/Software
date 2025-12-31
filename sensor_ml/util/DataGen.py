@@ -1,9 +1,50 @@
 import numpy as np
 import numpy.random as ran
+import scipy.signal
 from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 import scipy.signal as signal
 import gc
+from scipy.fft import fft, ifft
+import matplotlib.pyplot as plt
+
+class TraceData:
+
+    trace = None
+    sample_t = None
+    sample_index = None
+    event_voltages = None
+    event_energies = None
+    event_times = None
+    countrate = None
+    size = None
+
+    def __init__(self, trace, countrate, sample_t=None, sample_index=None, event_voltages=None, event_energies=None , event_times=None):
+
+        self.trace=trace
+        self.countrate = countrate
+        self.size = trace.size
+
+        if sample_t is not None:
+            self.sample_t = sample_t
+
+        # might be useful to store absolute index of segmented traces
+        if sample_index is None:
+            self.sample_index = np.arange(trace.size)
+        else:
+            self.sample_index = sample_t
+
+        if event_voltages is not None:
+            self.event_voltages = event_voltages
+
+        if event_energies is not None:
+            self.event_energies = event_energies
+
+        if event_times is not None:
+            self.event_times = event_times
+
+        # print('v1', self.event_voltages)
+        # print('e1', self.event_energies)
 
 
 def summed_listmode_local(indeces, values):
@@ -28,12 +69,13 @@ def plastic_pulse(a):
     return t, fil
 
 
-def nai_pulse(a, n=-1, sampling_ratio=1):
+def nai_pulse(a, n=-1):
     sos1 = signal.butter(3, 0.25e7, btype='low', analog=False, output='sos', fs=40e6)
     sos2 = signal.butter(2, .145e7, btype='low', analog=False, output='sos', fs=40e6)
     sos3 = signal.butter(1, .053e7, btype='low', analog=False, output='sos', fs=40e6)
 
-    dt = 25e-9 /sampling_ratio #TODO implement sampling ratio...
+    # dt = 25e-9
+    dt = 1 / 40E6 # @ 40 MHz
     start = 0
     if n == -1:
         stop = 2.5e-6
@@ -153,7 +195,6 @@ def const_trace(count_rate_, n_trace, dt_, pulse_, volts_magnitude, baseline_, b
 
     return volts, trace, time_indeces
 
-
 def make_trace(counts, fwhm, spectrum, binenergies, dt, tstep, trace_length, mV_per_ADC, keV_per_area,
                baseline, basenoise, bits, mean, std, pulse_function, sensor_type, seed=None):
 
@@ -271,7 +312,6 @@ def lognormal_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,m
         if navailable == nsamples:
             trace[t_index0:t_index0+nsamples] = trace[t_index0:t_index0+nsamples] + kernel*energies[i]
         i=i+1
-        #print(i)
 
     #scale to mV, add baseline and noise, and clip:
 
@@ -290,4 +330,143 @@ def lognormal_nai_trace(counts,fwhm,spectrum,binenergies,dt,tstep,trace_length,m
     itrace = itrace*vpp*v_limit/2**bits
 
     return sampletimes, itrace, photon_index, energies, peak_volts
+
+
+def sample_shift_to_phase_shift(sample_shift, kernel_fft_z, return_extra=False):
+    """
+    Shift the kernel (size N) by fractional sample into new kernel of size N+1
+    This function only handles frequency domain operations on complex numbers
+    aka complex in, complex out
+
+    :param sample_shift: float:samples to shift
+    :param kernel: Template to be used....
+    :return: shifted kernel instance
+    """
+
+    unit_phase_shift = 2 * np.pi * np.arange(0, kernel_fft_z.size // 2 + 1) / (kernel_fft_z.size)
+
+    if sample_shift != 0:
+        actual_phase_shift = -unit_phase_shift * sample_shift  # sign so positiv eshift is forward in time
+    else:
+        actual_phase_shift = np.zeros_like(unit_phase_shift)
+
+    if kernel_fft_z.size % 2 == 0:  # even
+        # no value is "repeated" unlike in the odd FFT
+        whole_fft_spectrum_phase_shift = np.concatenate((-actual_phase_shift[::-1], actual_phase_shift[1:][:-1]))
+        # print('whole_fft_spectrum_phase_shift', whole_fft_spectrum_phase_shift)
+    else:
+        # whole_fft_spectrum_phase_shift = np.concatenate((-actual_phase_shift[::-1], actual_phase_shift[:-1]))
+        assert False, 'Need to implement for odd length kernel and FFT'  # this is not working currently
+        # https://dsp.stackexchange.com/questions/84186/difference-in-having-even-number-and-odd-number-of-samples-in-dft
+    #
+    z_fft_shifted = np.fft.fftshift(kernel_fft_z)
+
+    phase_shifted = np.angle(z_fft_shifted) + whole_fft_spectrum_phase_shift
+    # phase_shifted = np.mod(phase_shifted, kernel_fft_z.size//2)
+
+    mag = np.abs(z_fft_shifted)
+
+    complex_shifted = mag * (np.cos(phase_shifted) + 1j * np.sin(phase_shifted))
+    complex_shifted_ifft_shifted = np.fft.ifftshift(complex_shifted)
+
+    # print(np.where(phase_shifted != complex_shifted))
+
+    if not return_extra:
+        return complex_shifted_ifft_shifted
+    else:
+        return mag, np.angle(z_fft_shifted), whole_fft_spectrum_phase_shift, phase_shifted, complex_shifted_ifft_shifted
+
+
+def continuous_time_trace(detector_response_kernel, spectrum_bin_energies, spectrum_hist, mV_per_ADC, keV_per_area, fs,
+                          count_rate=None, total_time=None, trace_type='lognormal', lognormal_mean=None, spectrum_interp_bins=None,
+                          lognormal_std=None, lognormal_fwhm=None,
+                          baseline=0, basenoise=0, clip_magnitude=1000, bits=32, seed=None, return_object=False):
+    dt = 1 / fs
+
+    if trace_type == 'lognormal':
+        assert False, 'Lognormal countrate still needs to be fixed'
+
+        n_events = int(count_rate * total_time)
+
+        # lognormal arguments: (mean, std, size) sigma is used to scale the output of lognormal to the width of a TGF trace
+        # the mean and std can be adjusted to move the trace distribution left or right (mean) and adjust the assymetry (std)
+        sigma = (lognormal_fwhm / 2.355) * 1e-6  # one standard deviation of the time distribution in units seconds
+        np.random.seed(seed)
+        event_times = np.random.lognormal(mean=lognormal_mean, sigma=lognormal_std, size=n_events) * sigma  # [s]
+
+        valid = event_times < total_time
+        event_times = event_times[valid]
+        event_times = np.sort(event_times)
+
+        actual_len = np.max(event_times) / dt + detector_response_kernel.size
+        sample_index = np.arange(actual_len)
+        sample_t = sample_index * dt
+        trace = np.zeros(sample_t.size)
+
+
+    elif trace_type == 'constant':
+        n_events = int(count_rate * total_time)
+        n_trace = int(total_time * fs + detector_response_kernel.size + 1)  # allow padding for last time selection
+        sample_t = np.arange(0, n_trace) * dt
+        sample_index = np.arange(sample_t.size)
+        trace = np.zeros(sample_t.size)
+
+        np.random.seed(seed)
+        event_times = total_time * np.random.uniform(size=n_events)  # [s]
+        event_times = np.sort(event_times)
+
+    else:
+        assert False, 'Invalid trace type'
+
+    # Find Voltage response of the sensor to energy
+    area_per_peak = np.sum(detector_response_kernel) / np.max(detector_response_kernel)
+    mV_per_keV = mV_per_ADC / (keV_per_area * area_per_peak)
+
+    event_energies = np.abs(np.random.choice(spectrum_bin_energies, p=spectrum_hist/np.sum(spectrum_hist), size=n_events))
+    event_voltages = event_energies * mV_per_keV
+
+    # Add in each event response [mV] to trace with f domain interpolation
+
+    # need one extra value in array to shift by positive fractional sample
+    kernel_cat_zero = np.concatenate((detector_response_kernel, np.zeros(1)))
+    # FFT Interpolation implementation currently needs even length
+    if kernel_cat_zero.size % 2 != 0:
+        kernel_cat_zero = np.concatenate((kernel_cat_zero, np.zeros(1)))
+
+    kernel_n = kernel_cat_zero.size
+    z = fft(kernel_cat_zero)  # precalculate FFT, no reason to repeat
+
+    for t, v in zip(event_times, event_voltages):
+        # Unit in samples
+        sample_shift = t * fs
+        integer_sample_shift = int(np.floor(sample_shift))
+        decimal_remainder_offset = sample_shift - integer_sample_shift
+
+        complex_shifted = sample_shift_to_phase_shift(decimal_remainder_offset, z)
+        fractional_phase_shifted = np.real(ifft(complex_shifted))
+
+        trace[integer_sample_shift:integer_sample_shift + kernel_n] += v * fractional_phase_shifted
+
+    # Add Noise
+    if basenoise > 0:
+        trace += np.random.normal(scale=basenoise, size=trace.size)
+    trace += baseline
+
+    # Clip and Digitize
+    if clip_magnitude is not None:
+        # Clip
+        trace[trace > clip_magnitude] = clip_magnitude
+        # Digitize
+        trace = (trace / clip_magnitude * 2 ** bits).astype(int)
+        trace = trace * clip_magnitude / 2 ** bits
+
+    # print('energies', event_energies)
+    # print('volts', event_voltages)
+
+    if return_object:
+        return TraceData(trace=trace, countrate=count_rate, sample_t=sample_t,
+                         sample_index=sample_index, event_voltages=event_voltages,
+                         event_energies=event_energies, event_times=event_times)
+    else:
+        return trace, sample_t, sample_index, event_voltages, event_energies, event_times
 

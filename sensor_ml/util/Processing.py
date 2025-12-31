@@ -3,6 +3,8 @@ from matplotlib import rcParams
 rcParams['figure.figsize'] = [15, 7]
 from scipy.linalg import circulant
 from scipy.optimize import nnls, lsq_linear
+from scipy.signal import find_peaks
+from scipy.ndimage import gaussian_filter1d
 import gc
 import time
 
@@ -20,7 +22,7 @@ def print_time(t0):
     return dt
 
 
-def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
+def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i, return_dict=False):
     # note dt here is seconds before pulse
     # tstep is conventional "dt"
 
@@ -52,7 +54,12 @@ def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, d
     energies = np.array(energies)
     sample_times = np.array(sample_times)
     gc.collect()
-    return (energies, sample_times)
+
+    if return_dict:
+        # yes name mismatch... but is consistent with other algos this way
+        return {'volts':energies, 'indeces':sample_times}
+    else:
+        return energies, sample_times
 
 
 def trace_trigger(trace, trace_time):
@@ -76,21 +83,31 @@ def trace_trigger(trace, trace_time):
 
     return trigger_time, trigger_index
 
-def trace_by_addition(N, kernel, energies, indeces):
-    # indeces need to be sorted beforehand...
-    ts = np.zeros(N)
-    n = kernel.size
-    assert energies.size == indeces.size
-    for i, index in enumerate(indeces):
-        i0 = index
-        if i0 + n <= ts.size:
-            i1 = i0 + n
-            ts[i0:i1] += kernel * energies[i]
-        else:
-            # m = 0
-            print('end pulse')
-            ts[i0:ts.size+1] += kernel[kernel.size-(ts.size-index):] * energies[i]
-    return ts
+# def trace_by_addition(N, kernel, energies, indeces):
+#     # indeces need to be sorted beforehand...
+#     ts = np.zeros(N)
+#     n = kernel.size
+#     assert energies.size == indeces.size
+#     for i, index in enumerate(indeces):
+#         i0 = index
+#         if i0 + n <= ts.size:
+#             i1 = i0 + n
+#             ts[i0:i1] += kernel * energies[i]
+#         else:
+#             # m = 0
+#             print('end pulse')
+#             ts[i0:ts.size+1] += kernel[kernel.size-(ts.size-index):] * energies[i]
+#     return ts
+
+def threshold_listmode(timeseries, threshold):
+    assert timeseries.size > 0
+    assert threshold >= 0
+
+    valid = timeseries > threshold
+    indeces = np.where(valid)[0]
+    volts = timeseries[indeces]
+
+    return volts, indeces
 
 def td_convolve(x, kernel, A=None):
     # Note to avoid A's end wrap, pad (each pad=kernel.size) the data with zeros on back end
@@ -117,6 +134,32 @@ def td_nnlsr_deconvolve(y, kernel, C=None):
     x, _ = nnls(C, y)
     return x
 
+def threshold_nnlsr_deconvolve(y, kernel, C=None, threshold=0, nsum=None, sigma=3, distance=None, return_dict=False, debug=False):
+    deconv = td_nnlsr_deconvolve(y, kernel, C)
+    volts, indeces = threshold_listmode(deconv, threshold)
+
+    if nsum is not None:
+        if distance is not None:
+            distance=nsum
+
+        convsum = np.convolve(deconv, np.ones(nsum), mode='same')
+        smoothed = gaussian_filter1d(convsum, sigma=sigma)
+        convsum_peaks, _ = find_peaks(smoothed, distance=distance)
+
+        indeces = convsum_peaks
+        volts = convsum[indeces]
+
+    if return_dict:
+        rtn = {'volts':volts, 'indeces':indeces}
+        if debug and nsum:
+            rtn['convsum'] = convsum
+            rtn['smoothed'] = smoothed
+            rtn['convsum_peaks'] = convsum_peaks
+
+        return rtn
+
+    else:
+        return volts, indeces
 
 def fft_convolve(s, kernel, extra_pad=0):
     n = len(s) + extra_pad
@@ -155,17 +198,6 @@ def wiener_deconvolve(s, kernel, K):
     return np.abs(np.fft.ifft(dummy))
 
 
-def threshold_listmode(timeseries, threshold):
-    assert timeseries.size > 0
-    assert threshold >= 0
-
-    valid = timeseries > threshold
-    indeces = np.where(valid)[0]
-    volts = timeseries[indeces]
-
-    return volts, indeces
-
-
 def summed_listmode(indeces, values, time):
     # idk if this is the best way but its easy
     # combine values and find non zero values
@@ -195,39 +227,75 @@ def discretize(data, bits):
         return int_trace
 
 
-def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
-    # note dt here is seconds before pulse
-    # tstep is conventional "dt"
+def iterated_subtraction(trace, kernel, threshold):
+    peak_offset_samples = np.argmax(kernel)
 
-    energies = []
-    sample_times = []
-    n = trace.size
+    trace_delta = np.zeros_like(trace)
+    peak_locs = []
+    peak_mags = []
 
-    di = int(dt / tstep)
+    go = True
+    while go:
+        # Subtract off current estimates of events from the trace
+        current = trace - trace_delta
+        arg_peaks, _ = find_peaks(current, prominence=3)
+        if len(peak_locs) > 0:
+            arg_peaks = arg_peaks[arg_peaks > np.max(np.array(peak_locs))]
+        if arg_peaks.size == 0: break
 
-    i = di
+        valid_peak_mask = current[arg_peaks] > threshold
+        if np.sum(valid_peak_mask) == 0: break
+        this_peak = arg_peaks[valid_peak_mask][0]
+        this_peak_mag = current[this_peak]
 
-    while i < n - dead_i - 1:
-        if trace[i] > thresh + baseline:  # find a value above trigger threshold.
-            energy = np.sum(trace[
-                            i - 5:i - 6 + int_i] - baseline)  # Integrate pulse over int_i samples starting with first above threshold.
-            norm_energy = energy * escale  # Convert energy into channels to compare to real data spectrum
+        peak_locs.append(this_peak)
+        peak_mags.append(this_peak_mag)
 
-            energies.append(norm_energy)
-            sample_times.append(i)
-            i += dead_i
-
-            # Paralyzable deadtime:keep extending the window as long as the last sample of the last interval is still high.
-            if (extend > 0):
-                while (trace[i - 1] > thresh + baseline and i < n - di - extend):
-                    i += extend
+        sub_index = this_peak
+        start = sub_index - peak_offset_samples - 1
+        stop = sub_index + kernel.size - peak_offset_samples - 1
+        if stop <= trace.size:
+            trace_delta[start:stop] = trace_delta[start:stop] + this_peak_mag * kernel
         else:
-            i += 1
+            break
 
-    energies = np.array(energies)
-    sample_times = np.array(sample_times)
-    gc.collect()
-    return (energies, sample_times)
+    return {'volts': np.array(peak_mags), 'indeces': np.array(peak_locs)}
+
+# def trace_to_counts(trace, dt, tstep, thresh, baseline, extend, escale, int_i, dead_i):
+#     # note dt here is seconds before pulse
+#     # tstep is conventional "dt"
+#
+#     # NOTE in this function energies is really voltage and samples times are really sample indeces
+#
+#     energies = []
+#     sample_times = []
+#     n = trace.size
+#
+#     di = int(dt / tstep)
+#
+#     i = di
+#
+#     while i < n - dead_i - 1:
+#         if trace[i] > thresh + baseline:  # find a value above trigger threshold.
+#             energy = np.sum(trace[
+#                             i - 5:i - 6 + int_i] - baseline)  # Integrate pulse over int_i samples starting with first above threshold.
+#             norm_energy = energy * escale  # Convert energy into channels to compare to real data spectrum
+#
+#             energies.append(norm_energy)
+#             sample_times.append(i)
+#             i += dead_i
+#
+#             # Paralyzable deadtime:keep extending the window as long as the last sample of the last interval is still high.
+#             if (extend > 0):
+#                 while (trace[i - 1] > thresh + baseline and i < n - di - extend):
+#                     i += extend
+#         else:
+#             i += 1
+#
+#     energies = np.array(energies)
+#     sample_times = np.array(sample_times)
+#     gc.collect()
+#     return (energies, sample_times)
 
 
 def trace_trigger(trace, trace_time):

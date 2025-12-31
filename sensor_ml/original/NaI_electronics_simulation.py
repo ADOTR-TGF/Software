@@ -5,7 +5,6 @@ Created on Wed Apr 19 14:50:33 2023
 
 @author: enp
 """
-
 import numpy as np
 import numpy.random as ran
 import matplotlib.pyplot as plt
@@ -43,7 +42,7 @@ thresh = 8.0     #units of mV  this is the pulse trigger threshold
 int_i = 50      #integ.ration time = 1.25 microsecs = 50 samples at 40MHz sampling 
 dead_i = int_i     #deadtime = integration time
 extend = 1    #extendable dead time parameter
-escale = .63  #being used to scale the pulse integration value to energy in keV. experimentally determined.
+escale = .63  # being used to scale the pulse integration value to energy in keV. experimentally determined.
 
 #example spectrum of TGF energy deposit in a detector
 NaI_Response = np.loadtxt('NaI_Response',usecols=(1),dtype=float)
@@ -241,6 +240,8 @@ plt.title('Simulated NaI trace data',fontsize=20)
 plt.tick_params(labelsize=18)
 if trigger_time.size > 0:
     plt.vlines(trigger_time,110,max(trace),color='red')
+# plt.xlim(250, 275)
+# plt.ylim(100, 170)
 
 # simulated listmode energy vs time plot
 plt.figure(figsize=(10,5))

@@ -169,9 +169,12 @@ bit_width = scipy.stats.mode(np.diff(np.sort(np.unique(trace))))[0]
 print('Bit width =', bit_width)
 
 for sub_trace, bounds in event_traces:
-    fig, axes = plt.subplots(2,1, figsize=(16,10), dpi=200)
+    fig, axes = plt.subplots(1,1, figsize=(16,10), dpi=200)
+    axes = [axes]
+
     t = np.arange(bounds[0], bounds[1])
-    axes[0].plot(t, sub_trace, alpha=1, label='Trace', zorder=0)
+    time = tstep * t * 1E6
+    axes[0].plot(time, sub_trace, alpha=1, label='Trace', zorder=0)
 
     # Dense NNLSR Deconv
     threshold = 2
@@ -179,76 +182,79 @@ for sub_trace, bounds in event_traces:
     mask = deconv > threshold
 
     diff = np.diff(t[mask])
-    print()
-    print(bounds, sub_trace.size, pulse.size)
-    axes[0].plot(t[mask], deconv[mask], marker='.', linestyle='', label='Dense TD NNLSR Deconv', zorder=2)
+    # print()
+    # print(bounds, sub_trace.size, pulse.size)
+    # axes[0].plot(t[mask], deconv[mask], marker='.', linestyle='', label='Dense TD NNLSR Deconv', zorder=2)
 
     # Sum nearby events
     # Notice for the 12800 trace 2 does poorly. Need more...
-    for n in range(2,8):
+    # for n in range(2,8):
+    for n in range(6,7):
         summed = np.convolve(deconv, np.ones(n), mode='same')
         peaks,_ = scipy.signal.find_peaks(summed, prominence=3)
         if peaks.size > 0:
-            axes[0].plot(t[peaks], summed[peaks],
-                     marker='*', linestyle='', alpha=.3,
-                     label='Conv [1]*{} Peaks '.format(n), zorder=1)
+            axes[0].plot(time[peaks], summed[peaks],
+                     marker='*', linestyle='', alpha=1,
+                     label='Moving Sum [{}] Peaks'.format(n), zorder=1)
         else:
-            axes[0].plot(t, summed,
-                     marker='*', linestyle='', alpha=.8,
-                     label='Conv [1]*{} Peaks '.format(n), zorder=1)
+            axes[0].plot(time, summed,
+                     marker='*', linestyle='', alpha=1,
+                     label='Moving Sum [{}] Peaks'.format(n), zorder=1)
 
-    axes[0].set_title('Trace [{}, {}]'.format(bounds[0], bounds[1]))
-    axes[0].legend()
-    axes[0].plot(np.arange(pulse.size)+bounds[0],pulse*100)
+    axes[0].set_title('Trace [{}, {}]'.format(bounds[0], bounds[1]), fontsize=15)
+    axes[0].legend(fontsize=15)
+    axes[0].set_xlabel('Microseconds', fontsize=15)
+    axes[0].set_ylabel('mV', fontsize=15)
+    # axes[0].plot(np.arange(pulse.size)+bounds[0],pulse*100)
 
-    # Try an upsampled trace
-    upsample_factor = 2
-
-    if sub_trace.size % 2 == 1:
-        sub_trace = np.concatenate((sub_trace, np.array([0])))
-
-    a = scipy.fft.fft(sub_trace)
-    b = np.zeros(upsample_factor * sub_trace.size).astype(np.complex128)
-    # b[:a.size] = scipy.fft',.fftshift(a)
-    # print('a,b', a.size, b.size)
-    b[:a.size//2] = a[:a.size//2]
-    b[b.size - a.size // 2:] = a[a.size // 2:]
-    upsampled_subtrace = upsample_factor * np.abs(np.fft.ifft(b))
-    print(upsampled_subtrace.size)
-
-    # re-Quantize trace - we dnt need to do this... this is a processing, not sim step
-    # bit_index = np.arange(int(2 * np.max(trace) // bit_width)) # more bins than needed
-    # bins = bit_width * bit_index
-    # bin_choice_index = np.digitize(upsampled_subtrace, bins=bins)
-    # upsampled_subtrace = bins[bin_choice_index]
-
-    if pulse.size % 2 == 1:
-        pulse = np.concatenate((pulse, np.array([0])))
-    # print(pulse.size)
-    a = scipy.fft.fft(pulse, n=sub_trace.size)
-    b = np.zeros(upsample_factor * sub_trace.size).astype(np.complex128)
-    # print('a,b', a.size, b.size)
-    b[:a.size//2] = a[:a.size//2]
-    b[b.size - a.size // 2:] = a[a.size // 2:]
-    upsampled_pulse = upsample_factor * np.abs(np.fft.ifft(b))
-
-    # print(upsampled_subtrace.size, upsampled_pulse.size, pulse.size)
-    upsampled_pulse = upsampled_pulse[:pulse.size * upsample_factor]
-    # print(upsampled_pulse.size, pulse.size * upsample_factor)
-
-    upsampled_time = np.arange(upsampled_subtrace.size) / upsample_factor + bounds[0]
-
-    axes[1].plot(upsampled_time, upsampled_subtrace)
-    axes[1].plot(upsampled_time[:upsampled_pulse.size], upsampled_pulse*np.max(upsampled_subtrace), label='Scaled Upsampled Pulse')
-
-    threshold = 2
-    upsampled_deconv = td_nnlsr_deconvolve(upsampled_subtrace, upsampled_pulse)
-    mask = upsampled_deconv > threshold
-
-    axes[1].plot(upsampled_time[mask], upsampled_deconv[mask], marker='.', linestyle='',
-             label='TD NNLSR Deconv'.format(upsample_factor), zorder=1)
-    axes[1].legend()
-    axes[1].set_title('Trace [{}, {}] at {}x Upsampling'.format(bounds[0], bounds[1], upsample_factor))
+    # # Try an upsampled trace
+    # upsample_factor = 2
+    #
+    # if sub_trace.size % 2 == 1:
+    #     sub_trace = np.concatenate((sub_trace, np.array([0])))
+    #
+    # a = scipy.fft.fft(sub_trace)
+    # b = np.zeros(upsample_factor * sub_trace.size).astype(np.complex128)
+    # # b[:a.size] = scipy.fft',.fftshift(a)
+    # # print('a,b', a.size, b.size)
+    # b[:a.size//2] = a[:a.size//2]
+    # b[b.size - a.size // 2:] = a[a.size // 2:]
+    # upsampled_subtrace = upsample_factor * np.abs(np.fft.ifft(b))
+    # print(upsampled_subtrace.size)
+    #
+    # # re-Quantize trace - we dnt need to do this... this is a processing, not sim step
+    # # bit_index = np.arange(int(2 * np.max(trace) // bit_width)) # more bins than needed
+    # # bins = bit_width * bit_index
+    # # bin_choice_index = np.digitize(upsampled_subtrace, bins=bins)
+    # # upsampled_subtrace = bins[bin_choice_index]
+    #
+    # if pulse.size % 2 == 1:
+    #     pulse = np.concatenate((pulse, np.array([0])))
+    # # print(pulse.size)
+    # a = scipy.fft.fft(pulse, n=sub_trace.size)
+    # b = np.zeros(upsample_factor * sub_trace.size).astype(np.complex128)
+    # # print('a,b', a.size, b.size)
+    # b[:a.size//2] = a[:a.size//2]
+    # b[b.size - a.size // 2:] = a[a.size // 2:]
+    # upsampled_pulse = upsample_factor * np.abs(np.fft.ifft(b))
+    #
+    # # print(upsampled_subtrace.size, upsampled_pulse.size, pulse.size)
+    # upsampled_pulse = upsampled_pulse[:pulse.size * upsample_factor]
+    # # print(upsampled_pulse.size, pulse.size * upsample_factor)
+    #
+    # upsampled_time = np.arange(upsampled_subtrace.size) / upsample_factor + bounds[0]
+    #
+    # axes[1].plot(upsampled_time, upsampled_subtrace)
+    # axes[1].plot(upsampled_time[:upsampled_pulse.size], upsampled_pulse*np.max(upsampled_subtrace), label='Scaled Upsampled Pulse')
+    #
+    # threshold = 2
+    # upsampled_deconv = td_nnlsr_deconvolve(upsampled_subtrace, upsampled_pulse)
+    # mask = upsampled_deconv > threshold
+    #
+    # axes[1].plot(upsampled_time[mask], upsampled_deconv[mask], marker='.', linestyle='',
+    #          label='TD NNLSR Deconv'.format(upsample_factor), zorder=1)
+    # axes[1].legend()
+    # axes[1].set_title('Trace [{}, {}] at {}x Upsampling'.format(bounds[0], bounds[1], upsample_factor))
 
     filename = 'Segment_{}_{}.png'.format(bounds[0], bounds[1])
     path = os.path.join(figures, filename)
